@@ -21,6 +21,7 @@
 
 package org.workcraft.plugins.circuit;
 
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Collection;
@@ -46,11 +47,18 @@ import org.workcraft.dom.visual.connections.VisualConnection;
 import org.workcraft.exceptions.InvalidConnectionException;
 import org.workcraft.exceptions.NodeCreationException;
 import org.workcraft.exceptions.VisualModelInstantiationException;
+import org.workcraft.gui.MainWindow;
+import org.workcraft.gui.ToolboxPanel;
 import org.workcraft.gui.graph.GraphEditorPanel;
+import org.workcraft.gui.graph.Viewport;
+import org.workcraft.gui.graph.tools.Decorator;
+import org.workcraft.gui.graph.tools.GraphEditorTool;
 import org.workcraft.gui.propertyeditor.ModelProperties;
 import org.workcraft.plugins.circuit.Contact.IOType;
 import org.workcraft.plugins.circuit.VisualContact.Direction;
+import org.workcraft.plugins.circuit.routing.RoutingGrid;
 import org.workcraft.plugins.circuit.tools.CircuitLayoutTool;
+import org.workcraft.plugins.circuit.tools.RoutingAnalyserTool;
 import org.workcraft.plugins.layout.AbstractLayoutTool;
 import org.workcraft.serialisation.xml.NoAutoSerialisation;
 import org.workcraft.util.Func;
@@ -362,6 +370,21 @@ public class VisualCircuit extends AbstractVisualModel {
                 env.setBase(base);
                 add(env);
             }
+        }
+    }
+
+    @Override
+    public void draw(Graphics2D g, Decorator decorator) {
+        super.draw(g, decorator);
+        Framework framework = Framework.getInstance();
+        MainWindow mainWindow = framework.getMainWindow();
+        ToolboxPanel toolbox = mainWindow.getCurrentToolbox();
+        GraphEditorTool tool = toolbox.getTool();
+        if (tool instanceof RoutingAnalyserTool) {
+            RoutingGrid routingGrid = new RoutingGrid(this);
+            GraphEditorPanel editor = mainWindow.getCurrentEditor();
+            Viewport viewport = editor.getViewport();
+            routingGrid.draw(g, viewport);
         }
     }
 
