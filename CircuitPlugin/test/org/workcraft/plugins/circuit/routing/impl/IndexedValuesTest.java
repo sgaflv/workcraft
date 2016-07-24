@@ -7,8 +7,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.workcraft.plugins.circuit.routing.primitive.IntegerInterval;
-import org.workcraft.plugins.circuit.routing.primitive.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
+import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
 
 public class IndexedValuesTest {
 

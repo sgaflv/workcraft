@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
-import org.workcraft.plugins.circuit.routing.primitive.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
 
 public class SnapCalculator {
 	

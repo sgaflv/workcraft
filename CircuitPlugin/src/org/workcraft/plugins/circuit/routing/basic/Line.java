@@ -1,4 +1,4 @@
-package org.workcraft.plugins.circuit.routing.primitive;
+package org.workcraft.plugins.circuit.routing.basic;
 
 public final class Line {
 	public final double x1, y1, x2, y2;

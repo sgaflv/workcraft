@@ -47,464 +47,481 @@ import org.workcraft.plugins.shared.CommonEditorSettings;
 import org.workcraft.plugins.shared.CommonVisualSettings;
 
 public abstract class VisualComponent extends VisualTransformableNode implements Dependent, Replicable, Drawable {
-    public static final String PROPERTY_LABEL = "Label";
-    public static final String PROPERTY_LABEL_POSITIONING = "Label positioning";
-    public static final String PROPERTY_LABEL_COLOR = "Label color";
-    public static final String PROPERTY_NAME_POSITIONING = "Name positioning";
-    public static final String PROPERTY_NAME_COLOR = "Name color";
-    public static final String PROPERTY_FOREGROUND_COLOR = "Foreground color";
-    public static final String PROPERTY_FILL_COLOR = "Fill color";
+	public static final String PROPERTY_LABEL = "Label";
+	public static final String PROPERTY_LABEL_POSITIONING = "Label positioning";
+	public static final String PROPERTY_LABEL_COLOR = "Label color";
+	public static final String PROPERTY_NAME_POSITIONING = "Name positioning";
+	public static final String PROPERTY_NAME_COLOR = "Name color";
+	public static final String PROPERTY_FOREGROUND_COLOR = "Foreground color";
+	public static final String PROPERTY_FILL_COLOR = "Fill color";
 
-    public static final Font labelFont = new Font(Font.SANS_SERIF, Font.PLAIN, 1).deriveFont(0.5f);
-    public static final Font nameFont = new Font(Font.SANS_SERIF, Font.ITALIC, 1).deriveFont(0.5f);
+	public static final Font labelFont = new Font(Font.SANS_SERIF, Font.PLAIN, 1).deriveFont(0.5f);
+	public static final Font nameFont = new Font(Font.SANS_SERIF, Font.ITALIC, 1).deriveFont(0.5f);
 
-    private MathNode refNode = null;
-    protected double size = CommonVisualSettings.getNodeSize();
-    protected double strokeWidth = CommonVisualSettings.getStrokeWidth();
-    private Color foregroundColor = CommonVisualSettings.getBorderColor();
-    private Color fillColor = CommonVisualSettings.getFillColor();
+	private MathNode refNode = null;
+	protected double size = CommonVisualSettings.getNodeSize();
+	protected double strokeWidth = CommonVisualSettings.getStrokeWidth();
+	private Color foregroundColor = CommonVisualSettings.getBorderColor();
+	private Color fillColor = CommonVisualSettings.getFillColor();
 
-    private String label = "";
-    private Positioning labelPositioning = CommonVisualSettings.getLabelPositioning();
-    private RenderedText labelRenderedText = new RenderedText("", labelFont, getLabelPositioning(), getLabelOffset());
-    private Color labelColor = CommonVisualSettings.getLabelColor();
+	private String label = "";
+	private Positioning labelPositioning = CommonVisualSettings.getLabelPositioning();
+	private RenderedText labelRenderedText = new RenderedText("", labelFont, getLabelPositioning(), getLabelOffset());
+	private Color labelColor = CommonVisualSettings.getLabelColor();
 
-    private Positioning namePositioning = CommonVisualSettings.getNamePositioning();
-    private RenderedText nameRenderedText = new RenderedText("", nameFont, getNamePositioning(), getNameOffset());
-    private Color nameColor = CommonVisualSettings.getNameColor();
+	private Positioning namePositioning = CommonVisualSettings.getNamePositioning();
+	private RenderedText nameRenderedText = new RenderedText("", nameFont, getNamePositioning(), getNameOffset());
+	private Color nameColor = CommonVisualSettings.getNameColor();
 
-    private final HashSet<Replica> replicas = new HashSet<>();
+	private final HashSet<Replica> replicas = new HashSet<>();
 
-    public VisualComponent(MathNode refNode) {
-        this(refNode, true, true, true);
-    }
+	public VisualComponent(MathNode refNode) {
+		this(refNode, true, true, true);
+	}
 
-    public VisualComponent(MathNode refNode, boolean hasColorProperties, boolean hasLabelProperties, boolean hasNameProperties) {
-        super();
-        this.refNode = refNode;
+	public VisualComponent(MathNode refNode, boolean hasColorProperties, boolean hasLabelProperties,
+			boolean hasNameProperties) {
+		super();
+		this.refNode = refNode;
 
-        if (refNode instanceof ObservableState) {
-            ((ObservableState) refNode).addObserver(new StateObserver() {
-                public void notify(StateEvent e) {
-                    observableStateImpl.sendNotification(e);
-                }
-            });
-        }
-        if (hasColorProperties) {
-            addColorPropertyDeclarations();
-        }
-        if (hasLabelProperties) {
-            addLabelPropertyDeclarations();
-        }
-        if (hasNameProperties) {
-            addNamePropertyDeclarations();
-        }
-    }
+		if (refNode instanceof ObservableState) {
+			((ObservableState) refNode).addObserver(new StateObserver() {
+				public void notify(StateEvent e) {
+					observableStateImpl.sendNotification(e);
+				}
+			});
+		}
+		if (hasColorProperties) {
+			addColorPropertyDeclarations();
+		}
+		if (hasLabelProperties) {
+			addLabelPropertyDeclarations();
+		}
+		if (hasNameProperties) {
+			addNamePropertyDeclarations();
+		}
+	}
 
-    private void addColorPropertyDeclarations() {
-        addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(
-                this, PROPERTY_FOREGROUND_COLOR, Color.class, true, true, true) {
-            protected void setter(VisualComponent object, Color value) {
-                object.setForegroundColor(value);
-            }
-            protected Color getter(VisualComponent object) {
-                return object.getForegroundColor();
-            }
-        });
+	private void addColorPropertyDeclarations() {
+		addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(this, PROPERTY_FOREGROUND_COLOR,
+				Color.class, true, true, true) {
+			protected void setter(VisualComponent object, Color value) {
+				object.setForegroundColor(value);
+			}
 
-        addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(
-                this, PROPERTY_FILL_COLOR, Color.class, true, true, true) {
-            protected void setter(VisualComponent object, Color value) {
-                object.setFillColor(value);
-            }
-            protected Color getter(VisualComponent object) {
-                return object.getFillColor();
-            }
-        });
-    }
+			protected Color getter(VisualComponent object) {
+				return object.getForegroundColor();
+			}
+		});
 
-    private void addLabelPropertyDeclarations() {
-        addPropertyDeclaration(new PropertyDeclaration<VisualComponent, String>(
-                this, PROPERTY_LABEL, String.class, true, true, true) {
-            protected void setter(VisualComponent object, String value) {
-                object.setLabel(value);
-            }
-            protected String getter(VisualComponent object) {
-                return object.getLabel();
-            }
-        });
+		addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(this, PROPERTY_FILL_COLOR, Color.class,
+				true, true, true) {
+			protected void setter(VisualComponent object, Color value) {
+				object.setFillColor(value);
+			}
 
-        addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Positioning>(
-                this, PROPERTY_LABEL_POSITIONING, Positioning.class, true, true, true) {
-            protected void setter(VisualComponent object, Positioning value) {
-                object.setLabelPositioning(value);
-            }
-            protected Positioning getter(VisualComponent object) {
-                return object.getLabelPositioning();
-            }
-        });
+			protected Color getter(VisualComponent object) {
+				return object.getFillColor();
+			}
+		});
+	}
 
-        addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(
-                this, PROPERTY_LABEL_COLOR, Color.class, true, true, true) {
-            protected void setter(VisualComponent object, Color value) {
-                object.setLabelColor(value);
-            }
-            protected Color getter(VisualComponent object) {
-                return object.getLabelColor();
-            }
-        });
-    }
+	private void addLabelPropertyDeclarations() {
+		addPropertyDeclaration(
+				new PropertyDeclaration<VisualComponent, String>(this, PROPERTY_LABEL, String.class, true, true, true) {
+					protected void setter(VisualComponent object, String value) {
+						object.setLabel(value);
+					}
 
-    private void addNamePropertyDeclarations() {
-        addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Positioning>(
-                this, PROPERTY_NAME_POSITIONING, Positioning.class, true, true, true) {
-            protected void setter(VisualComponent object, Positioning value) {
-                object.setNamePositioning(value);
-            }
-            protected Positioning getter(VisualComponent object) {
-                return object.getNamePositioning();
-            }
-        });
+					protected String getter(VisualComponent object) {
+						return object.getLabel();
+					}
+				});
 
-        addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(
-                this, PROPERTY_NAME_COLOR, Color.class, true, true, true) {
-            protected void setter(VisualComponent object, Color value) {
-                object.setNameColor(value);
-            }
-            protected Color getter(VisualComponent object) {
-                return object.getNameColor();
-            }
-        });
-    }
+		addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Positioning>(this, PROPERTY_LABEL_POSITIONING,
+				Positioning.class, true, true, true) {
+			protected void setter(VisualComponent object, Positioning value) {
+				object.setLabelPositioning(value);
+			}
 
-    public String getLabel() {
-        return label;
-    }
+			protected Positioning getter(VisualComponent object) {
+				return object.getLabelPositioning();
+			}
+		});
 
-    public void setLabel(String label) {
-        this.label = label;
-        sendNotification(new PropertyChangedEvent(this, PROPERTY_LABEL));
-    }
+		addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(this, PROPERTY_LABEL_COLOR, Color.class,
+				true, true, true) {
+			protected void setter(VisualComponent object, Color value) {
+				object.setLabelColor(value);
+			}
 
-    public Positioning getLabelPositioning() {
-        return labelPositioning;
-    }
+			protected Color getter(VisualComponent object) {
+				return object.getLabelColor();
+			}
+		});
+	}
 
-    public void setLabelPositioning(Positioning value) {
-        labelPositioning = value;
-        sendNotification(new PropertyChangedEvent(this, PROPERTY_LABEL_POSITIONING));
-    }
+	private void addNamePropertyDeclarations() {
+		addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Positioning>(this, PROPERTY_NAME_POSITIONING,
+				Positioning.class, true, true, true) {
+			protected void setter(VisualComponent object, Positioning value) {
+				object.setNamePositioning(value);
+			}
 
-    public Color getLabelColor() {
-        return labelColor;
-    }
+			protected Positioning getter(VisualComponent object) {
+				return object.getNamePositioning();
+			}
+		});
 
-    public void setLabelColor(Color value) {
-        labelColor = value;
-        sendNotification(new PropertyChangedEvent(this, PROPERTY_LABEL_COLOR));
-    }
+		addPropertyDeclaration(new PropertyDeclaration<VisualComponent, Color>(this, PROPERTY_NAME_COLOR, Color.class,
+				true, true, true) {
+			protected void setter(VisualComponent object, Color value) {
+				object.setNameColor(value);
+			}
 
-    public Positioning getNamePositioning() {
-        return namePositioning;
-    }
+			protected Color getter(VisualComponent object) {
+				return object.getNameColor();
+			}
+		});
+	}
 
-    public void setNamePositioning(Positioning value) {
-        namePositioning = value;
-        sendNotification(new PropertyChangedEvent(this, PROPERTY_NAME_POSITIONING));
-    }
+	public String getLabel() {
+		return label;
+	}
 
-    public Color getNameColor() {
-        return nameColor;
-    }
+	public void setLabel(String label) {
+		this.label = label;
+		sendNotification(new PropertyChangedEvent(this, PROPERTY_LABEL));
+	}
 
-    public void setNameColor(Color value) {
-        nameColor = value;
-        sendNotification(new PropertyChangedEvent(this, PROPERTY_NAME_COLOR));
-    }
+	public Positioning getLabelPositioning() {
+		return labelPositioning;
+	}
 
-    public Color getForegroundColor() {
-        return foregroundColor;
-    }
+	public void setLabelPositioning(Positioning value) {
+		labelPositioning = value;
+		sendNotification(new PropertyChangedEvent(this, PROPERTY_LABEL_POSITIONING));
+	}
 
-    public void setForegroundColor(Color value) {
-        foregroundColor = value;
-        sendNotification(new PropertyChangedEvent(this, PROPERTY_FOREGROUND_COLOR));
-    }
+	public Color getLabelColor() {
+		return labelColor;
+	}
 
-    public Color getFillColor() {
-        return fillColor;
-    }
+	public void setLabelColor(Color value) {
+		labelColor = value;
+		sendNotification(new PropertyChangedEvent(this, PROPERTY_LABEL_COLOR));
+	}
 
-    public void setFillColor(Color value) {
-        fillColor = value;
-        sendNotification(new PropertyChangedEvent(this, PROPERTY_FILL_COLOR));
-    }
+	public Positioning getNamePositioning() {
+		return namePositioning;
+	}
 
-    public MathNode getReferencedComponent() {
-        return refNode;
-    }
+	public void setNamePositioning(Positioning value) {
+		namePositioning = value;
+		sendNotification(new PropertyChangedEvent(this, PROPERTY_NAME_POSITIONING));
+	}
 
-    @Override
-    public Collection<MathNode> getMathReferences() {
-        ArrayList<MathNode> result = new ArrayList<>();
-        result.add(getReferencedComponent());
-        return result;
-    }
+	public Color getNameColor() {
+		return nameColor;
+	}
 
-    @Override
-    public Point2D getCenterInLocalSpace() {
-        return new Point2D.Double(0, 0);
-    }
+	public void setNameColor(Color value) {
+		nameColor = value;
+		sendNotification(new PropertyChangedEvent(this, PROPERTY_NAME_COLOR));
+	}
 
-    public boolean getLabelVisibility() {
-        return CommonVisualSettings.getLabelVisibility();
-    }
+	public Color getForegroundColor() {
+		return foregroundColor;
+	}
 
-    public Point2D getOffset(Positioning positioning) {
-        Rectangle2D bb = getInternalBoundingBoxInLocalSpace();
-        double xOffset = (positioning.xSign < 0) ? bb.getMinX() : (positioning.xSign > 0) ? bb.getMaxX() : bb.getCenterX();
-        double yOffset = (positioning.ySign < 0) ? bb.getMinY() : (positioning.ySign > 0) ? bb.getMaxY() : bb.getCenterY();
-        return new Point2D.Double(xOffset, yOffset);
-    }
+	public void setForegroundColor(Color value) {
+		foregroundColor = value;
+		sendNotification(new PropertyChangedEvent(this, PROPERTY_FOREGROUND_COLOR));
+	}
 
-    public Point2D getLabelOffset() {
-        return getOffset(getLabelPositioning());
-    }
+	public Color getFillColor() {
+		return fillColor;
+	}
 
-    public Alignment getLabelAlignment() {
-        switch (getLabelPositioning()) {
-        case TOP_LEFT:
-        case LEFT:
-        case BOTTOM_LEFT:
-            return Alignment.LEFT;
-        case TOP:
-        case CENTER:
-        case BOTTOM:
-            return Alignment.CENTER;
-        case TOP_RIGHT:
-        case RIGHT:
-        case BOTTOM_RIGHT:
-            return Alignment.RIGHT;
-        default:
-            return Alignment.LEFT;
-        }
-    }
+	public void setFillColor(Color value) {
+		fillColor = value;
+		sendNotification(new PropertyChangedEvent(this, PROPERTY_FILL_COLOR));
+	}
 
-    public void cacheLabelRenderedText(DrawRequest r) {
-        cacheLabelRenderedText(getLabel(), labelFont, getLabelPositioning(), getLabelOffset());
-    }
+	public MathNode getReferencedComponent() {
+		return refNode;
+	}
 
-    protected void cacheLabelRenderedText(String text, Font font, Positioning positioning, Point2D offset) {
-        if (labelRenderedText.isDifferent(text, font, positioning, offset)) {
-            labelRenderedText = new RenderedText(text, font, positioning, offset);
-        }
-    }
+	@Override
+	public Collection<MathNode> getMathReferences() {
+		ArrayList<MathNode> result = new ArrayList<>();
+		result.add(getReferencedComponent());
+		return result;
+	}
 
-    protected void drawLabelInLocalSpace(DrawRequest r) {
-        if (getLabelVisibility() && (labelRenderedText != null) && !labelRenderedText.isEmpty()) {
-            cacheLabelRenderedText(r);
-            Graphics2D g = r.getGraphics();
-            Decoration d = r.getDecoration();
-            g.setColor(Coloriser.colorise(getLabelColor(), d.getColorisation()));
-            labelRenderedText.draw(g, getLabelAlignment());
-        }
-    }
+	@Override
+	public Point2D getCenterInLocalSpace() {
+		return new Point2D.Double(0, 0);
+	}
 
-    public void drawPivot(DrawRequest r) {
-        Graphics2D g = r.getGraphics();
-        float s2 = (float) CommonVisualSettings.getPivotSize() / 2;
-        Path2D p = new Path2D.Double();
-        p.moveTo(-s2, 0);
-        p.lineTo(s2, 0);
-        p.moveTo(0, -s2);
-        p.lineTo(0, s2);
-        g.setStroke(new BasicStroke((float) CommonVisualSettings.getPivotWidth()));
-        g.draw(p);
-    }
+	public boolean getLabelVisibility() {
+		return CommonVisualSettings.getLabelVisibility();
+	}
 
-    public boolean getNameVisibility() {
-        return CommonVisualSettings.getNameVisibility();
-    }
+	public Point2D getOffset(Positioning positioning) {
+		Rectangle2D bb = getInternalBoundingBoxInLocalSpace();
+		double xOffset = (positioning.xSign < 0) ? bb.getMinX()
+				: (positioning.xSign > 0) ? bb.getMaxX() : bb.getCenterX();
+		double yOffset = (positioning.ySign < 0) ? bb.getMinY()
+				: (positioning.ySign > 0) ? bb.getMaxY() : bb.getCenterY();
+		return new Point2D.Double(xOffset, yOffset);
+	}
 
-    public Point2D getNameOffset() {
-        return getOffset(getNamePositioning());
-    }
+	public Point2D getLabelOffset() {
+		return getOffset(getLabelPositioning());
+	}
 
-    private void cacheNameRenderedText(DrawRequest r) {
-        String name = null;
-        MathModel mathModel = r.getModel().getMathModel();
-        MathNode mathNode = getReferencedComponent();
-        if ((this instanceof Replica) || CommonEditorSettings.getShowAbsolutePaths()) {
-            name = mathModel.getNodeReference(mathNode);
-        } else {
-            name = mathModel.getName(mathNode);
-        }
+	public Alignment getLabelAlignment() {
+		switch (getLabelPositioning()) {
+		case TOP_LEFT:
+		case LEFT:
+		case BOTTOM_LEFT:
+			return Alignment.LEFT;
+		case TOP:
+		case CENTER:
+		case BOTTOM:
+			return Alignment.CENTER;
+		case TOP_RIGHT:
+		case RIGHT:
+		case BOTTOM_RIGHT:
+			return Alignment.RIGHT;
+		default:
+			return Alignment.LEFT;
+		}
+	}
 
-        if (name == null) {
-            name = "";
-        }
+	public void cacheLabelRenderedText(DrawRequest r) {
+		cacheLabelRenderedText(getLabel(), labelFont, getLabelPositioning(), getLabelOffset());
+	}
 
-        Point2D offset = getNameOffset();
+	protected void cacheLabelRenderedText(String text, Font font, Positioning positioning, Point2D offset) {
+		if (labelRenderedText.isDifferent(text, font, positioning, offset)) {
+			labelRenderedText = new RenderedText(text, font, positioning, offset);
+		}
+	}
 
-        if (nameRenderedText.isDifferent(name, nameFont, getNamePositioning(), offset)) {
-            nameRenderedText = new RenderedText(name, nameFont, getNamePositioning(), getNameOffset());
-        }
-    }
+	protected void drawLabelInLocalSpace(DrawRequest r) {
+		if (getLabelVisibility() && (labelRenderedText != null) && !labelRenderedText.isEmpty()) {
+			cacheLabelRenderedText(r);
+			Graphics2D g = r.getGraphics();
+			Decoration d = r.getDecoration();
+			g.setColor(Coloriser.colorise(getLabelColor(), d.getColorisation()));
+			labelRenderedText.draw(g, getLabelAlignment());
+		}
+	}
 
-    protected void drawNameInLocalSpace(DrawRequest r) {
-        if (getNameVisibility() && (nameRenderedText != null) && !nameRenderedText.isEmpty()) {
-            cacheNameRenderedText(r);
-            Graphics2D g = r.getGraphics();
-            Decoration d = r.getDecoration();
-            g.setColor(Coloriser.colorise(getNameColor(), d.getColorisation()));
-            nameRenderedText.draw(g);
-        }
-    }
+	public void drawPivot(DrawRequest r) {
+		Graphics2D g = r.getGraphics();
+		float s2 = (float) CommonVisualSettings.getPivotSize() / 2;
+		Path2D p = new Path2D.Double();
+		p.moveTo(-s2, 0);
+		p.lineTo(s2, 0);
+		p.moveTo(0, -s2);
+		p.lineTo(0, s2);
+		g.setStroke(new BasicStroke((float) CommonVisualSettings.getPivotWidth()));
+		g.draw(p);
+	}
 
-    // This method is needed for VisualGroup to update the rendered text of its children
-    // before they were drawn, which is necessary for computing their bounding boxes
-    public void cacheRenderedText(DrawRequest r) {
-        cacheLabelRenderedText(r);
-        cacheNameRenderedText(r);
-    }
+	public boolean getNameVisibility() {
+		return CommonVisualSettings.getNameVisibility();
+	}
 
-    /*
-     * The internal bounding box does not include the related label and name of the node
-     */
-    public Rectangle2D getInternalBoundingBoxInLocalSpace() {
-        return new Rectangle2D.Double(-size / 2, -size / 2, size, size);
-    }
+	public Point2D getNameOffset() {
+		return getOffset(getNamePositioning());
+	}
 
-    @Override
-    public Rectangle2D getBoundingBoxInLocalSpace() {
-        Rectangle2D bb = getInternalBoundingBoxInLocalSpace();
-        if (getLabelVisibility()) {
-            bb = BoundingBoxHelper.union(bb, getLabelBoundingBox());
-        }
-        if (getNameVisibility()) {
-            bb = BoundingBoxHelper.union(bb, getNameBoundingBox());
-        }
-        return bb;
-    }
+	private void cacheNameRenderedText(DrawRequest r) {
+		String name = null;
+		MathModel mathModel = r.getModel().getMathModel();
+		MathNode mathNode = getReferencedComponent();
+		if ((this instanceof Replica) || CommonEditorSettings.getShowAbsolutePaths()) {
+			name = mathModel.getNodeReference(mathNode);
+		} else {
+			name = mathModel.getName(mathNode);
+		}
 
-    public Rectangle2D getLabelBoundingBox() {
-        if ((labelRenderedText != null) && !labelRenderedText.isEmpty()) {
-            return labelRenderedText.getBoundingBox();
-        } else {
-            return null;
-        }
-    }
+		if (name == null) {
+			name = "";
+		}
 
-    public Rectangle2D getNameBoundingBox() {
-        if ((nameRenderedText != null) && !nameRenderedText.isEmpty()) {
-            return nameRenderedText.getBoundingBox();
-        } else {
-            return null;
-        }
-    }
+		Point2D offset = getNameOffset();
 
-    @Override
-    public boolean hitTestInLocalSpace(Point2D pointInLocalSpace) {
-        return getInternalBoundingBoxInLocalSpace().contains(pointInLocalSpace);
-    }
+		if (nameRenderedText.isDifferent(name, nameFont, getNamePositioning(), offset)) {
+			nameRenderedText = new RenderedText(name, nameFont, getNamePositioning(), getNameOffset());
+		}
+	}
 
-    @Override
-    public void addReplica(Replica replica) {
-        if (replica != null) {
-            if (replicas.add(replica)) {
-                replica.setMaster(this);
-            }
-        }
-    }
+	protected void drawNameInLocalSpace(DrawRequest r) {
+		if (getNameVisibility() && (nameRenderedText != null) && !nameRenderedText.isEmpty()) {
+			cacheNameRenderedText(r);
+			Graphics2D g = r.getGraphics();
+			Decoration d = r.getDecoration();
+			g.setColor(Coloriser.colorise(getNameColor(), d.getColorisation()));
+			nameRenderedText.draw(g);
+		}
+	}
 
-    @Override
-    public void removeReplica(Replica replica) {
-        if (replica != null) {
-            if (replicas.remove(replica)) {
-                replica.setMaster(null);
-            }
-        }
-    }
+	// This method is needed for VisualGroup to update the rendered text of its
+	// children
+	// before they were drawn, which is necessary for computing their bounding
+	// boxes
+	public void cacheRenderedText(DrawRequest r) {
+		cacheLabelRenderedText(r);
+		cacheNameRenderedText(r);
+	}
 
-    @Override
-    public Collection<Replica> getReplicas() {
-        return Collections.unmodifiableCollection(replicas);
-    }
+	/*
+	 * The internal bounding box does not include the related label and name of
+	 * the node
+	 */
+	public Rectangle2D getInternalBoundingBoxInLocalSpace() {
+		return new Rectangle2D.Double(-size / 2, -size / 2, size, size);
+	}
 
-    @Override
-    public void copyStyle(Stylable src) {
-        super.copyStyle(src);
-        if (src instanceof VisualComponent) {
-            VisualComponent srcComponent = (VisualComponent) src;
-            setForegroundColor(srcComponent.getForegroundColor());
-            setFillColor(srcComponent.getFillColor());
-            setLabel(srcComponent.getLabel());
-            setLabelColor(srcComponent.getLabelColor());
-            setLabelPositioning(srcComponent.getLabelPositioning());
-            setNameColor(srcComponent.getNameColor());
-            setNamePositioning(srcComponent.getNamePositioning());
-        }
-    }
+	public Rectangle2D getInternalBoundingBox() {
+		return transformToParentSpace(getInternalBoundingBoxInLocalSpace());
+	}
 
-    @Override
-    public void mixStyle(Stylable... srcs) {
-        super.mixStyle(srcs);
-        LinkedList<Color> foregroundColors = new LinkedList<>();
-        LinkedList<Color> fillColors = new LinkedList<>();
-        LinkedList<Color> nameColors = new LinkedList<>();
-        LinkedList<Color> labelColors = new LinkedList<>();
-        LinkedList<Positioning> namePositioning = new LinkedList<>();
-        LinkedList<Positioning> labelPositioning = new LinkedList<>();
-        String label = "";
-        for (Stylable src: srcs) {
-            if (src instanceof VisualComponent) {
-                VisualComponent srcComponent = (VisualComponent) src;
-                foregroundColors.add(srcComponent.getForegroundColor());
-                fillColors.add(srcComponent.getFillColor());
-                nameColors.add(srcComponent.getNameColor());
-                labelColors.add(srcComponent.getLabelColor());
-                namePositioning.add(srcComponent.getLabelPositioning());
-                labelPositioning.add(srcComponent.getLabelPositioning());
-                if (srcComponent.getLabel() != null) {
-                    label = label + "|" + srcComponent.getLabel();
-                }
-            }
-        }
-        setForegroundColor(Coloriser.mix(foregroundColors));
-        setFillColor(Coloriser.mix(fillColors));
-        setNameColor(Coloriser.mix(nameColors));
-        setLabelColor(Coloriser.mix(labelColors));
-        setNamePositioning(MixUtils.vote(namePositioning, Positioning.class, Positioning.CENTER));
-        setLabelPositioning(MixUtils.vote(labelPositioning, Positioning.class, Positioning.CENTER));
-        //setLabel(label);
-    }
+	@Override
+	public Rectangle2D getBoundingBoxInLocalSpace() {
+		Rectangle2D bb = getInternalBoundingBoxInLocalSpace();
+		if (getLabelVisibility()) {
+			bb = BoundingBoxHelper.union(bb, getLabelBoundingBox());
+		}
+		if (getNameVisibility()) {
+			bb = BoundingBoxHelper.union(bb, getNameBoundingBox());
+		}
+		return bb;
+	}
 
-    @Override
-    public void rotateClockwise() {
-        setNamePositioning(getNamePositioning().rotateClockwise());
-        setLabelPositioning(getLabelPositioning().rotateClockwise());
-        super.rotateClockwise();
-    }
+	public Rectangle2D getLabelBoundingBox() {
+		if ((labelRenderedText != null) && !labelRenderedText.isEmpty()) {
+			return labelRenderedText.getBoundingBox();
+		} else {
+			return null;
+		}
+	}
 
-    @Override
-    public void rotateCounterclockwise() {
-        setNamePositioning(getNamePositioning().rotateCounterclockwise());
-        setLabelPositioning(getLabelPositioning().rotateCounterclockwise());
-        super.rotateCounterclockwise();
-    }
+	public Rectangle2D getNameBoundingBox() {
+		if ((nameRenderedText != null) && !nameRenderedText.isEmpty()) {
+			return nameRenderedText.getBoundingBox();
+		} else {
+			return null;
+		}
+	}
 
-    @Override
-    public void flipHorizontal() {
-        setNamePositioning(getNamePositioning().flipHorizontal());
-        setLabelPositioning(getLabelPositioning().flipHorizontal());
-        super.flipHorizontal();
-    }
+	@Override
+	public boolean hitTestInLocalSpace(Point2D pointInLocalSpace) {
+		return getInternalBoundingBoxInLocalSpace().contains(pointInLocalSpace);
+	}
 
-    @Override
-    public void flipVertical() {
-        setNamePositioning(getNamePositioning().flipVertical());
-        setLabelPositioning(getLabelPositioning().flipVertical());
-        super.flipVertical();
-    }
+	@Override
+	public void addReplica(Replica replica) {
+		if (replica != null) {
+			if (replicas.add(replica)) {
+				replica.setMaster(this);
+			}
+		}
+	}
+
+	@Override
+	public void removeReplica(Replica replica) {
+		if (replica != null) {
+			if (replicas.remove(replica)) {
+				replica.setMaster(null);
+			}
+		}
+	}
+
+	@Override
+	public Collection<Replica> getReplicas() {
+		return Collections.unmodifiableCollection(replicas);
+	}
+
+	@Override
+	public void copyStyle(Stylable src) {
+		super.copyStyle(src);
+		if (src instanceof VisualComponent) {
+			VisualComponent srcComponent = (VisualComponent) src;
+			setForegroundColor(srcComponent.getForegroundColor());
+			setFillColor(srcComponent.getFillColor());
+			setLabel(srcComponent.getLabel());
+			setLabelColor(srcComponent.getLabelColor());
+			setLabelPositioning(srcComponent.getLabelPositioning());
+			setNameColor(srcComponent.getNameColor());
+			setNamePositioning(srcComponent.getNamePositioning());
+		}
+	}
+
+	@Override
+	public void mixStyle(Stylable... srcs) {
+		super.mixStyle(srcs);
+		LinkedList<Color> foregroundColors = new LinkedList<>();
+		LinkedList<Color> fillColors = new LinkedList<>();
+		LinkedList<Color> nameColors = new LinkedList<>();
+		LinkedList<Color> labelColors = new LinkedList<>();
+		LinkedList<Positioning> namePositioning = new LinkedList<>();
+		LinkedList<Positioning> labelPositioning = new LinkedList<>();
+		String label = "";
+		for (Stylable src : srcs) {
+			if (src instanceof VisualComponent) {
+				VisualComponent srcComponent = (VisualComponent) src;
+				foregroundColors.add(srcComponent.getForegroundColor());
+				fillColors.add(srcComponent.getFillColor());
+				nameColors.add(srcComponent.getNameColor());
+				labelColors.add(srcComponent.getLabelColor());
+				namePositioning.add(srcComponent.getLabelPositioning());
+				labelPositioning.add(srcComponent.getLabelPositioning());
+				if (srcComponent.getLabel() != null) {
+					label = label + "|" + srcComponent.getLabel();
+				}
+			}
+		}
+		setForegroundColor(Coloriser.mix(foregroundColors));
+		setFillColor(Coloriser.mix(fillColors));
+		setNameColor(Coloriser.mix(nameColors));
+		setLabelColor(Coloriser.mix(labelColors));
+		setNamePositioning(MixUtils.vote(namePositioning, Positioning.class, Positioning.CENTER));
+		setLabelPositioning(MixUtils.vote(labelPositioning, Positioning.class, Positioning.CENTER));
+		// setLabel(label);
+	}
+
+	@Override
+	public void rotateClockwise() {
+		setNamePositioning(getNamePositioning().rotateClockwise());
+		setLabelPositioning(getLabelPositioning().rotateClockwise());
+		super.rotateClockwise();
+	}
+
+	@Override
+	public void rotateCounterclockwise() {
+		setNamePositioning(getNamePositioning().rotateCounterclockwise());
+		setLabelPositioning(getLabelPositioning().rotateCounterclockwise());
+		super.rotateCounterclockwise();
+	}
+
+	@Override
+	public void flipHorizontal() {
+		setNamePositioning(getNamePositioning().flipHorizontal());
+		setLabelPositioning(getLabelPositioning().flipHorizontal());
+		super.flipHorizontal();
+	}
+
+	@Override
+	public void flipVertical() {
+		setNamePositioning(getNamePositioning().flipVertical());
+		setLabelPositioning(getLabelPositioning().flipVertical());
+		super.flipVertical();
+	}
 
 }

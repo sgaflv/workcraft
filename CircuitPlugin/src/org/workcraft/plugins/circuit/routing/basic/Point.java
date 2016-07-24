@@ -1,4 +1,4 @@
-package org.workcraft.plugins.circuit.routing.primitive;
+package org.workcraft.plugins.circuit.routing.basic;
 
 public final class Point {
 	public final double x;

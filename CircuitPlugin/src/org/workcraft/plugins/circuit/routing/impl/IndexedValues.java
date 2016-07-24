@@ -6,8 +6,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.workcraft.plugins.circuit.routing.primitive.IntegerInterval;
-import org.workcraft.plugins.circuit.routing.primitive.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
+import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
 
 /**
  * This class maps values to integer indexes.

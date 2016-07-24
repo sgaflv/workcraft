@@ -3,7 +3,7 @@ package org.workcraft.plugins.circuit.routing.impl;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.workcraft.plugins.circuit.routing.primitive.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
 
 public class SnapCalculatorTest {
 
