@@ -26,7 +26,7 @@ public class RoutingGrid {
             addBounds(component.getBoundingBox());
         }
         for (VisualContact port: circuit.getVisualPorts()) {
-            addBounds(port.getInternalBoundingBox());
+            addBounds(port.getBoundingBox());
         }
     }
 
