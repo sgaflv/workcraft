@@ -13,8 +13,10 @@ import org.workcraft.plugins.circuit.CircuitSettings;
 import org.workcraft.plugins.circuit.VisualCircuit;
 import org.workcraft.plugins.circuit.VisualContact;
 import org.workcraft.plugins.circuit.VisualFunctionComponent;
+import org.workcraft.plugins.circuit.routing.basic.FieldState;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.impl.Obstacles;
+import org.workcraft.plugins.circuit.routing.impl.RoutingCells;
 
 public class RoutingGrid {
 
@@ -57,9 +59,43 @@ public class RoutingGrid {
 			grid.lineTo(userBottomRight.getX(), y);
 		}
 
-		g.setColor(Color.RED);
+		g.setColor(Color.GRAY);
 		g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
 		g.draw(grid);
+
+		RoutingCells rcells = obstacles.getRoutingCells();
+
+		int[][] cells = rcells.cells;
+
+		int y = 0;
+		for (double dy : obstacles.getYCoordinates()) {
+			int x = 0;
+			for (double dx : obstacles.getXCoordinates()) {
+				boolean isBusy = (cells[x][y] & FieldState.BUSY) > 0;
+
+				Path2D shape = new Path2D.Double();
+
+				if (isBusy) {
+					g.setColor(Color.RED);
+					shape.moveTo(dx - 0.1, dy - 0.1);
+					shape.lineTo(dx + 0.1, dy + 0.1);
+					shape.moveTo(dx + 0.1, dy - 0.1);
+					shape.lineTo(dx - 0.1, dy + 0.1);
+				} else {
+					g.setColor(Color.GREEN);
+					shape.moveTo(dx - 0.1, dy - 0.1);
+					shape.lineTo(dx + 0.1, dy + 0.1);
+					shape.moveTo(dx + 0.1, dy - 0.1);
+					shape.lineTo(dx - 0.1, dy + 0.1);
+				}
+
+				g.draw(shape);
+
+				x++;
+			}
+			y++;
+		}
+
 	}
 
 }

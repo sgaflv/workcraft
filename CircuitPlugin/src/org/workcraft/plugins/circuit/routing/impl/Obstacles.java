@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
@@ -22,6 +23,8 @@ public class Obstacles {
 
 	private boolean isBuilt = false;
 
+	private RoutingCells routingCells;
+
 	public Collection<Double> getXCoordinates() {
 		buildCoordinates();
 
@@ -32,6 +35,12 @@ public class Obstacles {
 		buildCoordinates();
 
 		return yCoords.getValues();
+	}
+
+	public RoutingCells getRoutingCells() {
+		buildCoordinates();
+
+		return routingCells;
 	}
 
 	public void clear() {
@@ -65,6 +74,24 @@ public class Obstacles {
 			return;
 		}
 
+		rebuildCoordinates();
+
+		markCells();
+
+		isBuilt = true;
+	}
+
+	private void markCells() {
+		routingCells = new RoutingCells(xCoords.size(), yCoords.size());
+
+		for (Rectangle rectangle : rectangles) {
+			IntegerInterval xInt = xCoords.getIndexedInterval(rectangle.x, rectangle.x + rectangle.width);
+			IntegerInterval yInt = yCoords.getIndexedInterval(rectangle.y, rectangle.y + rectangle.height);
+			routingCells.markBusy(xInt, yInt);
+		}
+	}
+
+	private void rebuildCoordinates() {
 		xCoords.clear();
 		yCoords.clear();
 
@@ -81,8 +108,6 @@ public class Obstacles {
 			xCoords.add(minx, maxx);
 			yCoords.add(miny, maxy);
 		}
-
-		isBuilt = true;
 	}
 
 }

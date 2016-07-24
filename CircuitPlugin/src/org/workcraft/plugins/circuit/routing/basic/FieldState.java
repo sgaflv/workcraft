@@ -1,10 +1,10 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public enum FieldState {
+public class FieldState {
 	/** Field is occupied by an obstacle. */
-	BUSY,
+	public static int BUSY = 1;
 	/** Field is vertically blocked by a route segment. */
-	VERTICAL_BLOCK,
+	public static int VERTICAL_BLOCK = 2;
 	/** Field is horizontally blocked by a route segment. */
-	HORIZONTAL_BLOCK
+	public static int HORIZONTAL_BLOCK = 4;
 }
