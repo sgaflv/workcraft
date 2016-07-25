@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class FieldState {
+public class CellState {
 	/** Field is occupied by an obstacle. */
 	public static int BUSY = 1;
 	/** Field is vertically blocked by a route segment. */

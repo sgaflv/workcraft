@@ -2,24 +2,29 @@ package org.workcraft.plugins.circuit.routing.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.workcraft.plugins.circuit.routing.basic.Connection;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.Line;
+import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
 
 /**
- * The class representing the list of obstacles used in routing. It also
- * generates and represents the indexed field of routing coordinates.
+ * The class representing the list of obstacles used in routing.
  */
 public class Obstacles {
 	private final IndexedValues xCoords = new IndexedValues();
 	private final IndexedValues yCoords = new IndexedValues();
 
 	private final List<Rectangle> rectangles = new ArrayList<Rectangle>();
-	private final List<Line> horizontals = new ArrayList<>();
-	private final List<Line> verticals = new ArrayList<>();
+	private final List<Line> hSegments = new ArrayList<>();
+	private final List<Line> vSegments = new ArrayList<>();
+	private final Set<Port> ports = new HashSet<>();
+	private final Set<Connection> connections = new HashSet<>();
 
 	private boolean isBuilt = false;
 
@@ -45,8 +50,9 @@ public class Obstacles {
 
 	public void clear() {
 		rectangles.clear();
-		verticals.clear();
-		horizontals.clear();
+		vSegments.clear();
+		hSegments.clear();
+		ports.clear();
 		isBuilt = false;
 	}
 
@@ -58,12 +64,27 @@ public class Obstacles {
 
 	public void addSegment(Line line) {
 		if (line.isVertical()) {
-			verticals.add(line);
+			vSegments.add(line);
 			isBuilt = false;
 		}
 
 		if (line.isHorizontal()) {
-			horizontals.add(line);
+			hSegments.add(line);
+			isBuilt = false;
+		}
+	}
+
+	public void addPort(Port port) {
+		if (ports.add(port)) {
+			isBuilt = false;
+		}
+	}
+
+	public void addConnection(Connection connection) {
+		addPort(connection.source);
+		addPort(connection.destination);
+
+		if (connections.add(connection)) {
 			isBuilt = false;
 		}
 	}
@@ -107,6 +128,53 @@ public class Obstacles {
 
 			xCoords.add(minx, maxx);
 			yCoords.add(miny, maxy);
+		}
+
+		for (Port port : ports) {
+			// 1. out of the edge port
+			if (!port.isOnEdge) {
+				xCoords.add(port.location.x);
+				yCoords.add(port.location.y);
+				continue;
+			}
+
+			// 2. the port is on the edge
+			IndexedValues parallel = yCoords;
+			IndexedValues perpendecular = xCoords;
+			double parallelCoord = port.location.y;
+			double perpendecularCoord = port.location.x;
+			if (port.direction.isVertical()) {
+				parallel = xCoords;
+				perpendecular = yCoords;
+				parallelCoord = port.location.x;
+				perpendecularCoord = port.location.y;
+			}
+
+			parallel.add(parallelCoord);
+
+			double snappedCoordinate = perpendecularCoord;
+
+			switch (port.direction) {
+			case EAST:
+				snappedCoordinate = SnapCalculator.snapToHigher(perpendecularCoord + RoutingConstants.OBSTACLE_MARGIN,
+						RoutingConstants.MAJOR_SNAP);
+				break;
+			case WEST:
+				snappedCoordinate = SnapCalculator.snapToLower(perpendecularCoord - RoutingConstants.OBSTACLE_MARGIN,
+						RoutingConstants.MAJOR_SNAP);
+				break;
+			case NORTH:
+				snappedCoordinate = SnapCalculator.snapToLower(perpendecularCoord - RoutingConstants.OBSTACLE_MARGIN,
+						RoutingConstants.MAJOR_SNAP);
+				break;
+			case SOUTH:
+				snappedCoordinate = SnapCalculator.snapToHigher(perpendecularCoord + RoutingConstants.OBSTACLE_MARGIN,
+						RoutingConstants.MAJOR_SNAP);
+				break;
+			}
+
+			perpendecular.add(snappedCoordinate);
+
 		}
 	}
 

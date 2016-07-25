@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
-import org.workcraft.plugins.circuit.routing.basic.FieldState;
+import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 
 public class RoutingCells {
@@ -34,13 +34,13 @@ public class RoutingCells {
 		if (hInterval == null || vInterval == null) {
 			return;
 		}
-		mark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, FieldState.BUSY);
+		mark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, CellState.BUSY);
 	}
 
 	public void unmarkBusy(IntegerInterval hInterval, IntegerInterval vInterval) {
 		if (hInterval == null || vInterval == null) {
 			return;
 		}
-		unmark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, FieldState.BUSY);
+		unmark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, CellState.BUSY);
 	}
 }
