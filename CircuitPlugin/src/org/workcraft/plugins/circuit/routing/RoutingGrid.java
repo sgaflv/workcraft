@@ -35,7 +35,10 @@ public class RoutingGrid {
 
 			for (VisualContact contact : component.getContacts()) {
 
-				obstacles.addRectangle(getRectangle(contact.getBoundingBox()));
+				Point portPoint = new Point(contact.getX() + component.getX(), contact.getY() + component.getY());
+
+				Port newPort = new Port(getDirection(contact), portPoint, false);
+				obstacles.addPort(newPort);
 			}
 		}
 
@@ -44,7 +47,7 @@ public class RoutingGrid {
 			obstacles.addRectangle(getRectangle(internalBoundingBox));
 
 			Port newPort = new Port(getDirection(port),
-					new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()), false);
+					new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()), true);
 
 			obstacles.addPort(newPort);
 		}
