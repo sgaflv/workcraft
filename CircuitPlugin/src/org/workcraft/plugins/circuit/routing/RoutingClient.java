@@ -18,40 +18,46 @@ import org.workcraft.plugins.circuit.routing.basic.Point;
 import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.impl.Obstacles;
+import org.workcraft.plugins.circuit.routing.impl.Router;
 import org.workcraft.plugins.circuit.routing.impl.RoutingCells;
 
-public class RoutingGrid {
+/**
+ * The class creates the routing task and
+ */
+public class RoutingClient {
 
-	Obstacles obstacles = new Obstacles();
+	private Router router = new Router();
 
-	public RoutingGrid(VisualCircuit circuit) {
-		registerObstacles(circuit);
+	public RoutingClient() {
 	}
 
-	private void registerObstacles(VisualCircuit circuit) {
+	public void registerObstacles(VisualCircuit circuit) {
+
+		Obstacles newObstacles = new Obstacles();
 
 		for (VisualFunctionComponent component : circuit.getVisualFunctionComponents()) {
-			obstacles.addRectangle(getRectangle(component.getInternalBoundingBox()));
+			newObstacles.addRectangle(getRectangle(component.getInternalBoundingBox()));
 
 			for (VisualContact contact : component.getContacts()) {
 
 				Point portPoint = new Point(contact.getX() + component.getX(), contact.getY() + component.getY());
 
 				Port newPort = new Port(getDirection(contact), portPoint, false);
-				obstacles.addPort(newPort);
+				newObstacles.addPort(newPort);
 			}
 		}
 
 		for (VisualContact port : circuit.getVisualPorts()) {
 			Rectangle2D internalBoundingBox = port.getInternalBoundingBox();
-			obstacles.addRectangle(getRectangle(internalBoundingBox));
+			newObstacles.addRectangle(getRectangle(internalBoundingBox));
 
 			Port newPort = new Port(getDirection(port),
 					new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()), true);
 
-			obstacles.addPort(newPort);
+			newObstacles.addPort(newPort);
 		}
 
+		router.setObstacles(newObstacles);
 	}
 
 	private Direction getDirection(VisualContact contact) {
@@ -80,6 +86,7 @@ public class RoutingGrid {
 	}
 
 	public void draw(Graphics2D g, Viewport viewport) {
+
 		Path2D grid = new Path2D.Double();
 
 		java.awt.Rectangle bounds = viewport.getShape();
@@ -89,11 +96,11 @@ public class RoutingGrid {
 		java.awt.Point screenBottomRight = new java.awt.Point(bounds.x + bounds.width, bounds.y + bounds.height);
 		Point2D userBottomRight = viewport.screenToUser(screenBottomRight);
 
-		for (double x : obstacles.getXCoordinates()) {
+		for (double x : router.getXCoordinates()) {
 			grid.moveTo(x, userTopLeft.getY());
 			grid.lineTo(x, userBottomRight.getY());
 		}
-		for (double y : obstacles.getYCoordinates()) {
+		for (double y : router.getYCoordinates()) {
 			grid.moveTo(userTopLeft.getX(), y);
 			grid.lineTo(userBottomRight.getX(), y);
 		}
@@ -102,14 +109,14 @@ public class RoutingGrid {
 		g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
 		g.draw(grid);
 
-		RoutingCells rcells = obstacles.getRoutingCells();
+		RoutingCells rcells = router.getRoutingCells();
 
 		int[][] cells = rcells.cells;
 
 		int y = 0;
-		for (double dy : obstacles.getYCoordinates()) {
+		for (double dy : router.getYCoordinates()) {
 			int x = 0;
-			for (double dx : obstacles.getXCoordinates()) {
+			for (double dx : router.getXCoordinates()) {
 				boolean isBusy = (cells[x][y] & CellState.BUSY) > 0;
 
 				Path2D shape = new Path2D.Double();

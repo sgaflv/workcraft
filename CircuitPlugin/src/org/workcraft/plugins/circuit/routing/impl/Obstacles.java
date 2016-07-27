@@ -1,24 +1,20 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.workcraft.plugins.circuit.routing.basic.Connection;
-import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
-import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
 
 /**
- * The class representing the list of obstacles used in routing.
+ * The class completely defines the routing task. It's equality function can be
+ * used to determine if two routing tasks would produce the same routing result.
  */
 public class Obstacles {
-	private final IndexedValues xCoords = new IndexedValues();
-	private final IndexedValues yCoords = new IndexedValues();
 
 	private final List<Rectangle> rectangles = new ArrayList<Rectangle>();
 	private final List<Line> hSegments = new ArrayList<>();
@@ -26,156 +22,90 @@ public class Obstacles {
 	private final Set<Port> ports = new HashSet<>();
 	private final Set<Connection> connections = new HashSet<>();
 
-	private boolean isBuilt = false;
-
-	private RoutingCells routingCells;
-
-	public Collection<Double> getXCoordinates() {
-		buildCoordinates();
-
-		return xCoords.getValues();
-	}
-
-	public Collection<Double> getYCoordinates() {
-		buildCoordinates();
-
-		return yCoords.getValues();
-	}
-
-	public RoutingCells getRoutingCells() {
-		buildCoordinates();
-
-		return routingCells;
-	}
-
-	public void clear() {
-		rectangles.clear();
-		vSegments.clear();
-		hSegments.clear();
-		ports.clear();
-		isBuilt = false;
-	}
-
 	public void addRectangle(Rectangle rec) {
 		rectangles.add(rec);
-
-		isBuilt = false;
 	}
 
 	public void addSegment(Line line) {
 		if (line.isVertical()) {
 			vSegments.add(line);
-			isBuilt = false;
 		}
 
 		if (line.isHorizontal()) {
 			hSegments.add(line);
-			isBuilt = false;
 		}
 	}
 
 	public void addPort(Port port) {
-		if (ports.add(port)) {
-			isBuilt = false;
-		}
+		ports.add(port);
 	}
 
 	public void addConnection(Connection connection) {
 		addPort(connection.source);
 		addPort(connection.destination);
 
-		if (connections.add(connection)) {
-			isBuilt = false;
-		}
+		connections.add(connection);
 	}
 
-	public void buildCoordinates() {
-
-		if (isBuilt) {
-			return;
-		}
-
-		rebuildCoordinates();
-
-		markCells();
-
-		isBuilt = true;
+	public List<Rectangle> getRectangles() {
+		return rectangles;
 	}
 
-	private void markCells() {
-		routingCells = new RoutingCells(xCoords.size(), yCoords.size());
-
-		for (Rectangle rectangle : rectangles) {
-			IntegerInterval xInt = xCoords.getIndexedInterval(rectangle.x, rectangle.x + rectangle.width);
-			IntegerInterval yInt = yCoords.getIndexedInterval(rectangle.y, rectangle.y + rectangle.height);
-			routingCells.markBusy(xInt, yInt);
-		}
+	public Set<Port> getPorts() {
+		return ports;
 	}
 
-	private void rebuildCoordinates() {
-		xCoords.clear();
-		yCoords.clear();
+	public Set<Connection> getConnections() {
+		return connections;
+	}
 
-		for (Rectangle rec : rectangles) {
-			double minx = SnapCalculator.snapToLower(rec.x - RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double miny = SnapCalculator.snapToLower(rec.y - RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((connections == null) ? 0 : connections.hashCode());
+		result = prime * result + ((hSegments == null) ? 0 : hSegments.hashCode());
+		result = prime * result + ((ports == null) ? 0 : ports.hashCode());
+		result = prime * result + ((rectangles == null) ? 0 : rectangles.hashCode());
+		result = prime * result + ((vSegments == null) ? 0 : vSegments.hashCode());
+		return result;
+	}
 
-			xCoords.add(minx, maxx);
-			yCoords.add(miny, maxy);
-		}
-
-		for (Port port : ports) {
-			// 1. out of the edge port
-			if (!port.isOnEdge) {
-				xCoords.add(port.location.x);
-				yCoords.add(port.location.y);
-				continue;
-			}
-
-			// 2. the port is on the edge
-			IndexedValues parallel = yCoords;
-			IndexedValues perpendecular = xCoords;
-			double parallelCoord = port.location.y;
-			double perpendecularCoord = port.location.x;
-			if (port.direction.isVertical()) {
-				parallel = xCoords;
-				perpendecular = yCoords;
-				parallelCoord = port.location.x;
-				perpendecularCoord = port.location.y;
-			}
-
-			parallel.add(parallelCoord);
-
-			double snappedCoordinate = perpendecularCoord;
-
-			switch (port.direction) {
-			case EAST:
-				snappedCoordinate = SnapCalculator.snapToHigher(perpendecularCoord + RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			case WEST:
-				snappedCoordinate = SnapCalculator.snapToLower(perpendecularCoord - RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			case NORTH:
-				snappedCoordinate = SnapCalculator.snapToLower(perpendecularCoord - RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			case SOUTH:
-				snappedCoordinate = SnapCalculator.snapToHigher(perpendecularCoord + RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			}
-
-			perpendecular.add(snappedCoordinate);
-
-		}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Obstacles other = (Obstacles) obj;
+		if (connections == null) {
+			if (other.connections != null)
+				return false;
+		} else if (!connections.equals(other.connections))
+			return false;
+		if (hSegments == null) {
+			if (other.hSegments != null)
+				return false;
+		} else if (!hSegments.equals(other.hSegments))
+			return false;
+		if (ports == null) {
+			if (other.ports != null)
+				return false;
+		} else if (!ports.equals(other.ports))
+			return false;
+		if (rectangles == null) {
+			if (other.rectangles != null)
+				return false;
+		} else if (!rectangles.equals(other.rectangles))
+			return false;
+		if (vSegments == null) {
+			if (other.vSegments != null)
+				return false;
+		} else if (!vSegments.equals(other.vSegments))
+			return false;
+		return true;
 	}
 
 }

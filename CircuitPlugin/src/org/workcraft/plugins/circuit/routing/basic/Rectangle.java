@@ -5,6 +5,7 @@ public final class Rectangle {
 	public final double y;
 	public final double width;
 	public final double height;
+
 	public Rectangle(double x, double y, double width, double height) {
 		super();
 		this.x = x;
@@ -12,6 +13,7 @@ public final class Rectangle {
 		this.width = width;
 		this.height = height;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -27,6 +29,7 @@ public final class Rectangle {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -46,9 +49,9 @@ public final class Rectangle {
 			return false;
 		return true;
 	}
+
 	@Override
 	public String toString() {
 		return "Rectangle [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
-	
 }
