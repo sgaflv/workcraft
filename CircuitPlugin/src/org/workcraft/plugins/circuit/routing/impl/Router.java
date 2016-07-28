@@ -2,6 +2,7 @@ package org.workcraft.plugins.circuit.routing.impl;
 
 import java.util.Collection;
 
+import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
@@ -70,10 +71,40 @@ public class Router {
 	private void markCells() {
 		routingCells = new RoutingCells(xCoords.size(), yCoords.size());
 
+		markVerticalPrivate();
+		markHorizontalHorizontal();
+
+		markBusy();
+	}
+
+	private void markBusy() {
 		for (Rectangle rectangle : _lastObstaclesUsed.getRectangles()) {
 			IntegerInterval xInt = xCoords.getIndexedInterval(rectangle.x, rectangle.x + rectangle.width);
 			IntegerInterval yInt = yCoords.getIndexedInterval(rectangle.y, rectangle.y + rectangle.height);
 			routingCells.markBusy(xInt, yInt);
+		}
+	}
+
+	private void markVerticalPrivate() {
+		int ylen = routingCells.cells[0].length;
+		int x = 0;
+		for (double dx : xCoords.getValues()) {
+			if (xCoords.isPublic(dx)) {
+				routingCells.mark(x, 0, x, ylen - 1, CellState.VERTICAL_PUBLIC);
+			}
+			x++;
+		}
+	}
+
+	private void markHorizontalHorizontal() {
+		int xlen = routingCells.cells.length;
+		int y = 0;
+		for (double dy : yCoords.getValues()) {
+			if (yCoords.isPublic(dy)) {
+
+				routingCells.mark(0, y, xlen - 1, y, CellState.HORIZONTAL_PUBLIC);
+			}
+			y++;
 		}
 	}
 
@@ -91,15 +122,15 @@ public class Router {
 			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RoutingConstants.OBSTACLE_MARGIN,
 					RoutingConstants.MAJOR_SNAP);
 
-			xCoords.add(minx, maxx);
-			yCoords.add(miny, maxy);
+			xCoords.add(true, minx, maxx);
+			yCoords.add(true, miny, maxy);
 		}
 
 		for (Port port : _lastObstaclesUsed.getPorts()) {
 			// 1. out of the edge port
 			if (!port.isOnEdge) {
-				xCoords.add(port.location.x);
-				yCoords.add(port.location.y);
+				xCoords.add(false, port.location.x);
+				yCoords.add(false, port.location.y);
 				continue;
 			}
 
@@ -108,6 +139,7 @@ public class Router {
 			IndexedValues perpendecular = xCoords;
 			double parallelCoord = port.location.y;
 			double perpendecularCoord = port.location.x;
+
 			if (port.direction.isVertical()) {
 				parallel = xCoords;
 				perpendecular = yCoords;
@@ -115,7 +147,7 @@ public class Router {
 				perpendecularCoord = port.location.y;
 			}
 
-			parallel.add(parallelCoord);
+			parallel.add(false, parallelCoord);
 
 			double snappedCoordinate = perpendecularCoord;
 
@@ -138,7 +170,7 @@ public class Router {
 				break;
 			}
 
-			perpendecular.add(snappedCoordinate);
+			perpendecular.add(true, snappedCoordinate);
 
 		}
 	}

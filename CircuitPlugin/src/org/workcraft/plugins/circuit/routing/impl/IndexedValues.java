@@ -1,6 +1,7 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -19,6 +20,8 @@ public final class IndexedValues {
 
 	private final SortedMap<Double, Integer> toIndex = new TreeMap<>();
 	private final SortedMap<Integer, Double> toValue = new TreeMap<>();
+
+	private final Set<Double> publicValues = new HashSet<Double>();
 
 	private boolean isBuilt = false;
 
@@ -60,13 +63,15 @@ public final class IndexedValues {
 	 * @param value
 	 *            a single value to be added to the mapping
 	 */
-	public void add(double value) {
+	private boolean add(boolean isPublic, double value) {
 
 		boolean changed = values.add(value);
 
-		if (changed && isBuilt) {
-			clearMaps();
+		if (isPublic) {
+			publicValues.add(value);
 		}
+
+		return changed;
 	}
 
 	/**
@@ -75,11 +80,11 @@ public final class IndexedValues {
 	 * @param values
 	 *            a values to be added to the mapping
 	 */
-	public void add(double... values) {
+	public void add(boolean isPublic, double... values) {
 		boolean changed = false;
 
 		for (double value : values) {
-			changed |= this.values.add(value);
+			changed |= add(isPublic, value);
 		}
 
 		if (changed && isBuilt) {
@@ -159,5 +164,9 @@ public final class IndexedValues {
 		build();
 
 		return toValue.get(index);
+	}
+
+	public boolean isPublic(double value) {
+		return publicValues.contains(value);
 	}
 }

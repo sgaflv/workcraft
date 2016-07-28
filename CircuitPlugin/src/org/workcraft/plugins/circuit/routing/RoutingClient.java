@@ -105,7 +105,7 @@ public class RoutingClient {
 			grid.lineTo(userBottomRight.getX(), y);
 		}
 
-		g.setColor(Color.GRAY);
+		g.setColor(Color.GRAY.brighter());
 		g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
 		g.draw(grid);
 
@@ -118,6 +118,8 @@ public class RoutingClient {
 			int x = 0;
 			for (double dx : router.getXCoordinates()) {
 				boolean isBusy = (cells[x][y] & CellState.BUSY) > 0;
+				boolean isVerticalPrivate = (cells[x][y] & CellState.VERTICAL_PUBLIC) == 0;
+				boolean isHorizontalPrivate = (cells[x][y] & CellState.HORIZONTAL_PUBLIC) == 0;
 
 				Path2D shape = new Path2D.Double();
 
@@ -127,15 +129,21 @@ public class RoutingClient {
 					shape.lineTo(dx + 0.1, dy + 0.1);
 					shape.moveTo(dx + 0.1, dy - 0.1);
 					shape.lineTo(dx - 0.1, dy + 0.1);
+					g.draw(shape);
 				} else {
-					g.setColor(Color.GREEN);
-					shape.moveTo(dx - 0.1, dy - 0.1);
-					shape.lineTo(dx + 0.1, dy + 0.1);
-					shape.moveTo(dx + 0.1, dy - 0.1);
-					shape.lineTo(dx - 0.1, dy + 0.1);
+					if (isVerticalPrivate) {
+						g.setColor(Color.MAGENTA.darker());
+						shape.moveTo(dx, dy - 0.1);
+						shape.lineTo(dx, dy + 0.1);
+						g.draw(shape);
+					}
+					if (isHorizontalPrivate) {
+						g.setColor(Color.MAGENTA.darker());
+						shape.moveTo(dx - 0.1, dy);
+						shape.lineTo(dx + 0.1, dy);
+						g.draw(shape);
+					}
 				}
-
-				g.draw(shape);
 
 				x++;
 			}

@@ -13,6 +13,9 @@ public class RoutingCells {
 	}
 
 	public void mark(int x1, int y1, int x2, int y2, int value) {
+		if (value == 0) {
+			return;
+		}
 
 		for (int y = y1; y <= y2; y++) {
 			for (int x = x1; x <= x2; x++) {
@@ -22,6 +25,9 @@ public class RoutingCells {
 	}
 
 	public void unmark(int x1, int y1, int x2, int y2, int value) {
+		if (value == 0) {
+			return;
+		}
 
 		for (int y = y1; y <= y2; y++) {
 			for (int x = x1; x <= x2; x++) {
