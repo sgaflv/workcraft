@@ -54,4 +54,9 @@ public final class Rectangle {
 	public String toString() {
 		return "Rectangle [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
+
+	public Line getPortSegment(Port port) {
+		// TODO: implement
+		return null;
+	}
 }

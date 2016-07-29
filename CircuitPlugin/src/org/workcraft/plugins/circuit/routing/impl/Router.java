@@ -71,8 +71,8 @@ public class Router {
 	private void markCells() {
 		routingCells = new RoutingCells(xCoords.size(), yCoords.size());
 
-		markVerticalPrivate();
-		markHorizontalHorizontal();
+		markVerticalPublic();
+		markHorizontalPublic();
 
 		markBusy();
 	}
@@ -85,7 +85,7 @@ public class Router {
 		}
 	}
 
-	private void markVerticalPrivate() {
+	private void markVerticalPublic() {
 		int ylen = routingCells.cells[0].length;
 		int x = 0;
 		for (double dx : xCoords.getValues()) {
@@ -96,7 +96,7 @@ public class Router {
 		}
 	}
 
-	private void markHorizontalHorizontal() {
+	private void markHorizontalPublic() {
 		int xlen = routingCells.cells.length;
 		int y = 0;
 		for (double dy : yCoords.getValues()) {
@@ -122,56 +122,28 @@ public class Router {
 			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RoutingConstants.OBSTACLE_MARGIN,
 					RoutingConstants.MAJOR_SNAP);
 
-			xCoords.add(true, minx, maxx);
-			yCoords.add(true, miny, maxy);
+			xCoords.addPublic(minx, maxx);
+			yCoords.addPublic(miny, maxy);
 		}
 
 		for (Port port : _lastObstaclesUsed.getPorts()) {
 			// 1. out of the edge port
 			if (!port.isOnEdge) {
-				xCoords.add(false, port.location.x);
-				yCoords.add(false, port.location.y);
+				xCoords.addPrivate(port.location.x);
+				yCoords.addPrivate(port.location.y);
 				continue;
 			}
 
 			// 2. the port is on the edge
 			IndexedValues parallel = yCoords;
-			IndexedValues perpendecular = xCoords;
 			double parallelCoord = port.location.y;
-			double perpendecularCoord = port.location.x;
 
 			if (port.direction.isVertical()) {
 				parallel = xCoords;
-				perpendecular = yCoords;
 				parallelCoord = port.location.x;
-				perpendecularCoord = port.location.y;
 			}
 
-			parallel.add(false, parallelCoord);
-
-			double snappedCoordinate = perpendecularCoord;
-
-			switch (port.direction) {
-			case EAST:
-				snappedCoordinate = SnapCalculator.snapToHigher(perpendecularCoord + RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			case WEST:
-				snappedCoordinate = SnapCalculator.snapToLower(perpendecularCoord - RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			case NORTH:
-				snappedCoordinate = SnapCalculator.snapToLower(perpendecularCoord - RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			case SOUTH:
-				snappedCoordinate = SnapCalculator.snapToHigher(perpendecularCoord + RoutingConstants.OBSTACLE_MARGIN,
-						RoutingConstants.MAJOR_SNAP);
-				break;
-			}
-
-			perpendecular.add(true, snappedCoordinate);
-
+			parallel.addPrivate(parallelCoord);
 		}
 	}
 

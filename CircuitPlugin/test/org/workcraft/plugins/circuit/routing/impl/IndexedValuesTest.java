@@ -18,25 +18,25 @@ public class IndexedValuesTest {
 	public void testIsBuilt() {
 		assertFalse("The Initial isBuilt is not false", indexedValues.isBuilt());
 
-		indexedValues.add(true, 1.5);
+		indexedValues.addPublic(1.5);
 		assertFalse("The isBuilt value must be false on adding", indexedValues.isBuilt());
 
 		indexedValues.build();
 		assertTrue("The isBuilt value must be true after build", indexedValues.isBuilt());
 
-		indexedValues.add(true, 1.5);
+		indexedValues.addPublic(1.5);
 		assertTrue("The repeated insertion has reset isBuilt", indexedValues.isBuilt());
 
-		indexedValues.add(true, 2);
+		indexedValues.addPublic(2);
 		assertFalse("The insertion of new value did not reset isBuilt", indexedValues.isBuilt());
 
 		indexedValues.build();
 		assertTrue("The isBuilt value must be true after build", indexedValues.isBuilt());
 
-		indexedValues.add(true, 1.5, 2);
+		indexedValues.addPublic(1.5, 2);
 		assertTrue("The repeated insertion has reset isBuilt", indexedValues.isBuilt());
 
-		indexedValues.add(true, 1.5, 3);
+		indexedValues.addPublic(1.5, 3);
 		assertFalse("The insertion of new value did not reset isBuilt", indexedValues.isBuilt());
 
 		indexedValues.build();
@@ -51,7 +51,7 @@ public class IndexedValuesTest {
 
 		Double sortedArray[] = { -1.0, 0.5, 1.0, 3.0 };
 
-		indexedValues.add(true, 0.5, 3.0, 1.0, -1.0);
+		indexedValues.addPublic(0.5, 3.0, 1.0, -1.0);
 
 		assertArrayEquals(sortedArray, indexedValues.getValues().toArray());
 	}
@@ -59,7 +59,7 @@ public class IndexedValuesTest {
 	@Test
 	public void testGetIndexedIntervalBasic() {
 
-		indexedValues.add(true, -1.0, 0.5, 1.0, 3.0);
+		indexedValues.addPublic(-1.0, 0.5, 1.0, 3.0);
 
 		assertEquals(new IntegerInterval(1, 2), indexedValues.getIndexedInterval(0.0, 2.0));
 	}
@@ -67,7 +67,7 @@ public class IndexedValuesTest {
 	@Test
 	public void testGetIndexedIntervalSinglePoint() {
 
-		indexedValues.add(true, -1.0, 0.5, 1.0, 3.0);
+		indexedValues.addPublic(-1.0, 0.5, 1.0, 3.0);
 
 		assertEquals(new IntegerInterval(1, 1), indexedValues.getIndexedInterval(0.5, 0.5));
 		assertEquals(new IntegerInterval(1, 1),
@@ -79,7 +79,7 @@ public class IndexedValuesTest {
 	@Test
 	public void testGetIndexedIntervalNonExistant() {
 
-		indexedValues.add(true, -1.0, 0.5, 1.0, 3.0);
+		indexedValues.addPublic(-1.0, 0.5, 1.0, 3.0);
 
 		assertNull(indexedValues.getIndexedInterval(0.6, 0.7));
 		assertNull(indexedValues.getIndexedInterval(5, 6));
@@ -89,13 +89,13 @@ public class IndexedValuesTest {
 	@Test
 	public void testGetValueByIndex() {
 
-		indexedValues.add(true, -1.0, 0.5, 1.0, 3.0);
+		indexedValues.addPublic(-1.0, 0.5, 1.0, 3.0);
 
 		assertEquals(-1.0, indexedValues.getValueByIndex(0), RoutingConstants.EPSILON);
 		assertEquals(0.5, indexedValues.getValueByIndex(1), RoutingConstants.EPSILON);
 		assertEquals(1.0, indexedValues.getValueByIndex(2), RoutingConstants.EPSILON);
 
-		indexedValues.add(true, 0.0);
+		indexedValues.addPublic(0.0);
 
 		assertEquals(0.5, indexedValues.getValueByIndex(2), RoutingConstants.EPSILON);
 	}

@@ -14,6 +14,7 @@ import org.workcraft.plugins.circuit.VisualContact;
 import org.workcraft.plugins.circuit.VisualFunctionComponent;
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.Direction;
+import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Point;
 import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
@@ -36,7 +37,10 @@ public class RoutingClient {
 		Obstacles newObstacles = new Obstacles();
 
 		for (VisualFunctionComponent component : circuit.getVisualFunctionComponents()) {
-			newObstacles.addRectangle(getRectangle(component.getInternalBoundingBox()));
+
+			Rectangle internalBoundingBox = getRectangle(component.getInternalBoundingBox());
+
+			newObstacles.addRectangle(internalBoundingBox);
 
 			for (VisualContact contact : component.getContacts()) {
 
@@ -44,6 +48,9 @@ public class RoutingClient {
 
 				Port newPort = new Port(getDirection(contact), portPoint, false);
 				newObstacles.addPort(newPort);
+
+				Line portSegment = internalBoundingBox.getPortSegment(newPort);
+				newObstacles.addSegment(portSegment);
 			}
 		}
 

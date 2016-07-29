@@ -38,27 +38,4 @@ public class SnapCalculator {
 		return floor * snapSize;
 	}
 
-	/**
-	 * Returns true if the given value is already a snapped value.
-	 * 
-	 * @param value
-	 *            value to check for snapping
-	 * @param snapSize
-	 *            snap size
-	 * @return true if the given value is a snapped value, false otherwise
-	 */
-	public static boolean isSnapped(double value, double snapSize) {
-		double lower = snapToLower(value, snapSize);
-		if (Math.abs(lower - value) <= RoutingConstants.EPSILON) {
-			return true;
-		}
-
-		double higher = snapToHigher(value, snapSize);
-		if (Math.abs(higher - value) <= RoutingConstants.EPSILON) {
-			return true;
-		}
-
-		return false;
-	}
-
 }

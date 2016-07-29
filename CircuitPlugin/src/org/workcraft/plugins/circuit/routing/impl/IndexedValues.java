@@ -74,13 +74,7 @@ public final class IndexedValues {
 		return changed;
 	}
 
-	/**
-	 * Add a single value to the mapping.
-	 *
-	 * @param values
-	 *            a values to be added to the mapping
-	 */
-	public void add(boolean isPublic, double... values) {
+	private void addValue(boolean isPublic, double... values) {
 		boolean changed = false;
 
 		for (double value : values) {
@@ -90,6 +84,26 @@ public final class IndexedValues {
 		if (changed && isBuilt) {
 			clearMaps();
 		}
+	}
+
+	/**
+	 * Add public values to the mapping.
+	 *
+	 * @param values
+	 *            a values to be added to the mapping
+	 */
+	public void addPublic(double... values) {
+		addValue(true, values);
+	}
+
+	/**
+	 * Add private values to the mapping.
+	 *
+	 * @param values
+	 *            a values to be added to the mapping
+	 */
+	public void addPrivate(double... values) {
+		addValue(false, values);
 	}
 
 	public int size() {

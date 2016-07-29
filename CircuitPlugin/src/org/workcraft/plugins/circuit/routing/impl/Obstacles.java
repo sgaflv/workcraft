@@ -17,8 +17,7 @@ import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 public class Obstacles {
 
 	private final List<Rectangle> rectangles = new ArrayList<Rectangle>();
-	private final List<Line> hSegments = new ArrayList<>();
-	private final List<Line> vSegments = new ArrayList<>();
+	private final List<Line> segments = new ArrayList<>();
 	private final Set<Port> ports = new HashSet<>();
 	private final Set<Connection> connections = new HashSet<>();
 
@@ -27,16 +26,18 @@ public class Obstacles {
 	}
 
 	public void addSegment(Line line) {
-		if (line.isVertical()) {
-			vSegments.add(line);
+		if (line == null) {
+			return;
 		}
 
-		if (line.isHorizontal()) {
-			hSegments.add(line);
-		}
+		segments.add(line);
 	}
 
 	public void addPort(Port port) {
+		if (port == null) {
+			return;
+		}
+
 		ports.add(port);
 	}
 
@@ -45,6 +46,10 @@ public class Obstacles {
 		addPort(connection.destination);
 
 		connections.add(connection);
+	}
+
+	public List<Line> getSegments() {
+		return segments;
 	}
 
 	public List<Rectangle> getRectangles() {
@@ -64,10 +69,9 @@ public class Obstacles {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((connections == null) ? 0 : connections.hashCode());
-		result = prime * result + ((hSegments == null) ? 0 : hSegments.hashCode());
 		result = prime * result + ((ports == null) ? 0 : ports.hashCode());
 		result = prime * result + ((rectangles == null) ? 0 : rectangles.hashCode());
-		result = prime * result + ((vSegments == null) ? 0 : vSegments.hashCode());
+		result = prime * result + ((segments == null) ? 0 : segments.hashCode());
 		return result;
 	}
 
@@ -85,11 +89,6 @@ public class Obstacles {
 				return false;
 		} else if (!connections.equals(other.connections))
 			return false;
-		if (hSegments == null) {
-			if (other.hSegments != null)
-				return false;
-		} else if (!hSegments.equals(other.hSegments))
-			return false;
 		if (ports == null) {
 			if (other.ports != null)
 				return false;
@@ -100,10 +99,10 @@ public class Obstacles {
 				return false;
 		} else if (!rectangles.equals(other.rectangles))
 			return false;
-		if (vSegments == null) {
-			if (other.vSegments != null)
+		if (segments == null) {
+			if (other.segments != null)
 				return false;
-		} else if (!vSegments.equals(other.vSegments))
+		} else if (!segments.equals(other.segments))
 			return false;
 		return true;
 	}
