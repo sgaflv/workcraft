@@ -111,11 +111,11 @@ public class RoutingClient {
 		java.awt.Point screenBottomRight = new java.awt.Point(bounds.x + bounds.width, bounds.y + bounds.height);
 		Point2D userBottomRight = viewport.screenToUser(screenBottomRight);
 
-		for (double x : router.getXCoordinates()) {
+		for (double x : router.getCoordinatesRegistry().getXCoordinates()) {
 			grid.moveTo(x, userTopLeft.getY());
 			grid.lineTo(x, userBottomRight.getY());
 		}
-		for (double y : router.getYCoordinates()) {
+		for (double y : router.getCoordinatesRegistry().getYCoordinates()) {
 			grid.moveTo(userTopLeft.getX(), y);
 			grid.lineTo(userBottomRight.getX(), y);
 		}
@@ -126,14 +126,14 @@ public class RoutingClient {
 	}
 
 	private void drawCells(Graphics2D g) {
-		RoutingCells rcells = router.getRoutingCells();
+		RoutingCells rcells = router.getCoordinatesRegistry().getRoutingCells();
 
 		int[][] cells = rcells.cells;
 
 		int y = 0;
-		for (double dy : router.getYCoordinates()) {
+		for (double dy : router.getCoordinatesRegistry().getYCoordinates()) {
 			int x = 0;
-			for (double dx : router.getXCoordinates()) {
+			for (double dx : router.getCoordinatesRegistry().getXCoordinates()) {
 				boolean isBusy = (cells[x][y] & CellState.BUSY) > 0;
 				boolean isVerticalPrivate = (cells[x][y] & CellState.VERTICAL_PUBLIC) == 0;
 				boolean isHorizontalPrivate = (cells[x][y] & CellState.HORIZONTAL_PUBLIC) == 0;
@@ -203,7 +203,7 @@ public class RoutingClient {
 
 	private void drawBlocks(Graphics2D g) {
 		g.setColor(Color.BLUE.darker());
-		for (Rectangle rec : router.blocked) {
+		for (Rectangle rec : router.getCoordinatesRegistry().blocked) {
 
 			Rectangle2D drec = new Rectangle2D.Double(rec.x, rec.y, rec.width, rec.height);
 
