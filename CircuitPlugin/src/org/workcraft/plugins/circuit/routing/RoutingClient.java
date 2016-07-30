@@ -49,7 +49,7 @@ public class RoutingClient {
 				Port newPort = new Port(getDirection(contact), portPoint, false);
 				newObstacles.addPort(newPort);
 
-				Line portSegment = internalBoundingBox.getPortSegment(newPort);
+				Line portSegment = internalBoundingBox.getPortSegment(portPoint);
 				newObstacles.addSegment(portSegment);
 			}
 		}
@@ -94,6 +94,14 @@ public class RoutingClient {
 
 	public void draw(Graphics2D g, Viewport viewport) {
 
+		drawCoordinates(g, viewport);
+		drawBlocks(g);
+		// drawSegments(g);
+		drawCells(g);
+
+	}
+
+	private void drawCoordinates(Graphics2D g, Viewport viewport) {
 		Path2D grid = new Path2D.Double();
 
 		java.awt.Rectangle bounds = viewport.getShape();
@@ -115,7 +123,9 @@ public class RoutingClient {
 		g.setColor(Color.GRAY.brighter());
 		g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
 		g.draw(grid);
+	}
 
+	private void drawCells(Graphics2D g) {
 		RoutingCells rcells = router.getRoutingCells();
 
 		int[][] cells = rcells.cells;
@@ -128,6 +138,9 @@ public class RoutingClient {
 				boolean isVerticalPrivate = (cells[x][y] & CellState.VERTICAL_PUBLIC) == 0;
 				boolean isHorizontalPrivate = (cells[x][y] & CellState.HORIZONTAL_PUBLIC) == 0;
 
+				boolean isVerticalBlock = (cells[x][y] & CellState.VERTICAL_BLOCK) != 0;
+				boolean isHorizontalBlock = (cells[x][y] & CellState.HORIZONTAL_BLOCK) != 0;
+
 				Path2D shape = new Path2D.Double();
 
 				if (isBusy) {
@@ -138,14 +151,34 @@ public class RoutingClient {
 					shape.lineTo(dx - 0.1, dy + 0.1);
 					g.draw(shape);
 				} else {
+
 					if (isVerticalPrivate) {
+						shape = new Path2D.Double();
 						g.setColor(Color.MAGENTA.darker());
 						shape.moveTo(dx, dy - 0.1);
 						shape.lineTo(dx, dy + 0.1);
 						g.draw(shape);
 					}
+
 					if (isHorizontalPrivate) {
+						shape = new Path2D.Double();
 						g.setColor(Color.MAGENTA.darker());
+						shape.moveTo(dx - 0.1, dy);
+						shape.lineTo(dx + 0.1, dy);
+						g.draw(shape);
+					}
+
+					if (isVerticalBlock) {
+						shape = new Path2D.Double();
+						g.setColor(Color.RED);
+						shape.moveTo(dx, dy - 0.1);
+						shape.lineTo(dx, dy + 0.1);
+						g.draw(shape);
+					}
+
+					if (isHorizontalBlock) {
+						shape = new Path2D.Double();
+						g.setColor(Color.RED);
 						shape.moveTo(dx - 0.1, dy);
 						shape.lineTo(dx + 0.1, dy);
 						g.draw(shape);
@@ -156,7 +189,26 @@ public class RoutingClient {
 			}
 			y++;
 		}
+	}
 
+	private void drawSegments(Graphics2D g) {
+		g.setColor(Color.BLUE.darker());
+		for (Line registeredSegment : router.getObstacles().getSegments()) {
+			Path2D shape = new Path2D.Double();
+			shape.moveTo(registeredSegment.x1, registeredSegment.y1);
+			shape.lineTo(registeredSegment.x2, registeredSegment.y2);
+			g.draw(shape);
+		}
+	}
+
+	private void drawBlocks(Graphics2D g) {
+		g.setColor(Color.BLUE.darker());
+		for (Rectangle rec : router.blocked) {
+
+			Rectangle2D drec = new Rectangle2D.Double(rec.x, rec.y, rec.width, rec.height);
+
+			g.draw(drec);
+		}
 	}
 
 }

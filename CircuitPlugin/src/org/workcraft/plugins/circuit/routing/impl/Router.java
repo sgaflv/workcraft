@@ -1,9 +1,12 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
+import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
@@ -31,6 +34,10 @@ public class Router {
 		_lastObstaclesUsed = newObstacles;
 		isBuilt = false;
 		return true;
+	}
+
+	public Obstacles getObstacles() {
+		return _lastObstaclesUsed;
 	}
 
 	public Collection<Double> getXCoordinates() {
@@ -75,6 +82,54 @@ public class Router {
 		markHorizontalPublic();
 
 		markBusy();
+		markBlocked();
+	}
+
+	public List<Rectangle> blocked = new ArrayList<Rectangle>();
+
+	private void markBlocked() {
+		blocked.clear();
+
+		for (Line segment : _lastObstaclesUsed.getSegments()) {
+
+			double x1 = Math.min(segment.x1, segment.x2);
+			double x2 = Math.max(segment.x1, segment.x2);
+			double y1 = Math.min(segment.y1, segment.y2);
+			double y2 = Math.max(segment.y1, segment.y2);
+
+			IntegerInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RoutingConstants.SEGMENT_MARGIN,
+					x2 + RoutingConstants.SEGMENT_MARGIN);
+			IntegerInterval yInt = yCoords.getIndexedIntervalExclusive(y1 - RoutingConstants.SEGMENT_MARGIN,
+					y2 + RoutingConstants.SEGMENT_MARGIN);
+
+			if (segment.isVertical()) {
+				blocked.add(new Rectangle(x1 - RoutingConstants.SEGMENT_MARGIN, y1 - RoutingConstants.SEGMENT_MARGIN,
+						x2 - x1 + 2 * RoutingConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RoutingConstants.SEGMENT_MARGIN));
+				routingCells.mark(xInt, yInt, CellState.VERTICAL_BLOCK);
+
+				IntegerInterval xInclude = xCoords.getIndexedInterval(x1, x1);
+				IntegerInterval yIncludeMin = yCoords.getIndexedInterval(y1 - RoutingConstants.SEGMENT_MARGIN, y1);
+				IntegerInterval yIncludeMax = yCoords.getIndexedInterval(y2, y2 + RoutingConstants.SEGMENT_MARGIN);
+
+				routingCells.unmark(xInclude, yIncludeMin, CellState.VERTICAL_BLOCK);
+				routingCells.unmark(xInclude, yIncludeMax, CellState.VERTICAL_BLOCK);
+			}
+
+			if (segment.isHorizontal()) {
+
+				blocked.add(new Rectangle(x1 - RoutingConstants.SEGMENT_MARGIN, y1 - RoutingConstants.SEGMENT_MARGIN,
+						x2 - x1 + 2 * RoutingConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RoutingConstants.SEGMENT_MARGIN));
+
+				routingCells.mark(xInt, yInt, CellState.HORIZONTAL_BLOCK);
+
+				IntegerInterval yInclude = yCoords.getIndexedInterval(y1, y1);
+				IntegerInterval xIncludeMin = xCoords.getIndexedInterval(x1 - RoutingConstants.SEGMENT_MARGIN, x1);
+				IntegerInterval xIncludeMax = xCoords.getIndexedInterval(x2, x2 + RoutingConstants.SEGMENT_MARGIN);
+
+				routingCells.unmark(xIncludeMin, yInclude, CellState.HORIZONTAL_BLOCK);
+				routingCells.unmark(xIncludeMax, yInclude, CellState.HORIZONTAL_BLOCK);
+			}
+		}
 	}
 
 	private void markBusy() {

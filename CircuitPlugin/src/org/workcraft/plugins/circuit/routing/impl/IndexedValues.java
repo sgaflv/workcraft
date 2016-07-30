@@ -48,6 +48,7 @@ public final class IndexedValues {
 	 */
 	public void clear() {
 		values.clear();
+		publicValues.clear();
 		clearMaps();
 	}
 
@@ -137,13 +138,12 @@ public final class IndexedValues {
 	 *            lowest border interval
 	 * @param to
 	 *            highest border interval
-	 * @return the interval in indexed values. Return null if the interval is
+	 * @return the interval in indexed values. Returns null if the interval is
 	 *         not covering any indexed values.
 	 */
 	public IntegerInterval getIndexedInterval(double from, double to) {
 		assert from <= to : "the interval borders must be provided from lower to higher";
 
-		// build indices if necessary
 		build();
 
 		Double minBorder = values.ceiling(from - RoutingConstants.EPSILON);
@@ -157,7 +157,35 @@ public final class IndexedValues {
 			return null;
 		}
 
-		assert isBuilt : "the value indices must be built before calling the getIndexedInterval";
+		return new IntegerInterval(toIndex.get(minBorder), toIndex.get(maxBorder));
+	}
+
+	/**
+	 * Return the indices covered by the given interval. It does not include the
+	 * interval boundaries.
+	 *
+	 * @param from
+	 *            lowest border interval
+	 * @param to
+	 *            highest border interval
+	 * @return the interval in indexed values. Returns null if the interval is
+	 *         not covering any indexed values.
+	 */
+	public IntegerInterval getIndexedIntervalExclusive(double from, double to) {
+		assert from <= to : "the interval borders must be provided from lower to higher";
+
+		build();
+
+		Double minBorder = values.ceiling(from + 2 * RoutingConstants.EPSILON);
+		Double maxBorder = values.floor(to - 2 * RoutingConstants.EPSILON);
+
+		if (minBorder == null || maxBorder == null) {
+			return null;
+		}
+
+		if (minBorder > maxBorder) {
+			return null;
+		}
 
 		return new IntegerInterval(toIndex.get(minBorder), toIndex.get(maxBorder));
 	}

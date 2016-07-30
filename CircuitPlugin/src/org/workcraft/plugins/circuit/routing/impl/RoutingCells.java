@@ -24,6 +24,13 @@ public class RoutingCells {
 		}
 	}
 
+	public void mark(IntegerInterval hInterval, IntegerInterval vInterval, int value) {
+		if (hInterval == null || vInterval == null) {
+			return;
+		}
+		mark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, value);
+	}
+
 	public void unmark(int x1, int y1, int x2, int y2, int value) {
 		if (value == 0) {
 			return;
@@ -36,17 +43,18 @@ public class RoutingCells {
 		}
 	}
 
-	public void markBusy(IntegerInterval hInterval, IntegerInterval vInterval) {
+	public void unmark(IntegerInterval hInterval, IntegerInterval vInterval, int value) {
 		if (hInterval == null || vInterval == null) {
 			return;
 		}
-		mark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, CellState.BUSY);
+		unmark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, value);
+	}
+
+	public void markBusy(IntegerInterval hInterval, IntegerInterval vInterval) {
+		mark(hInterval, vInterval, CellState.BUSY);
 	}
 
 	public void unmarkBusy(IntegerInterval hInterval, IntegerInterval vInterval) {
-		if (hInterval == null || vInterval == null) {
-			return;
-		}
-		unmark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, CellState.BUSY);
+		unmark(hInterval, vInterval, CellState.BUSY);
 	}
 }

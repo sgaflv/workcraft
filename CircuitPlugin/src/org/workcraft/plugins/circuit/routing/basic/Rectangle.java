@@ -55,8 +55,30 @@ public final class Rectangle {
 		return "Rectangle [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
 
-	public Line getPortSegment(Port port) {
-		// TODO: implement
-		return null;
+	public Line getPortSegment(Point location) {
+		double dx = 0;
+		double dy = 0;
+
+		if (location.x < x) {
+			dx = x - location.x;
+		}
+
+		if (location.x > x + width) {
+			dx = x + width - location.x;
+		}
+
+		if (location.y < y) {
+			dy = y - location.y;
+		}
+
+		if (location.y > y + height) {
+			dy = y + height - location.y;
+		}
+
+		if (dx == 0 && dy == 0) {
+			return null;
+		}
+
+		return new Line(location.x, location.y, location.x + dx, location.y + dy);
 	}
 }
