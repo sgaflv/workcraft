@@ -167,20 +167,23 @@ public class Router {
 		xCoords.clear();
 		yCoords.clear();
 
+		registerRectangles();
+		registerPorts();
+
+		registerAdditionalCoordinates();
+	}
+
+	private void registerAdditionalCoordinates() {
+
 		for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
-			double minx = SnapCalculator.snapToLower(rec.x - RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double miny = SnapCalculator.snapToLower(rec.y - RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
 
-			xCoords.addPublic(minx, maxx);
-			yCoords.addPublic(miny, maxy);
+			xCoords.addPrivate(rec.x + rec.width / 2);
+
+			yCoords.addPrivate(rec.y + rec.height / 2);
 		}
+	}
 
+	private void registerPorts() {
 		for (Port port : _lastObstaclesUsed.getPorts()) {
 			// 1. out of the edge port
 			if (!port.isOnEdge) {
@@ -199,6 +202,22 @@ public class Router {
 			}
 
 			parallel.addPrivate(parallelCoord);
+		}
+	}
+
+	private void registerRectangles() {
+		for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
+			double minx = SnapCalculator.snapToLower(rec.x - RoutingConstants.OBSTACLE_MARGIN,
+					RoutingConstants.MAJOR_SNAP);
+			double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RoutingConstants.OBSTACLE_MARGIN,
+					RoutingConstants.MAJOR_SNAP);
+			double miny = SnapCalculator.snapToLower(rec.y - RoutingConstants.OBSTACLE_MARGIN,
+					RoutingConstants.MAJOR_SNAP);
+			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RoutingConstants.OBSTACLE_MARGIN,
+					RoutingConstants.MAJOR_SNAP);
+
+			xCoords.addPublic(minx, maxx);
+			yCoords.addPublic(miny, maxy);
 		}
 	}
 

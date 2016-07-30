@@ -87,6 +87,25 @@ public class IndexedValuesTest {
 	}
 
 	@Test
+	public void testPublicValues() {
+
+		indexedValues.addPrivate(0, 1, 2);
+		indexedValues.addPublic(-1, 1, 3);
+
+		assertTrue(indexedValues.isPublic(-1));
+		assertTrue(indexedValues.isPublic(1));
+		assertTrue(indexedValues.isPublic(3));
+
+		assertFalse(indexedValues.isPublic(0));
+		assertFalse(indexedValues.isPublic(2));
+
+		indexedValues.clear();
+		assertFalse(indexedValues.isPublic(-1));
+		assertFalse(indexedValues.isPublic(1));
+		assertFalse(indexedValues.isPublic(3));
+	}
+
+	@Test
 	public void testGetValueByIndex() {
 
 		indexedValues.addPublic(-1.0, 0.5, 1.0, 3.0);
