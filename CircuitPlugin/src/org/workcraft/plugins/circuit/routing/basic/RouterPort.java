@@ -3,7 +3,7 @@ package org.workcraft.plugins.circuit.routing.basic;
 /**
  * Class representing a separate port used as a start or end of any route.
  */
-public final class Port {
+public final class RouterPort {
 	/** Direction of the port. */
 	public final Direction direction;
 	/** Location of the port. */
@@ -15,7 +15,7 @@ public final class Port {
 	 */
 	public final boolean isOnEdge;
 
-	public Port(Direction direction, Point location, boolean isOnEdge) {
+	public RouterPort(Direction direction, Point location, boolean isOnEdge) {
 		if (direction == null || location == null) {
 			throw new IllegalArgumentException();
 		}
@@ -42,7 +42,7 @@ public final class Port {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Port other = (Port) obj;
+		RouterPort other = (RouterPort) obj;
 		if (direction != other.direction)
 			return false;
 		if (isOnEdge != other.isOnEdge)

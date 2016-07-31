@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
-import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 
 /**
  * This class maps values to integer indexes.
@@ -146,8 +146,8 @@ public final class IndexedValues {
 
 		build();
 
-		Double minBorder = values.ceiling(from - RoutingConstants.EPSILON);
-		Double maxBorder = values.floor(to + RoutingConstants.EPSILON);
+		Double minBorder = values.ceiling(from - RouterConstants.EPSILON);
+		Double maxBorder = values.floor(to + RouterConstants.EPSILON);
 
 		if (minBorder == null || maxBorder == null) {
 			return null;
@@ -176,8 +176,8 @@ public final class IndexedValues {
 
 		build();
 
-		Double minBorder = values.ceiling(from + 2 * RoutingConstants.EPSILON);
-		Double maxBorder = values.floor(to - 2 * RoutingConstants.EPSILON);
+		Double minBorder = values.ceiling(from + 2 * RouterConstants.EPSILON);
+		Double maxBorder = values.floor(to - 2 * RouterConstants.EPSILON);
 
 		if (minBorder == null || maxBorder == null) {
 			return null;

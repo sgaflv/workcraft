@@ -7,11 +7,11 @@ public class Router {
 
 	private final CoordinatesRegistry coordinates = new CoordinatesRegistry();
 
-	public void setObstacles(Obstacles newObstacles) {
+	public void setObstacles(RouterTask newObstacles) {
 		coordinates.setObstacles(newObstacles);
 	}
 
-	public Obstacles getObstacles() {
+	public RouterTask getObstacles() {
 		return coordinates.getObstacles();
 	}
 

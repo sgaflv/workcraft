@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
-import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 
 public class SnapCalculator {
 
@@ -16,7 +16,7 @@ public class SnapCalculator {
 	public static double snapToHigher(double value, double snapSize) {
 		assert snapSize > 0 : "snapSize must be positive";
 
-		double divided = (value - RoutingConstants.EPSILON) / snapSize;
+		double divided = (value - RouterConstants.EPSILON) / snapSize;
 		double ceil = Math.ceil(divided);
 		return ceil * snapSize;
 	}
@@ -33,7 +33,7 @@ public class SnapCalculator {
 	public static double snapToLower(double value, double snapSize) {
 		assert snapSize > 0 : "snapSize must be positive";
 
-		double divided = (value + RoutingConstants.EPSILON) / snapSize;
+		double divided = (value + RouterConstants.EPSILON) / snapSize;
 		double floor = Math.floor(divided);
 		return floor * snapSize;
 	}

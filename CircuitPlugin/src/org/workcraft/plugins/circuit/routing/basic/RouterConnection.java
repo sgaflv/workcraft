@@ -3,11 +3,11 @@ package org.workcraft.plugins.circuit.routing.basic;
 /**
  * The connection class between two ports, defines one of the routing tasks.
  */
-public class Connection {
-	public final Port source;
-	public final Port destination;
+public class RouterConnection {
+	public final RouterPort source;
+	public final RouterPort destination;
 
-	public Connection(Port source, Port destination) {
+	public RouterConnection(RouterPort source, RouterPort destination) {
 		this.source = source;
 		this.destination = destination;
 	}
@@ -29,7 +29,7 @@ public class Connection {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Connection other = (Connection) obj;
+		RouterConnection other = (RouterConnection) obj;
 		if (destination == null) {
 			if (other.destination != null)
 				return false;

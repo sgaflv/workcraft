@@ -5,21 +5,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.workcraft.plugins.circuit.routing.basic.Connection;
 import org.workcraft.plugins.circuit.routing.basic.Line;
-import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
+import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
+import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
 /**
  * The class completely defines the routing task. It's equality function can be
- * used to determine if two routing tasks would produce the same routing result.
+ * used to determine if two routing tasks would produce the same routes.
  */
-public class Obstacles {
+public class RouterTask {
 
 	private final List<Rectangle> rectangles = new ArrayList<Rectangle>();
 	private final List<Line> segments = new ArrayList<>();
-	private final Set<Port> ports = new HashSet<>();
-	private final Set<Connection> connections = new HashSet<>();
+	private final Set<RouterPort> ports = new HashSet<>();
+	private final Set<RouterConnection> connections = new HashSet<>();
 
 	public void addRectangle(Rectangle rec) {
 		rectangles.add(rec);
@@ -33,7 +33,7 @@ public class Obstacles {
 		segments.add(line);
 	}
 
-	public void addPort(Port port) {
+	public void addPort(RouterPort port) {
 		if (port == null) {
 			return;
 		}
@@ -41,7 +41,7 @@ public class Obstacles {
 		ports.add(port);
 	}
 
-	public void addConnection(Connection connection) {
+	public void addConnection(RouterConnection connection) {
 		addPort(connection.source);
 		addPort(connection.destination);
 
@@ -56,11 +56,11 @@ public class Obstacles {
 		return rectangles;
 	}
 
-	public Set<Port> getPorts() {
+	public Set<RouterPort> getPorts() {
 		return ports;
 	}
 
-	public Set<Connection> getConnections() {
+	public Set<RouterConnection> getConnections() {
 		return connections;
 	}
 
@@ -83,7 +83,7 @@ public class Obstacles {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Obstacles other = (Obstacles) obj;
+		RouterTask other = (RouterTask) obj;
 		if (connections == null) {
 			if (other.connections != null)
 				return false;

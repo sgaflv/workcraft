@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class RoutingConstants {
+public class RouterConstants {
 	public final static double EPSILON = 0.0000001;
 
 	public final static double OBSTACLE_MARGIN = 0.5;

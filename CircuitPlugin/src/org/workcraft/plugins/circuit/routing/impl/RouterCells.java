@@ -3,12 +3,12 @@ package org.workcraft.plugins.circuit.routing.impl;
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 
-public class RoutingCells {
+public class RouterCells {
 
 	/** A rather low-level implementation for the cell states. */
 	public final int cells[][];
 
-	public RoutingCells(int width, int height) {
+	public RouterCells(int width, int height) {
 		cells = new int[width][height];
 	}
 

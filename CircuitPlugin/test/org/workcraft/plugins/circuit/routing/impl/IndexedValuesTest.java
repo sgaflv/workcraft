@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
-import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 
 public class IndexedValuesTest {
 
@@ -71,9 +71,9 @@ public class IndexedValuesTest {
 
 		assertEquals(new IntegerInterval(1, 1), indexedValues.getIndexedInterval(0.5, 0.5));
 		assertEquals(new IntegerInterval(1, 1),
-				indexedValues.getIndexedInterval(0.5 - RoutingConstants.EPSILON, 0.5 - RoutingConstants.EPSILON));
+				indexedValues.getIndexedInterval(0.5 - RouterConstants.EPSILON, 0.5 - RouterConstants.EPSILON));
 		assertEquals(new IntegerInterval(1, 1),
-				indexedValues.getIndexedInterval(0.5 + RoutingConstants.EPSILON, 0.5 + RoutingConstants.EPSILON));
+				indexedValues.getIndexedInterval(0.5 + RouterConstants.EPSILON, 0.5 + RouterConstants.EPSILON));
 	}
 
 	@Test
@@ -110,12 +110,12 @@ public class IndexedValuesTest {
 
 		indexedValues.addPublic(-1.0, 0.5, 1.0, 3.0);
 
-		assertEquals(-1.0, indexedValues.getValueByIndex(0), RoutingConstants.EPSILON);
-		assertEquals(0.5, indexedValues.getValueByIndex(1), RoutingConstants.EPSILON);
-		assertEquals(1.0, indexedValues.getValueByIndex(2), RoutingConstants.EPSILON);
+		assertEquals(-1.0, indexedValues.getValueByIndex(0), RouterConstants.EPSILON);
+		assertEquals(0.5, indexedValues.getValueByIndex(1), RouterConstants.EPSILON);
+		assertEquals(1.0, indexedValues.getValueByIndex(2), RouterConstants.EPSILON);
 
 		indexedValues.addPublic(0.0);
 
-		assertEquals(0.5, indexedValues.getValueByIndex(2), RoutingConstants.EPSILON);
+		assertEquals(0.5, indexedValues.getValueByIndex(2), RouterConstants.EPSILON);
 	}
 }

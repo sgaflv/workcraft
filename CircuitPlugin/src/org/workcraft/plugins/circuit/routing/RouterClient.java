@@ -6,7 +6,10 @@ import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.workcraft.dom.Node;
 import org.workcraft.gui.graph.Viewport;
 import org.workcraft.plugins.circuit.CircuitSettings;
 import org.workcraft.plugins.circuit.VisualCircuit;
@@ -16,55 +19,58 @@ import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.Direction;
 import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Point;
-import org.workcraft.plugins.circuit.routing.basic.Port;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
-import org.workcraft.plugins.circuit.routing.impl.Obstacles;
+import org.workcraft.plugins.circuit.routing.basic.RouterPort;
+import org.workcraft.plugins.circuit.routing.impl.RouterTask;
 import org.workcraft.plugins.circuit.routing.impl.Router;
-import org.workcraft.plugins.circuit.routing.impl.RoutingCells;
+import org.workcraft.plugins.circuit.routing.impl.RouterCells;
 
 /**
  * The class creates the routing task and
  */
-public class RoutingClient {
+public class RouterClient {
 
 	private Router router = new Router();
 
-	public RoutingClient() {
+	public RouterClient() {
 	}
+
+	private Map<Node, RouterPort> portMap = new HashMap<Node, RouterPort>();
 
 	public void registerObstacles(VisualCircuit circuit) {
 
-		Obstacles newObstacles = new Obstacles();
+		RouterTask newTask = new RouterTask();
 
 		for (VisualFunctionComponent component : circuit.getVisualFunctionComponents()) {
 
 			Rectangle internalBoundingBox = getRectangle(component.getInternalBoundingBox());
 
-			newObstacles.addRectangle(internalBoundingBox);
+			newTask.addRectangle(internalBoundingBox);
 
 			for (VisualContact contact : component.getContacts()) {
 
 				Point portPoint = new Point(contact.getX() + component.getX(), contact.getY() + component.getY());
 
-				Port newPort = new Port(getDirection(contact), portPoint, false);
-				newObstacles.addPort(newPort);
+				RouterPort newPort = new RouterPort(getDirection(contact), portPoint, false);
+				portMap.put(contact, newPort);
+				newTask.addPort(newPort);
 
 				Line portSegment = internalBoundingBox.getPortSegment(portPoint);
-				newObstacles.addSegment(portSegment);
+				newTask.addSegment(portSegment);
 			}
 		}
 
 		for (VisualContact port : circuit.getVisualPorts()) {
 			Rectangle2D internalBoundingBox = port.getInternalBoundingBox();
-			newObstacles.addRectangle(getRectangle(internalBoundingBox));
+			newTask.addRectangle(getRectangle(internalBoundingBox));
 
-			Port newPort = new Port(getDirection(port),
+			RouterPort newPort = new RouterPort(getDirection(port),
 					new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()), true);
 
-			newObstacles.addPort(newPort);
+			newTask.addPort(newPort);
 		}
 
-		router.setObstacles(newObstacles);
+		router.setObstacles(newTask);
 	}
 
 	private Direction getDirection(VisualContact contact) {
@@ -98,7 +104,6 @@ public class RoutingClient {
 		drawBlocks(g);
 		// drawSegments(g);
 		drawCells(g);
-
 	}
 
 	private void drawCoordinates(Graphics2D g, Viewport viewport) {
@@ -126,7 +131,7 @@ public class RoutingClient {
 	}
 
 	private void drawCells(Graphics2D g) {
-		RoutingCells rcells = router.getCoordinatesRegistry().getRoutingCells();
+		RouterCells rcells = router.getCoordinatesRegistry().getRoutingCells();
 
 		int[][] cells = rcells.cells;
 

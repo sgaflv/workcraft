@@ -7,9 +7,9 @@ import java.util.List;
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.Line;
-import org.workcraft.plugins.circuit.routing.basic.Port;
+import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
-import org.workcraft.plugins.circuit.routing.basic.RoutingConstants;
+import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 
 /**
  * Class generates coorginates
@@ -19,13 +19,13 @@ public class CoordinatesRegistry {
 	private final IndexedValues xCoords = new IndexedValues();
 	private final IndexedValues yCoords = new IndexedValues();
 
-	private Obstacles _lastObstaclesUsed;
+	private RouterTask _lastObstaclesUsed;
 
 	private boolean isBuilt = false;
 
-	private RoutingCells routingCells;
+	private RouterCells routingCells;
 
-	public boolean setObstacles(Obstacles newObstacles) {
+	public boolean setObstacles(RouterTask newObstacles) {
 		if (newObstacles == null || newObstacles.equals(_lastObstaclesUsed)) {
 			return false;
 		}
@@ -35,7 +35,7 @@ public class CoordinatesRegistry {
 		return true;
 	}
 
-	public Obstacles getObstacles() {
+	public RouterTask getObstacles() {
 		return _lastObstaclesUsed;
 	}
 
@@ -51,7 +51,7 @@ public class CoordinatesRegistry {
 		return yCoords.getValues();
 	}
 
-	public RoutingCells getRoutingCells() {
+	public RouterCells getRoutingCells() {
 		buildCoordinates();
 
 		return routingCells;
@@ -75,7 +75,7 @@ public class CoordinatesRegistry {
 	}
 
 	private void markCells() {
-		routingCells = new RoutingCells(xCoords.size(), yCoords.size());
+		routingCells = new RouterCells(xCoords.size(), yCoords.size());
 
 		markVerticalPublic();
 		markHorizontalPublic();
@@ -96,19 +96,19 @@ public class CoordinatesRegistry {
 			double y1 = Math.min(segment.y1, segment.y2);
 			double y2 = Math.max(segment.y1, segment.y2);
 
-			IntegerInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RoutingConstants.SEGMENT_MARGIN,
-					x2 + RoutingConstants.SEGMENT_MARGIN);
-			IntegerInterval yInt = yCoords.getIndexedIntervalExclusive(y1 - RoutingConstants.SEGMENT_MARGIN,
-					y2 + RoutingConstants.SEGMENT_MARGIN);
+			IntegerInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RouterConstants.SEGMENT_MARGIN,
+					x2 + RouterConstants.SEGMENT_MARGIN);
+			IntegerInterval yInt = yCoords.getIndexedIntervalExclusive(y1 - RouterConstants.SEGMENT_MARGIN,
+					y2 + RouterConstants.SEGMENT_MARGIN);
 
 			if (segment.isVertical()) {
-				blocked.add(new Rectangle(x1 - RoutingConstants.SEGMENT_MARGIN, y1 - RoutingConstants.SEGMENT_MARGIN,
-						x2 - x1 + 2 * RoutingConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RoutingConstants.SEGMENT_MARGIN));
+				blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN, y1 - RouterConstants.SEGMENT_MARGIN,
+						x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
 				routingCells.mark(xInt, yInt, CellState.VERTICAL_BLOCK);
 
 				IntegerInterval xInclude = xCoords.getIndexedInterval(x1, x1);
-				IntegerInterval yIncludeMin = yCoords.getIndexedInterval(y1 - RoutingConstants.SEGMENT_MARGIN, y1);
-				IntegerInterval yIncludeMax = yCoords.getIndexedInterval(y2, y2 + RoutingConstants.SEGMENT_MARGIN);
+				IntegerInterval yIncludeMin = yCoords.getIndexedInterval(y1 - RouterConstants.SEGMENT_MARGIN, y1);
+				IntegerInterval yIncludeMax = yCoords.getIndexedInterval(y2, y2 + RouterConstants.SEGMENT_MARGIN);
 
 				routingCells.unmark(xInclude, yIncludeMin, CellState.VERTICAL_BLOCK);
 				routingCells.unmark(xInclude, yIncludeMax, CellState.VERTICAL_BLOCK);
@@ -116,14 +116,14 @@ public class CoordinatesRegistry {
 
 			if (segment.isHorizontal()) {
 
-				blocked.add(new Rectangle(x1 - RoutingConstants.SEGMENT_MARGIN, y1 - RoutingConstants.SEGMENT_MARGIN,
-						x2 - x1 + 2 * RoutingConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RoutingConstants.SEGMENT_MARGIN));
+				blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN, y1 - RouterConstants.SEGMENT_MARGIN,
+						x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
 
 				routingCells.mark(xInt, yInt, CellState.HORIZONTAL_BLOCK);
 
 				IntegerInterval yInclude = yCoords.getIndexedInterval(y1, y1);
-				IntegerInterval xIncludeMin = xCoords.getIndexedInterval(x1 - RoutingConstants.SEGMENT_MARGIN, x1);
-				IntegerInterval xIncludeMax = xCoords.getIndexedInterval(x2, x2 + RoutingConstants.SEGMENT_MARGIN);
+				IntegerInterval xIncludeMin = xCoords.getIndexedInterval(x1 - RouterConstants.SEGMENT_MARGIN, x1);
+				IntegerInterval xIncludeMax = xCoords.getIndexedInterval(x2, x2 + RouterConstants.SEGMENT_MARGIN);
 
 				routingCells.unmark(xIncludeMin, yInclude, CellState.HORIZONTAL_BLOCK);
 				routingCells.unmark(xIncludeMax, yInclude, CellState.HORIZONTAL_BLOCK);
@@ -183,7 +183,7 @@ public class CoordinatesRegistry {
 	}
 
 	private void registerPorts() {
-		for (Port port : _lastObstaclesUsed.getPorts()) {
+		for (RouterPort port : _lastObstaclesUsed.getPorts()) {
 			// 1. out of the edge port
 			if (!port.isOnEdge) {
 				xCoords.addPrivate(port.location.x);
@@ -206,14 +206,14 @@ public class CoordinatesRegistry {
 
 	private void registerRectangles() {
 		for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
-			double minx = SnapCalculator.snapToLower(rec.x - RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double miny = SnapCalculator.snapToLower(rec.y - RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
-			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RoutingConstants.OBSTACLE_MARGIN,
-					RoutingConstants.MAJOR_SNAP);
+			double minx = SnapCalculator.snapToLower(rec.x - RouterConstants.OBSTACLE_MARGIN,
+					RouterConstants.MAJOR_SNAP);
+			double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RouterConstants.OBSTACLE_MARGIN,
+					RouterConstants.MAJOR_SNAP);
+			double miny = SnapCalculator.snapToLower(rec.y - RouterConstants.OBSTACLE_MARGIN,
+					RouterConstants.MAJOR_SNAP);
+			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RouterConstants.OBSTACLE_MARGIN,
+					RouterConstants.MAJOR_SNAP);
 
 			xCoords.addPublic(minx, maxx);
 			yCoords.addPublic(miny, maxy);

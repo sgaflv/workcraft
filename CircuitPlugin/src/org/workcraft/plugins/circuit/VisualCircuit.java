@@ -56,7 +56,7 @@ import org.workcraft.gui.graph.tools.GraphEditorTool;
 import org.workcraft.gui.propertyeditor.ModelProperties;
 import org.workcraft.plugins.circuit.Contact.IOType;
 import org.workcraft.plugins.circuit.VisualContact.Direction;
-import org.workcraft.plugins.circuit.routing.RoutingClient;
+import org.workcraft.plugins.circuit.routing.RouterClient;
 import org.workcraft.plugins.circuit.tools.CircuitLayoutTool;
 import org.workcraft.plugins.circuit.tools.RoutingAnalyserTool;
 import org.workcraft.plugins.layout.AbstractLayoutTool;
@@ -70,7 +70,7 @@ import org.workcraft.workspace.WorkspaceEntry;
 @CustomTools(CircuitToolsProvider.class)
 public class VisualCircuit extends AbstractVisualModel {
 
-	RoutingClient routingGrid = new RoutingClient();
+	RouterClient routingGrid = new RouterClient();
 
 	private final Circuit circuit;
 
