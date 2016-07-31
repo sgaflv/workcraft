@@ -5,19 +5,21 @@ import java.util.Collection;
 import java.util.List;
 
 import org.workcraft.plugins.circuit.routing.basic.CellState;
+import org.workcraft.plugins.circuit.routing.basic.Coordinate;
+import org.workcraft.plugins.circuit.routing.basic.CoordinateOrientation;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.Line;
-import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
+import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
 /**
  * Class generates coorginates
  */
 public class CoordinatesRegistry {
 
-	private final IndexedValues xCoords = new IndexedValues();
-	private final IndexedValues yCoords = new IndexedValues();
+	private final IndexedCoordinates xCoords = new IndexedCoordinates();
+	private final IndexedCoordinates yCoords = new IndexedCoordinates();
 
 	private RouterTask _lastObstaclesUsed;
 
@@ -39,13 +41,13 @@ public class CoordinatesRegistry {
 		return _lastObstaclesUsed;
 	}
 
-	public Collection<Double> getXCoordinates() {
+	public Collection<Coordinate> getXCoordinates() {
 		buildCoordinates();
 
 		return xCoords.getValues();
 	}
 
-	public Collection<Double> getYCoordinates() {
+	public Collection<Coordinate> getYCoordinates() {
 		buildCoordinates();
 
 		return yCoords.getValues();
@@ -142,8 +144,8 @@ public class CoordinatesRegistry {
 	private void markVerticalPublic() {
 		int ylen = routingCells.cells[0].length;
 		int x = 0;
-		for (double dx : xCoords.getValues()) {
-			if (xCoords.isPublic(dx)) {
+		for (Coordinate dx : xCoords.getValues()) {
+			if (dx.isPublic) {
 				routingCells.mark(x, 0, x, ylen - 1, CellState.VERTICAL_PUBLIC);
 			}
 			x++;
@@ -153,8 +155,8 @@ public class CoordinatesRegistry {
 	private void markHorizontalPublic() {
 		int xlen = routingCells.cells.length;
 		int y = 0;
-		for (double dy : yCoords.getValues()) {
-			if (yCoords.isPublic(dy)) {
+		for (Coordinate dy : yCoords.getValues()) {
+			if (dy.isPublic) {
 
 				routingCells.mark(0, y, xlen - 1, y, CellState.HORIZONTAL_PUBLIC);
 			}
@@ -192,7 +194,7 @@ public class CoordinatesRegistry {
 			}
 
 			// 2. the port is on the edge
-			IndexedValues parallel = yCoords;
+			IndexedCoordinates parallel = yCoords;
 			double parallelCoord = port.location.y;
 
 			if (port.direction.isVertical()) {
@@ -215,9 +217,14 @@ public class CoordinatesRegistry {
 			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RouterConstants.OBSTACLE_MARGIN,
 					RouterConstants.MAJOR_SNAP);
 
-			xCoords.addPublic(minx, maxx);
-			yCoords.addPublic(miny, maxy);
+			xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
+			xCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxx);
+			yCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, miny);
+			yCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxy);
 		}
+
+		xCoords.mergeCoordinates();
+		yCoords.mergeCoordinates();
 	}
 
 }

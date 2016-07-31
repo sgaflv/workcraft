@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public enum Direction {
+public enum PortDirection {
 	NORTH, SOUTH, EAST, WEST;
 
 	/**

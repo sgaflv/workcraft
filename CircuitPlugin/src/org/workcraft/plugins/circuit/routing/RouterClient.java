@@ -16,14 +16,15 @@ import org.workcraft.plugins.circuit.VisualCircuit;
 import org.workcraft.plugins.circuit.VisualContact;
 import org.workcraft.plugins.circuit.VisualFunctionComponent;
 import org.workcraft.plugins.circuit.routing.basic.CellState;
-import org.workcraft.plugins.circuit.routing.basic.Direction;
+import org.workcraft.plugins.circuit.routing.basic.Coordinate;
 import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Point;
+import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
-import org.workcraft.plugins.circuit.routing.impl.RouterTask;
 import org.workcraft.plugins.circuit.routing.impl.Router;
 import org.workcraft.plugins.circuit.routing.impl.RouterCells;
+import org.workcraft.plugins.circuit.routing.impl.RouterTask;
 
 /**
  * The class creates the routing task and
@@ -73,7 +74,7 @@ public class RouterClient {
 		router.setObstacles(newTask);
 	}
 
-	private Direction getDirection(VisualContact contact) {
+	private PortDirection getDirection(VisualContact contact) {
 
 		org.workcraft.plugins.circuit.VisualContact.Direction direction = contact.getDirection();
 		if (contact.isInput()) {
@@ -82,13 +83,13 @@ public class RouterClient {
 
 		switch (direction) {
 		case EAST:
-			return Direction.EAST;
+			return PortDirection.EAST;
 		case WEST:
-			return Direction.WEST;
+			return PortDirection.WEST;
 		case NORTH:
-			return Direction.NORTH;
+			return PortDirection.NORTH;
 		case SOUTH:
-			return Direction.SOUTH;
+			return PortDirection.SOUTH;
 		}
 
 		return null;
@@ -116,13 +117,13 @@ public class RouterClient {
 		java.awt.Point screenBottomRight = new java.awt.Point(bounds.x + bounds.width, bounds.y + bounds.height);
 		Point2D userBottomRight = viewport.screenToUser(screenBottomRight);
 
-		for (double x : router.getCoordinatesRegistry().getXCoordinates()) {
-			grid.moveTo(x, userTopLeft.getY());
-			grid.lineTo(x, userBottomRight.getY());
+		for (Coordinate x : router.getCoordinatesRegistry().getXCoordinates()) {
+			grid.moveTo(x.value, userTopLeft.getY());
+			grid.lineTo(x.value, userBottomRight.getY());
 		}
-		for (double y : router.getCoordinatesRegistry().getYCoordinates()) {
-			grid.moveTo(userTopLeft.getX(), y);
-			grid.lineTo(userBottomRight.getX(), y);
+		for (Coordinate y : router.getCoordinatesRegistry().getYCoordinates()) {
+			grid.moveTo(userTopLeft.getX(), y.value);
+			grid.lineTo(userBottomRight.getX(), y.value);
 		}
 
 		g.setColor(Color.GRAY.brighter());
@@ -136,9 +137,9 @@ public class RouterClient {
 		int[][] cells = rcells.cells;
 
 		int y = 0;
-		for (double dy : router.getCoordinatesRegistry().getYCoordinates()) {
+		for (Coordinate dy : router.getCoordinatesRegistry().getYCoordinates()) {
 			int x = 0;
-			for (double dx : router.getCoordinatesRegistry().getXCoordinates()) {
+			for (Coordinate dx : router.getCoordinatesRegistry().getXCoordinates()) {
 				boolean isBusy = (cells[x][y] & CellState.BUSY) > 0;
 				boolean isVerticalPrivate = (cells[x][y] & CellState.VERTICAL_PUBLIC) == 0;
 				boolean isHorizontalPrivate = (cells[x][y] & CellState.HORIZONTAL_PUBLIC) == 0;
@@ -150,42 +151,42 @@ public class RouterClient {
 
 				if (isBusy) {
 					g.setColor(Color.RED);
-					shape.moveTo(dx - 0.1, dy - 0.1);
-					shape.lineTo(dx + 0.1, dy + 0.1);
-					shape.moveTo(dx + 0.1, dy - 0.1);
-					shape.lineTo(dx - 0.1, dy + 0.1);
+					shape.moveTo(dx.value - 0.1, dy.value - 0.1);
+					shape.lineTo(dx.value + 0.1, dy.value + 0.1);
+					shape.moveTo(dx.value + 0.1, dy.value - 0.1);
+					shape.lineTo(dx.value - 0.1, dy.value + 0.1);
 					g.draw(shape);
 				} else {
 
 					if (isVerticalPrivate) {
 						shape = new Path2D.Double();
 						g.setColor(Color.MAGENTA.darker());
-						shape.moveTo(dx, dy - 0.1);
-						shape.lineTo(dx, dy + 0.1);
+						shape.moveTo(dx.value, dy.value - 0.1);
+						shape.lineTo(dx.value, dy.value + 0.1);
 						g.draw(shape);
 					}
 
 					if (isHorizontalPrivate) {
 						shape = new Path2D.Double();
 						g.setColor(Color.MAGENTA.darker());
-						shape.moveTo(dx - 0.1, dy);
-						shape.lineTo(dx + 0.1, dy);
+						shape.moveTo(dx.value - 0.1, dy.value);
+						shape.lineTo(dx.value + 0.1, dy.value);
 						g.draw(shape);
 					}
 
 					if (isVerticalBlock) {
 						shape = new Path2D.Double();
 						g.setColor(Color.RED);
-						shape.moveTo(dx, dy - 0.1);
-						shape.lineTo(dx, dy + 0.1);
+						shape.moveTo(dx.value, dy.value - 0.1);
+						shape.lineTo(dx.value, dy.value + 0.1);
 						g.draw(shape);
 					}
 
 					if (isHorizontalBlock) {
 						shape = new Path2D.Double();
 						g.setColor(Color.RED);
-						shape.moveTo(dx - 0.1, dy);
-						shape.lineTo(dx + 0.1, dy);
+						shape.moveTo(dx.value - 0.1, dy.value);
+						shape.lineTo(dx.value + 0.1, dy.value);
 						g.draw(shape);
 					}
 				}

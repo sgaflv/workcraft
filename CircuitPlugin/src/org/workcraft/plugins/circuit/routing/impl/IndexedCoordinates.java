@@ -1,25 +1,29 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
+import org.workcraft.plugins.circuit.routing.basic.Coordinate;
+import org.workcraft.plugins.circuit.routing.basic.CoordinateOrientation;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 
 /**
- * This class maps values to integer indexes.
+ * This class maps coordinates to integer indexes.
  */
-public final class IndexedValues {
+public final class IndexedCoordinates {
 
-	private final TreeSet<Double> values = new TreeSet<>();
-	private final Set<Double> readOnlyValues = Collections.unmodifiableSet(values);
+	private final TreeMap<Double, Coordinate> values = new TreeMap<>();
+	private final Collection<Coordinate> readOnlyValues = Collections.unmodifiableCollection(values.values());
 
-	private final SortedMap<Double, Integer> toIndex = new TreeMap<>();
-	private final SortedMap<Integer, Double> toValue = new TreeMap<>();
+	private final SortedMap<Coordinate, Integer> toIndex = new TreeMap<>();
+	private Coordinate toValue[];
 
 	private final Set<Double> publicValues = new HashSet<Double>();
 
@@ -30,7 +34,7 @@ public final class IndexedValues {
 	 * 
 	 * @return the accumulated list of values
 	 */
-	public Set<Double> getValues() {
+	public Collection<Coordinate> getValues() {
 		return readOnlyValues;
 	}
 
@@ -54,7 +58,7 @@ public final class IndexedValues {
 
 	private void clearMaps() {
 		toIndex.clear();
-		toValue.clear();
+		toValue = null;
 		isBuilt = false;
 	}
 
@@ -64,22 +68,22 @@ public final class IndexedValues {
 	 * @param value
 	 *            a single value to be added to the mapping
 	 */
-	private boolean add(boolean isPublic, double value) {
+	private boolean add(Coordinate coordinate) {
 
-		boolean changed = values.add(value);
+		Coordinate oldValue = values.put(coordinate.value, coordinate);
 
-		if (isPublic) {
-			publicValues.add(value);
+		if (coordinate.isPublic) {
+			publicValues.add(coordinate.value);
 		}
 
-		return changed;
+		return oldValue == null;
 	}
 
-	private void addValue(boolean isPublic, double... values) {
+	private void addValue(boolean isPublic, CoordinateOrientation orientation, double... values) {
 		boolean changed = false;
 
 		for (double value : values) {
-			changed |= add(isPublic, value);
+			changed |= add(new Coordinate(orientation, isPublic || this.isPublic(value), value));
 		}
 
 		if (changed && isBuilt) {
@@ -93,8 +97,8 @@ public final class IndexedValues {
 	 * @param values
 	 *            a values to be added to the mapping
 	 */
-	public void addPublic(double... values) {
-		addValue(true, values);
+	public void addPublic(CoordinateOrientation orientation, double... values) {
+		addValue(true, orientation, values);
 	}
 
 	/**
@@ -104,7 +108,7 @@ public final class IndexedValues {
 	 *            a values to be added to the mapping
 	 */
 	public void addPrivate(double... values) {
-		addValue(false, values);
+		addValue(false, CoordinateOrientation.ORIENT_BOTH, values);
 	}
 
 	public int size() {
@@ -121,10 +125,11 @@ public final class IndexedValues {
 
 		clearMaps();
 
+		toValue = new Coordinate[values.size()];
 		int idx = 0;
-		for (Double value : values) {
-			toIndex.put(value, idx);
-			toValue.put(idx, value);
+		for (Coordinate coordinate : values.values()) {
+			toIndex.put(coordinate, idx);
+			toValue[idx] = coordinate;
 			idx++;
 		}
 
@@ -146,8 +151,8 @@ public final class IndexedValues {
 
 		build();
 
-		Double minBorder = values.ceiling(from - RouterConstants.EPSILON);
-		Double maxBorder = values.floor(to + RouterConstants.EPSILON);
+		Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
+		Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
 
 		if (minBorder == null || maxBorder == null) {
 			return null;
@@ -157,7 +162,7 @@ public final class IndexedValues {
 			return null;
 		}
 
-		return new IntegerInterval(toIndex.get(minBorder), toIndex.get(maxBorder));
+		return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
 	}
 
 	/**
@@ -176,8 +181,8 @@ public final class IndexedValues {
 
 		build();
 
-		Double minBorder = values.ceiling(from + 2 * RouterConstants.EPSILON);
-		Double maxBorder = values.floor(to - 2 * RouterConstants.EPSILON);
+		Double minBorder = values.ceilingKey(from + 2 * RouterConstants.EPSILON);
+		Double maxBorder = values.floorKey(to - 2 * RouterConstants.EPSILON);
 
 		if (minBorder == null || maxBorder == null) {
 			return null;
@@ -187,7 +192,7 @@ public final class IndexedValues {
 			return null;
 		}
 
-		return new IntegerInterval(toIndex.get(minBorder), toIndex.get(maxBorder));
+		return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
 	}
 
 	/**
@@ -205,10 +210,56 @@ public final class IndexedValues {
 
 		build();
 
-		return toValue.get(index);
+		return toValue[index].value;
 	}
 
 	public boolean isPublic(double value) {
 		return publicValues.contains(value);
+	}
+
+	public void mergeCoordinates() {
+		Coordinate first = null;
+		Coordinate second = null;
+
+		List<Coordinate> toAdd = new ArrayList<Coordinate>();
+		List<Coordinate> toDelete = new ArrayList<Coordinate>();
+
+		for (Coordinate coordinate : getValues()) {
+			if (!(coordinate.isPublic)) {
+				continue;
+			}
+
+			if (coordinate.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+				first = coordinate;
+				continue;
+			}
+
+			if (first == null) {
+				continue;
+			}
+
+			if (coordinate.orientation != CoordinateOrientation.ORIENT_LOWER) {
+				continue;
+			}
+
+			second = coordinate;
+
+			double middle = SnapCalculator.snapToClosest((first.value + second.value) / 2,
+					RouterConstants.SEGMENT_MARGIN);
+
+			toAdd.add(new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle));
+			toDelete.add(first);
+			toDelete.add(second);
+			first = null;
+			second = null;
+		}
+
+		for (Coordinate coordinate : toDelete) {
+			values.remove(coordinate.value);
+		}
+
+		for (Coordinate coordinate : toAdd) {
+			values.put(coordinate.value, coordinate);
+		}
 	}
 }
