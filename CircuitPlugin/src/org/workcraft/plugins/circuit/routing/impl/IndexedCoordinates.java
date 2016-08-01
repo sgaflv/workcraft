@@ -56,6 +56,15 @@ public final class IndexedCoordinates {
 		clearMaps();
 	}
 
+	/**
+	 * Remove a single value.
+	 */
+	public void remove(double value) {
+		values.remove(value);
+		publicValues.remove(value);
+		clearMaps();
+	}
+
 	private void clearMaps() {
 		toIndex.clear();
 		toValue = null;
@@ -255,11 +264,11 @@ public final class IndexedCoordinates {
 		}
 
 		for (Coordinate coordinate : toDelete) {
-			values.remove(coordinate.value);
+			remove(coordinate.value);
 		}
 
 		for (Coordinate coordinate : toAdd) {
-			values.put(coordinate.value, coordinate);
+			add(coordinate);
 		}
 	}
 }
