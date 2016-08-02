@@ -118,10 +118,20 @@ public class RouterClient {
 		Point2D userBottomRight = viewport.screenToUser(screenBottomRight);
 
 		for (Coordinate x : router.getCoordinatesRegistry().getXCoordinates()) {
+
+			if (!x.isPublic) {
+				continue;
+			}
+
 			grid.moveTo(x.value, userTopLeft.getY());
 			grid.lineTo(x.value, userBottomRight.getY());
 		}
 		for (Coordinate y : router.getCoordinatesRegistry().getYCoordinates()) {
+
+			if (!y.isPublic) {
+				continue;
+			}
+
 			grid.moveTo(userTopLeft.getX(), y.value);
 			grid.lineTo(userBottomRight.getX(), y.value);
 		}
