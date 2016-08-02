@@ -94,7 +94,7 @@ public class IndexedValuesTest {
 	@Test
 	public void testPublicValues() {
 
-		indexedValues.addPrivate(0, 1, 2);
+		indexedValues.addPrivate(CoordinateOrientation.ORIENT_BOTH, 0, 1, 2);
 		indexedValues.addPublic(CoordinateOrientation.ORIENT_BOTH, -1, 1, 3);
 
 		assertTrue(indexedValues.isPublic(-1));

@@ -92,7 +92,17 @@ public final class IndexedCoordinates {
 		boolean changed = false;
 
 		for (double value : values) {
-			changed |= add(new Coordinate(orientation, isPublic || this.isPublic(value), value));
+			CoordinateOrientation newOrientation = orientation;
+
+			Coordinate oldCoordinate = this.values.get(value);
+
+			if (oldCoordinate != null) {
+				newOrientation = orientation.merge(oldCoordinate.orientation);
+			}
+
+			Coordinate newCoordinate = new Coordinate(newOrientation, isPublic || this.isPublic(value), value);
+
+			changed |= add(newCoordinate);
 		}
 
 		if (changed && isBuilt) {
@@ -116,8 +126,8 @@ public final class IndexedCoordinates {
 	 * @param values
 	 *            a values to be added to the mapping
 	 */
-	public void addPrivate(double... values) {
-		addValue(false, CoordinateOrientation.ORIENT_BOTH, values);
+	public void addPrivate(CoordinateOrientation orientation, double... values) {
+		addValue(false, orientation, values);
 	}
 
 	public int size() {

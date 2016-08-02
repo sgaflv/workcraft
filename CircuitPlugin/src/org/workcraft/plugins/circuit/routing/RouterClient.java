@@ -17,6 +17,7 @@ import org.workcraft.plugins.circuit.VisualContact;
 import org.workcraft.plugins.circuit.VisualFunctionComponent;
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.Coordinate;
+import org.workcraft.plugins.circuit.routing.basic.CoordinateOrientation;
 import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Point;
 import org.workcraft.plugins.circuit.routing.basic.PortDirection;
@@ -77,9 +78,6 @@ public class RouterClient {
 	private PortDirection getDirection(VisualContact contact) {
 
 		org.workcraft.plugins.circuit.VisualContact.Direction direction = contact.getDirection();
-		if (contact.isInput()) {
-			direction = direction.flip();
-		}
 
 		switch (direction) {
 		case EAST:
@@ -108,7 +106,6 @@ public class RouterClient {
 	}
 
 	private void drawCoordinates(Graphics2D g, Viewport viewport) {
-		Path2D grid = new Path2D.Double();
 
 		java.awt.Rectangle bounds = viewport.getShape();
 
@@ -123,8 +120,20 @@ public class RouterClient {
 				continue;
 			}
 
+			Path2D grid = new Path2D.Double();
 			grid.moveTo(x.value, userTopLeft.getY());
 			grid.lineTo(x.value, userBottomRight.getY());
+			g.setColor(Color.GRAY.brighter());
+
+			if (x.orientation == CoordinateOrientation.ORIENT_LOWER) {
+				g.setColor(Color.BLUE);
+			}
+			if (x.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+				g.setColor(Color.RED);
+			}
+
+			g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
+			g.draw(grid);
 		}
 		for (Coordinate y : router.getCoordinatesRegistry().getYCoordinates()) {
 
@@ -132,13 +141,21 @@ public class RouterClient {
 				continue;
 			}
 
+			Path2D grid = new Path2D.Double();
 			grid.moveTo(userTopLeft.getX(), y.value);
 			grid.lineTo(userBottomRight.getX(), y.value);
+			g.setColor(Color.GRAY.brighter());
+
+			if (y.orientation == CoordinateOrientation.ORIENT_LOWER) {
+				g.setColor(Color.BLUE);
+			}
+			if (y.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+				g.setColor(Color.RED);
+			}
+			g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
+			g.draw(grid);
 		}
 
-		g.setColor(Color.GRAY.brighter());
-		g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
-		g.draw(grid);
 	}
 
 	private void drawCells(Graphics2D g) {

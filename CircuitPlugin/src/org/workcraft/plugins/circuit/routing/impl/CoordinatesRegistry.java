@@ -142,6 +142,11 @@ public class CoordinatesRegistry {
 	}
 
 	private void markVerticalPublic() {
+
+		if (routingCells.cells.length == 0) {
+			return;
+		}
+
 		int ylen = routingCells.cells[0].length;
 		int x = 0;
 		for (Coordinate dx : xCoords.getValues()) {
@@ -178,9 +183,9 @@ public class CoordinatesRegistry {
 
 		for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
 
-			xCoords.addPrivate(rec.x + rec.width / 2);
+			xCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.x + rec.width / 2);
 
-			yCoords.addPrivate(rec.y + rec.height / 2);
+			yCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.y + rec.height / 2);
 		}
 	}
 
@@ -188,8 +193,8 @@ public class CoordinatesRegistry {
 		for (RouterPort port : _lastObstaclesUsed.getPorts()) {
 			// 1. out of the edge port
 			if (!port.isOnEdge) {
-				xCoords.addPrivate(port.location.x);
-				yCoords.addPrivate(port.location.y);
+				xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
+				yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
 				continue;
 			}
 
@@ -202,7 +207,7 @@ public class CoordinatesRegistry {
 				parallelCoord = port.location.x;
 			}
 
-			parallel.addPrivate(parallelCoord);
+			parallel.addPrivate(CoordinateOrientation.ORIENT_BOTH, parallelCoord);
 		}
 	}
 
