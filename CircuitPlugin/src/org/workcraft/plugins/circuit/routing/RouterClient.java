@@ -3,11 +3,13 @@ package org.workcraft.plugins.circuit.routing;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.workcraft.dom.Node;
 import org.workcraft.gui.graph.Viewport;
@@ -22,17 +24,18 @@ import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Point;
 import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
+import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 import org.workcraft.plugins.circuit.routing.impl.Router;
 import org.workcraft.plugins.circuit.routing.impl.RouterCells;
 import org.workcraft.plugins.circuit.routing.impl.RouterTask;
 
 /**
- * The class creates the routing task and
+ * The class creates the routing task and launches the router.
  */
 public class RouterClient {
 
-	private Router router = new Router();
+	private final Router router = new Router();
 
 	public RouterClient() {
 	}
@@ -69,7 +72,22 @@ public class RouterClient {
 			RouterPort newPort = new RouterPort(getDirection(port),
 					new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()), true);
 
+			portMap.put(port, newPort);
+
 			newTask.addPort(newPort);
+		}
+
+		// TODO: use the math model instead
+		for (Entry<Node, RouterPort> entry : portMap.entrySet()) {
+			Node node = entry.getKey();
+			RouterPort source = entry.getValue();
+			for (Node nodeDest : circuit.getPostset(node)) {
+				RouterPort destination = portMap.get(nodeDest);
+
+				if (destination != null) {
+					newTask.addConnection(new RouterConnection(source, destination));
+				}
+			}
 		}
 
 		router.setObstacles(newTask);
@@ -103,6 +121,20 @@ public class RouterClient {
 		drawBlocks(g);
 		// drawSegments(g);
 		drawCells(g);
+		drawConnections(g);
+	}
+
+	private void drawConnections(Graphics2D g) {
+		for (RouterConnection connection : router.getObstacles().getConnections()) {
+			RouterPort src = connection.source;
+			RouterPort dest = connection.destination;
+
+			Line2D line = new Line2D.Double(src.location.x, src.location.y, dest.location.x, dest.location.y);
+
+			g.setColor(Color.RED);
+			g.draw(line);
+
+		}
 	}
 
 	private void drawCoordinates(Graphics2D g, Viewport viewport) {

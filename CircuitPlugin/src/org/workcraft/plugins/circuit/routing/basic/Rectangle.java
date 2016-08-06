@@ -81,4 +81,29 @@ public final class Rectangle {
 
 		return new Line(location.x, location.y, location.x + dx, location.y + dy);
 	}
+
+	public Rectangle merge(Rectangle other) {
+
+		double x1, x2, y1, y2;
+		x1 = Math.min(x, other.x);
+		x2 = Math.max(x + width, other.x + other.width);
+		y1 = Math.min(y, other.y);
+		y2 = Math.max(y + height, other.y + other.height);
+
+		return new Rectangle(x1, y1, x2 - x1, y2 - y1);
+	}
+
+	public boolean intersects(Rectangle other) {
+		boolean intersectsH = (x <= other.x + other.width) && (other.x <= x + width);
+		boolean intersectsV = (y <= other.y + other.height) && (other.y <= y + height);
+		return intersectsH && intersectsV;
+	}
+
+	public double middleH() {
+		return x + width / 2;
+	}
+
+	public double middleV() {
+		return y + height / 2;
+	}
 }

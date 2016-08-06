@@ -212,24 +212,62 @@ public class CoordinatesRegistry {
 	}
 
 	private void registerRectangles() {
-		for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
-			double minx = SnapCalculator.snapToLower(rec.x - RouterConstants.OBSTACLE_MARGIN,
-					RouterConstants.MAJOR_SNAP);
-			double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RouterConstants.OBSTACLE_MARGIN,
-					RouterConstants.MAJOR_SNAP);
-			double miny = SnapCalculator.snapToLower(rec.y - RouterConstants.OBSTACLE_MARGIN,
-					RouterConstants.MAJOR_SNAP);
-			double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RouterConstants.OBSTACLE_MARGIN,
-					RouterConstants.MAJOR_SNAP);
+		// for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
+		// double minx = SnapCalculator.snapToLower(rec.x -
+		// RouterConstants.OBSTACLE_MARGIN,
+		// RouterConstants.MAJOR_SNAP);
+		// double maxx = SnapCalculator.snapToHigher(rec.x + rec.width +
+		// RouterConstants.OBSTACLE_MARGIN,
+		// RouterConstants.MAJOR_SNAP);
+		// double miny = SnapCalculator.snapToLower(rec.y -
+		// RouterConstants.OBSTACLE_MARGIN,
+		// RouterConstants.MAJOR_SNAP);
+		// double maxy = SnapCalculator.snapToHigher(rec.y + rec.height +
+		// RouterConstants.OBSTACLE_MARGIN,
+		// RouterConstants.MAJOR_SNAP);
+		//
+		// xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
+		// xCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxx);
+		// yCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, miny);
+		// yCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxy);
+		// }
+		//
+		// xCoords.mergeCoordinates();
+		// yCoords.mergeCoordinates();
 
-			xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
-			xCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxx);
-			yCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, miny);
-			yCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxy);
+		for (Rectangle rec1 : _lastObstaclesUsed.getRectangles()) {
+			for (Rectangle rec2 : _lastObstaclesUsed.getRectangles()) {
+
+				if (rec1.equals(rec2)) {
+					continue;
+				}
+
+				Rectangle merge = rec1.merge(rec2);
+
+				boolean found = false;
+				for (Rectangle obstacle : _lastObstaclesUsed.getRectangles()) {
+					if (obstacle.equals(rec1) || obstacle.equals(rec2)) {
+						continue;
+					}
+
+					if (merge.intersects(obstacle)) {
+						found = true;
+						break;
+					}
+				}
+
+				if (!found) {
+					xCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
+							SnapCalculator.snapToClosest(merge.middleH(), RouterConstants.MAJOR_SNAP));
+
+					yCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
+							SnapCalculator.snapToClosest(merge.middleV(), RouterConstants.MAJOR_SNAP));
+				}
+
+			}
+
 		}
 
-		xCoords.mergeCoordinates();
-		yCoords.mergeCoordinates();
 	}
 
 }
