@@ -1,6 +1,9 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.TreeSet;
 
 import org.junit.Test;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
@@ -85,4 +88,23 @@ public class SnapCalculatorTest {
         assertEquals(-3.5, SnapCalculator.snapToLower(-3.5 - RouterConstants.EPSILON, 0.5), RouterConstants.EPSILON);
     }
 
+    @Test
+    public void testSnapToLowerVsSnapToHigher() {
+        final TreeSet<Double> values = new TreeSet<Double>();
+
+        for (int i = -3; i < 4; i++) {
+            final double higher = SnapCalculator.snapToHigher(i - 0.1, 0.25);
+            final double lower = SnapCalculator.snapToLower(i + 0.1, 0.25);
+
+            values.add(higher);
+            values.add(lower);
+
+            if (higher != lower) {
+                fail("SnapToLower from " + (i - 0.1) + " and SnapToHigher from " + (i + 0.1) + " are not compatible");
+            }
+        }
+
+        assertEquals(7, values.size());
+
+    }
 }

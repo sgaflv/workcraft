@@ -54,7 +54,7 @@ public class CoordinatesRegistry {
         return yCoords.getValues();
     }
 
-    public RouterCells getRoutingCells() {
+    public RouterCells getRouterCells() {
         buildCoordinates();
 
         return routingCells;

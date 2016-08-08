@@ -237,6 +237,7 @@ public final class IndexedCoordinates {
     }
 
     public void mergeCoordinates() {
+
         Coordinate last = null;
         final List<Coordinate> toAdd = new ArrayList<Coordinate>();
         final List<Coordinate> toDelete = new ArrayList<Coordinate>();

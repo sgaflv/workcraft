@@ -186,7 +186,7 @@ public class RouterClient {
     }
 
     private void drawCells(Graphics2D g) {
-        final RouterCells rcells = router.getCoordinatesRegistry().getRoutingCells();
+        final RouterCells rcells = router.getCoordinatesRegistry().getRouterCells();
 
         final int[][] cells = rcells.cells;
 

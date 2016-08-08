@@ -19,6 +19,12 @@ public class SnapCalculator {
 
         final double divided = (value - RouterConstants.EPSILON) / snapSize;
         final double ceil = Math.ceil(divided);
+
+        if (ceil == -0.0) {
+            // special case, to avoid returning -0.0
+            return 0.0;
+        }
+
         return ceil * snapSize;
     }
 
