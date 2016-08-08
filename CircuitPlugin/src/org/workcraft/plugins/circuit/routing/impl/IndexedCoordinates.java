@@ -19,266 +19,266 @@ import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
  */
 public final class IndexedCoordinates {
 
-	private final TreeMap<Double, Coordinate> values = new TreeMap<>();
-	private final Collection<Coordinate> readOnlyValues = Collections.unmodifiableCollection(values.values());
+    private final TreeMap<Double, Coordinate> values = new TreeMap<>();
+    private final Collection<Coordinate> readOnlyValues = Collections.unmodifiableCollection(values.values());
 
-	private final SortedMap<Coordinate, Integer> toIndex = new TreeMap<>();
-	private Coordinate toValue[];
+    private final SortedMap<Coordinate, Integer> toIndex = new TreeMap<>();
+    private Coordinate[] toValue;
 
-	private final Set<Double> publicValues = new HashSet<Double>();
+    private final Set<Double> publicValues = new HashSet<Double>();
 
-	private boolean isBuilt = false;
+    private boolean isBuilt = false;
 
-	/**
-	 * Returns the accumulated list of values.
-	 * 
-	 * @return the accumulated list of values
-	 */
-	public Collection<Coordinate> getValues() {
-		return readOnlyValues;
-	}
+    /**
+     * Returns the accumulated list of values.
+     *
+     * @return the accumulated list of values
+     */
+    public Collection<Coordinate> getValues() {
+        return readOnlyValues;
+    }
 
-	/**
-	 * Shows whether value indices are built.
-	 * 
-	 * @return true if indices are built, false otherwise
-	 */
-	public boolean isBuilt() {
-		return isBuilt;
-	}
+    /**
+     * Shows whether value indices are built.
+     *
+     * @return true if indices are built, false otherwise
+     */
+    public boolean isBuilt() {
+        return isBuilt;
+    }
 
-	/**
-	 * Remove all values.
-	 */
-	public void clear() {
-		values.clear();
-		publicValues.clear();
-		clearMaps();
-	}
+    /**
+     * Remove all values.
+     */
+    public void clear() {
+        values.clear();
+        publicValues.clear();
+        clearMaps();
+    }
 
-	/**
-	 * Remove a single value.
-	 */
-	public void remove(double value) {
-		values.remove(value);
-		publicValues.remove(value);
-		clearMaps();
-	}
+    /**
+     * Remove a single value.
+     */
+    public void remove(double value) {
+        values.remove(value);
+        publicValues.remove(value);
+        clearMaps();
+    }
 
-	private void clearMaps() {
-		toIndex.clear();
-		toValue = null;
-		isBuilt = false;
-	}
+    private void clearMaps() {
+        toIndex.clear();
+        toValue = null;
+        isBuilt = false;
+    }
 
-	/**
-	 * Add a single value to the mapping.
-	 *
-	 * @param value
-	 *            a single value to be added to the mapping
-	 */
-	private boolean add(Coordinate coordinate) {
+    /**
+     * Add a single value to the mapping.
+     *
+     * @param value
+     *            a single value to be added to the mapping
+     */
+    private boolean add(Coordinate coordinate) {
 
-		Coordinate oldValue = values.put(coordinate.value, coordinate);
+        final Coordinate oldValue = values.put(coordinate.value, coordinate);
 
-		if (coordinate.isPublic) {
-			publicValues.add(coordinate.value);
-		}
+        if (coordinate.isPublic) {
+            publicValues.add(coordinate.value);
+        }
 
-		return oldValue == null;
-	}
+        return oldValue == null;
+    }
 
-	private void addValue(boolean isPublic, CoordinateOrientation orientation, double... values) {
-		boolean changed = false;
+    private void addValue(boolean isPublic, CoordinateOrientation orientation, double... values) {
+        boolean changed = false;
 
-		for (double value : values) {
-			CoordinateOrientation newOrientation = orientation;
+        for (final double value : values) {
+            CoordinateOrientation newOrientation = orientation;
 
-			Coordinate oldCoordinate = this.values.get(value);
+            final Coordinate oldCoordinate = this.values.get(value);
 
-			if (oldCoordinate != null) {
-				newOrientation = orientation.merge(oldCoordinate.orientation);
-			}
+            if (oldCoordinate != null) {
+                newOrientation = orientation.merge(oldCoordinate.orientation);
+            }
 
-			Coordinate newCoordinate = new Coordinate(newOrientation, isPublic || this.isPublic(value), value);
+            final Coordinate newCoordinate = new Coordinate(newOrientation, isPublic || isPublic(value), value);
 
-			changed |= add(newCoordinate);
-		}
+            changed |= add(newCoordinate);
+        }
 
-		if (changed && isBuilt) {
-			clearMaps();
-		}
-	}
+        if (changed && isBuilt) {
+            clearMaps();
+        }
+    }
 
-	/**
-	 * Add public values to the mapping.
-	 *
-	 * @param values
-	 *            a values to be added to the mapping
-	 */
-	public void addPublic(CoordinateOrientation orientation, double... values) {
-		addValue(true, orientation, values);
-	}
+    /**
+     * Add public values to the mapping.
+     *
+     * @param values
+     *            a values to be added to the mapping
+     */
+    public void addPublic(CoordinateOrientation orientation, double... values) {
+        addValue(true, orientation, values);
+    }
 
-	/**
-	 * Add private values to the mapping.
-	 *
-	 * @param values
-	 *            a values to be added to the mapping
-	 */
-	public void addPrivate(CoordinateOrientation orientation, double... values) {
-		addValue(false, orientation, values);
-	}
+    /**
+     * Add private values to the mapping.
+     *
+     * @param values
+     *            a values to be added to the mapping
+     */
+    public void addPrivate(CoordinateOrientation orientation, double... values) {
+        addValue(false, orientation, values);
+    }
 
-	public int size() {
-		return values.size();
-	}
+    public int size() {
+        return values.size();
+    }
 
-	/**
-	 * Create the value-to-index mapping after all the values were added.
-	 */
-	public void build() {
-		if (isBuilt) {
-			return;
-		}
+    /**
+     * Create the value-to-index mapping after all the values were added.
+     */
+    public void build() {
+        if (isBuilt) {
+            return;
+        }
 
-		clearMaps();
+        clearMaps();
 
-		toValue = new Coordinate[values.size()];
-		int idx = 0;
-		for (Coordinate coordinate : values.values()) {
-			toIndex.put(coordinate, idx);
-			toValue[idx] = coordinate;
-			idx++;
-		}
+        toValue = new Coordinate[values.size()];
+        int idx = 0;
+        for (final Coordinate coordinate : values.values()) {
+            toIndex.put(coordinate, idx);
+            toValue[idx] = coordinate;
+            idx++;
+        }
 
-		isBuilt = true;
-	}
+        isBuilt = true;
+    }
 
-	/**
-	 * Return the indices covered by the given interval.
-	 *
-	 * @param from
-	 *            lowest border interval
-	 * @param to
-	 *            highest border interval
-	 * @return the interval in indexed values. Returns null if the interval is
-	 *         not covering any indexed values.
-	 */
-	public IntegerInterval getIndexedInterval(double from, double to) {
-		assert from <= to : "the interval borders must be provided from lower to higher";
+    /**
+     * Return the indices covered by the given interval.
+     *
+     * @param from
+     *            lowest border interval
+     * @param to
+     *            highest border interval
+     * @return the interval in indexed values. Returns null if the interval is
+     *         not covering any indexed values.
+     */
+    public IntegerInterval getIndexedInterval(double from, double to) {
+        assert from <= to : "the interval borders must be provided from lower to higher";
 
-		build();
+        build();
 
-		Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
-		Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
+        final Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
+        final Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
 
-		if (minBorder == null || maxBorder == null) {
-			return null;
-		}
+        if (minBorder == null || maxBorder == null) {
+            return null;
+        }
 
-		if (minBorder > maxBorder) {
-			return null;
-		}
+        if (minBorder > maxBorder) {
+            return null;
+        }
 
-		return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
-	}
+        return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
+    }
 
-	/**
-	 * Return the indices covered by the given interval. It does not include the
-	 * interval boundaries.
-	 *
-	 * @param from
-	 *            lowest border interval
-	 * @param to
-	 *            highest border interval
-	 * @return the interval in indexed values. Returns null if the interval is
-	 *         not covering any indexed values.
-	 */
-	public IntegerInterval getIndexedIntervalExclusive(double from, double to) {
-		assert from <= to : "the interval borders must be provided from lower to higher";
+    /**
+     * Return the indices covered by the given interval. It does not include the
+     * interval boundaries.
+     *
+     * @param from
+     *            lowest border interval
+     * @param to
+     *            highest border interval
+     * @return the interval in indexed values. Returns null if the interval is
+     *         not covering any indexed values.
+     */
+    public IntegerInterval getIndexedIntervalExclusive(double from, double to) {
+        assert from <= to : "the interval borders must be provided from lower to higher";
 
-		build();
+        build();
 
-		Double minBorder = values.ceilingKey(from + 2 * RouterConstants.EPSILON);
-		Double maxBorder = values.floorKey(to - 2 * RouterConstants.EPSILON);
+        final Double minBorder = values.ceilingKey(from + 2 * RouterConstants.EPSILON);
+        final Double maxBorder = values.floorKey(to - 2 * RouterConstants.EPSILON);
 
-		if (minBorder == null || maxBorder == null) {
-			return null;
-		}
+        if (minBorder == null || maxBorder == null) {
+            return null;
+        }
 
-		if (minBorder > maxBorder) {
-			return null;
-		}
+        if (minBorder > maxBorder) {
+            return null;
+        }
 
-		return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
-	}
+        return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
+    }
 
-	/**
-	 * Return registered value by specified index.
-	 * 
-	 * @param index
-	 *            the index of value to be returned
-	 * @return the value registered for specified index
-	 */
-	public double getValueByIndex(int index) {
+    /**
+     * Return registered value by specified index.
+     *
+     * @param index
+     *            the index of value to be returned
+     * @return the value registered for specified index
+     */
+    public double getValueByIndex(int index) {
 
-		if (index < 0 || index > size()) {
-			throw new IndexOutOfBoundsException();
-		}
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException();
+        }
 
-		build();
+        build();
 
-		return toValue[index].value;
-	}
+        return toValue[index].value;
+    }
 
-	public boolean isPublic(double value) {
-		return publicValues.contains(value);
-	}
+    public boolean isPublic(double value) {
+        return publicValues.contains(value);
+    }
 
-	public void mergeCoordinates() {
-		Coordinate first = null;
-		Coordinate second = null;
+    public void mergeCoordinates() {
+        Coordinate first = null;
+        Coordinate second = null;
 
-		List<Coordinate> toAdd = new ArrayList<Coordinate>();
-		List<Coordinate> toDelete = new ArrayList<Coordinate>();
+        final List<Coordinate> toAdd = new ArrayList<Coordinate>();
+        final List<Coordinate> toDelete = new ArrayList<Coordinate>();
 
-		for (Coordinate coordinate : getValues()) {
-			if (!(coordinate.isPublic)) {
-				continue;
-			}
+        for (final Coordinate coordinate : getValues()) {
+            if (!(coordinate.isPublic)) {
+                continue;
+            }
 
-			if (coordinate.orientation == CoordinateOrientation.ORIENT_HIGHER) {
-				first = coordinate;
-				continue;
-			}
+            if (coordinate.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+                first = coordinate;
+                continue;
+            }
 
-			if (first == null) {
-				continue;
-			}
+            if (first == null) {
+                continue;
+            }
 
-			if (coordinate.orientation != CoordinateOrientation.ORIENT_LOWER) {
-				continue;
-			}
+            if (coordinate.orientation != CoordinateOrientation.ORIENT_LOWER) {
+                continue;
+            }
 
-			second = coordinate;
+            second = coordinate;
 
-			double middle = SnapCalculator.snapToClosest((first.value + second.value) / 2,
-					RouterConstants.SEGMENT_MARGIN);
+            final double middle = SnapCalculator.snapToClosest((first.value + second.value) / 2,
+                    RouterConstants.SEGMENT_MARGIN);
 
-			toAdd.add(new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle));
-			toDelete.add(first);
-			toDelete.add(second);
-			first = null;
-			second = null;
-		}
+            toAdd.add(new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle));
+            toDelete.add(first);
+            toDelete.add(second);
+            first = null;
+            second = null;
+        }
 
-		for (Coordinate coordinate : toDelete) {
-			remove(coordinate.value);
-		}
+        for (final Coordinate coordinate : toDelete) {
+            remove(coordinate.value);
+        }
 
-		for (Coordinate coordinate : toAdd) {
-			add(coordinate);
-		}
-	}
+        for (final Coordinate coordinate : toAdd) {
+            add(coordinate);
+        }
+    }
 }

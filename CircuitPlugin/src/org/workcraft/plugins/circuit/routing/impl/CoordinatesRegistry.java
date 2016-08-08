@@ -14,260 +14,260 @@ import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
 /**
- * Class generates coorginates
+ * Class generates coordinates
  */
 public class CoordinatesRegistry {
 
-	private final IndexedCoordinates xCoords = new IndexedCoordinates();
-	private final IndexedCoordinates yCoords = new IndexedCoordinates();
+    private final IndexedCoordinates xCoords = new IndexedCoordinates();
+    private final IndexedCoordinates yCoords = new IndexedCoordinates();
 
-	private RouterTask _lastObstaclesUsed;
+    private RouterTask lastObstaclesUsed;
 
-	private boolean isBuilt = false;
+    private boolean isBuilt = false;
 
-	private RouterCells routingCells;
+    private RouterCells routingCells;
 
-	public boolean setObstacles(RouterTask newObstacles) {
-		if (newObstacles == null || newObstacles.equals(_lastObstaclesUsed)) {
-			return false;
-		}
+    public boolean setObstacles(RouterTask newObstacles) {
+        if (newObstacles == null || newObstacles.equals(lastObstaclesUsed)) {
+            return false;
+        }
 
-		_lastObstaclesUsed = newObstacles;
-		isBuilt = false;
-		return true;
-	}
+        lastObstaclesUsed = newObstacles;
+        isBuilt = false;
+        return true;
+    }
 
-	public RouterTask getObstacles() {
-		return _lastObstaclesUsed;
-	}
+    public RouterTask getObstacles() {
+        return lastObstaclesUsed;
+    }
 
-	public Collection<Coordinate> getXCoordinates() {
-		buildCoordinates();
+    public Collection<Coordinate> getXCoordinates() {
+        buildCoordinates();
 
-		return xCoords.getValues();
-	}
+        return xCoords.getValues();
+    }
 
-	public Collection<Coordinate> getYCoordinates() {
-		buildCoordinates();
+    public Collection<Coordinate> getYCoordinates() {
+        buildCoordinates();
 
-		return yCoords.getValues();
-	}
+        return yCoords.getValues();
+    }
 
-	public RouterCells getRoutingCells() {
-		buildCoordinates();
+    public RouterCells getRoutingCells() {
+        buildCoordinates();
 
-		return routingCells;
-	}
+        return routingCells;
+    }
 
-	public void clear() {
-		isBuilt = false;
-	}
+    public void clear() {
+        isBuilt = false;
+    }
 
-	public void buildCoordinates() {
+    public void buildCoordinates() {
 
-		if (isBuilt) {
-			return;
-		}
+        if (isBuilt) {
+            return;
+        }
 
-		rebuildCoordinates();
+        rebuildCoordinates();
 
-		markCells();
+        markCells();
 
-		isBuilt = true;
-	}
+        isBuilt = true;
+    }
 
-	private void markCells() {
-		routingCells = new RouterCells(xCoords.size(), yCoords.size());
+    private void markCells() {
+        routingCells = new RouterCells(xCoords.size(), yCoords.size());
 
-		markVerticalPublic();
-		markHorizontalPublic();
+        markVerticalPublic();
+        markHorizontalPublic();
 
-		markBusy();
-		markBlocked();
-	}
+        markBusy();
+        markBlocked();
+    }
 
-	public List<Rectangle> blocked = new ArrayList<Rectangle>();
+    public List<Rectangle> blocked = new ArrayList<Rectangle>();
 
-	private void markBlocked() {
-		blocked.clear();
+    private void markBlocked() {
+        blocked.clear();
 
-		for (Line segment : _lastObstaclesUsed.getSegments()) {
+        for (final Line segment : lastObstaclesUsed.getSegments()) {
 
-			double x1 = Math.min(segment.x1, segment.x2);
-			double x2 = Math.max(segment.x1, segment.x2);
-			double y1 = Math.min(segment.y1, segment.y2);
-			double y2 = Math.max(segment.y1, segment.y2);
+            final double x1 = Math.min(segment.x1, segment.x2);
+            final double x2 = Math.max(segment.x1, segment.x2);
+            final double y1 = Math.min(segment.y1, segment.y2);
+            final double y2 = Math.max(segment.y1, segment.y2);
 
-			IntegerInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RouterConstants.SEGMENT_MARGIN,
-					x2 + RouterConstants.SEGMENT_MARGIN);
-			IntegerInterval yInt = yCoords.getIndexedIntervalExclusive(y1 - RouterConstants.SEGMENT_MARGIN,
-					y2 + RouterConstants.SEGMENT_MARGIN);
+            final IntegerInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RouterConstants.SEGMENT_MARGIN,
+                    x2 + RouterConstants.SEGMENT_MARGIN);
+            final IntegerInterval yInt = yCoords.getIndexedIntervalExclusive(y1 - RouterConstants.SEGMENT_MARGIN,
+                    y2 + RouterConstants.SEGMENT_MARGIN);
 
-			if (segment.isVertical()) {
-				blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN, y1 - RouterConstants.SEGMENT_MARGIN,
-						x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
-				routingCells.mark(xInt, yInt, CellState.VERTICAL_BLOCK);
+            if (segment.isVertical()) {
+                blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN, y1 - RouterConstants.SEGMENT_MARGIN,
+                        x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
+                routingCells.mark(xInt, yInt, CellState.VERTICAL_BLOCK);
 
-				IntegerInterval xInclude = xCoords.getIndexedInterval(x1, x1);
-				IntegerInterval yIncludeMin = yCoords.getIndexedInterval(y1 - RouterConstants.SEGMENT_MARGIN, y1);
-				IntegerInterval yIncludeMax = yCoords.getIndexedInterval(y2, y2 + RouterConstants.SEGMENT_MARGIN);
+                final IntegerInterval xInclude = xCoords.getIndexedInterval(x1, x1);
+                final IntegerInterval yIncludeMin = yCoords.getIndexedInterval(y1 - RouterConstants.SEGMENT_MARGIN, y1);
+                final IntegerInterval yIncludeMax = yCoords.getIndexedInterval(y2, y2 + RouterConstants.SEGMENT_MARGIN);
 
-				routingCells.unmark(xInclude, yIncludeMin, CellState.VERTICAL_BLOCK);
-				routingCells.unmark(xInclude, yIncludeMax, CellState.VERTICAL_BLOCK);
-			}
+                routingCells.unmark(xInclude, yIncludeMin, CellState.VERTICAL_BLOCK);
+                routingCells.unmark(xInclude, yIncludeMax, CellState.VERTICAL_BLOCK);
+            }
 
-			if (segment.isHorizontal()) {
+            if (segment.isHorizontal()) {
 
-				blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN, y1 - RouterConstants.SEGMENT_MARGIN,
-						x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
+                blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN, y1 - RouterConstants.SEGMENT_MARGIN,
+                        x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
 
-				routingCells.mark(xInt, yInt, CellState.HORIZONTAL_BLOCK);
+                routingCells.mark(xInt, yInt, CellState.HORIZONTAL_BLOCK);
 
-				IntegerInterval yInclude = yCoords.getIndexedInterval(y1, y1);
-				IntegerInterval xIncludeMin = xCoords.getIndexedInterval(x1 - RouterConstants.SEGMENT_MARGIN, x1);
-				IntegerInterval xIncludeMax = xCoords.getIndexedInterval(x2, x2 + RouterConstants.SEGMENT_MARGIN);
+                final IntegerInterval yInclude = yCoords.getIndexedInterval(y1, y1);
+                final IntegerInterval xIncludeMin = xCoords.getIndexedInterval(x1 - RouterConstants.SEGMENT_MARGIN, x1);
+                final IntegerInterval xIncludeMax = xCoords.getIndexedInterval(x2, x2 + RouterConstants.SEGMENT_MARGIN);
 
-				routingCells.unmark(xIncludeMin, yInclude, CellState.HORIZONTAL_BLOCK);
-				routingCells.unmark(xIncludeMax, yInclude, CellState.HORIZONTAL_BLOCK);
-			}
-		}
-	}
+                routingCells.unmark(xIncludeMin, yInclude, CellState.HORIZONTAL_BLOCK);
+                routingCells.unmark(xIncludeMax, yInclude, CellState.HORIZONTAL_BLOCK);
+            }
+        }
+    }
 
-	private void markBusy() {
-		for (Rectangle rectangle : _lastObstaclesUsed.getRectangles()) {
-			IntegerInterval xInt = xCoords.getIndexedInterval(rectangle.x, rectangle.x + rectangle.width);
-			IntegerInterval yInt = yCoords.getIndexedInterval(rectangle.y, rectangle.y + rectangle.height);
-			routingCells.markBusy(xInt, yInt);
-		}
-	}
+    private void markBusy() {
+        for (final Rectangle rectangle : lastObstaclesUsed.getRectangles()) {
+            final IntegerInterval xInt = xCoords.getIndexedInterval(rectangle.x, rectangle.x + rectangle.width);
+            final IntegerInterval yInt = yCoords.getIndexedInterval(rectangle.y, rectangle.y + rectangle.height);
+            routingCells.markBusy(xInt, yInt);
+        }
+    }
 
-	private void markVerticalPublic() {
+    private void markVerticalPublic() {
 
-		if (routingCells.cells.length == 0) {
-			return;
-		}
+        if (routingCells.cells.length == 0) {
+            return;
+        }
 
-		int ylen = routingCells.cells[0].length;
-		int x = 0;
-		for (Coordinate dx : xCoords.getValues()) {
-			if (dx.isPublic) {
-				routingCells.mark(x, 0, x, ylen - 1, CellState.VERTICAL_PUBLIC);
-			}
-			x++;
-		}
-	}
+        final int ylen = routingCells.cells[0].length;
+        int x = 0;
+        for (final Coordinate dx : xCoords.getValues()) {
+            if (dx.isPublic) {
+                routingCells.mark(x, 0, x, ylen - 1, CellState.VERTICAL_PUBLIC);
+            }
+            x++;
+        }
+    }
 
-	private void markHorizontalPublic() {
-		int xlen = routingCells.cells.length;
-		int y = 0;
-		for (Coordinate dy : yCoords.getValues()) {
-			if (dy.isPublic) {
+    private void markHorizontalPublic() {
+        final int xlen = routingCells.cells.length;
+        int y = 0;
+        for (final Coordinate dy : yCoords.getValues()) {
+            if (dy.isPublic) {
 
-				routingCells.mark(0, y, xlen - 1, y, CellState.HORIZONTAL_PUBLIC);
-			}
-			y++;
-		}
-	}
+                routingCells.mark(0, y, xlen - 1, y, CellState.HORIZONTAL_PUBLIC);
+            }
+            y++;
+        }
+    }
 
-	private void rebuildCoordinates() {
-		xCoords.clear();
-		yCoords.clear();
+    private void rebuildCoordinates() {
+        xCoords.clear();
+        yCoords.clear();
 
-		registerRectangles();
-		registerPorts();
+        registerRectangles();
+        registerPorts();
 
-		registerAdditionalCoordinates();
-	}
+        registerAdditionalCoordinates();
+    }
 
-	private void registerAdditionalCoordinates() {
+    private void registerAdditionalCoordinates() {
 
-		for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
+        for (final Rectangle rec : lastObstaclesUsed.getRectangles()) {
 
-			xCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.x + rec.width / 2);
+            xCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.x + rec.width / 2);
 
-			yCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.y + rec.height / 2);
-		}
-	}
+            yCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.y + rec.height / 2);
+        }
+    }
 
-	private void registerPorts() {
-		for (RouterPort port : _lastObstaclesUsed.getPorts()) {
-			// 1. out of the edge port
-			if (!port.isOnEdge) {
-				xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
-				yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
-				continue;
-			}
+    private void registerPorts() {
+        for (final RouterPort port : lastObstaclesUsed.getPorts()) {
+            // 1. out of the edge port
+            if (!port.isOnEdge) {
+                xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
+                yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
+                continue;
+            }
 
-			// 2. the port is on the edge
-			IndexedCoordinates parallel = yCoords;
-			double parallelCoord = port.location.y;
+            // 2. the port is on the edge
+            IndexedCoordinates parallel = yCoords;
+            double parallelCoord = port.location.y;
 
-			if (port.direction.isVertical()) {
-				parallel = xCoords;
-				parallelCoord = port.location.x;
-			}
+            if (port.direction.isVertical()) {
+                parallel = xCoords;
+                parallelCoord = port.location.x;
+            }
 
-			parallel.addPrivate(CoordinateOrientation.ORIENT_BOTH, parallelCoord);
-		}
-	}
+            parallel.addPrivate(CoordinateOrientation.ORIENT_BOTH, parallelCoord);
+        }
+    }
 
-	private void registerRectangles() {
-		// for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
-		// double minx = SnapCalculator.snapToLower(rec.x -
-		// RouterConstants.OBSTACLE_MARGIN,
-		// RouterConstants.MAJOR_SNAP);
-		// double maxx = SnapCalculator.snapToHigher(rec.x + rec.width +
-		// RouterConstants.OBSTACLE_MARGIN,
-		// RouterConstants.MAJOR_SNAP);
-		// double miny = SnapCalculator.snapToLower(rec.y -
-		// RouterConstants.OBSTACLE_MARGIN,
-		// RouterConstants.MAJOR_SNAP);
-		// double maxy = SnapCalculator.snapToHigher(rec.y + rec.height +
-		// RouterConstants.OBSTACLE_MARGIN,
-		// RouterConstants.MAJOR_SNAP);
-		//
-		// xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
-		// xCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxx);
-		// yCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, miny);
-		// yCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxy);
-		// }
-		//
-		// xCoords.mergeCoordinates();
-		// yCoords.mergeCoordinates();
+    private void registerRectangles() {
+        // for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
+        // double minx = SnapCalculator.snapToLower(rec.x -
+        // RouterConstants.OBSTACLE_MARGIN,
+        // RouterConstants.MAJOR_SNAP);
+        // double maxx = SnapCalculator.snapToHigher(rec.x + rec.width +
+        // RouterConstants.OBSTACLE_MARGIN,
+        // RouterConstants.MAJOR_SNAP);
+        // double miny = SnapCalculator.snapToLower(rec.y -
+        // RouterConstants.OBSTACLE_MARGIN,
+        // RouterConstants.MAJOR_SNAP);
+        // double maxy = SnapCalculator.snapToHigher(rec.y + rec.height +
+        // RouterConstants.OBSTACLE_MARGIN,
+        // RouterConstants.MAJOR_SNAP);
+        //
+        // xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
+        // xCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxx);
+        // yCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, miny);
+        // yCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxy);
+        // }
+        //
+        // xCoords.mergeCoordinates();
+        // yCoords.mergeCoordinates();
 
-		for (Rectangle rec1 : _lastObstaclesUsed.getRectangles()) {
-			for (Rectangle rec2 : _lastObstaclesUsed.getRectangles()) {
+        for (final Rectangle rec1 : lastObstaclesUsed.getRectangles()) {
+            for (final Rectangle rec2 : lastObstaclesUsed.getRectangles()) {
 
-				if (rec1.equals(rec2)) {
-					continue;
-				}
+                if (rec1.equals(rec2)) {
+                    continue;
+                }
 
-				Rectangle merge = rec1.merge(rec2);
+                final Rectangle merge = rec1.merge(rec2);
 
-				boolean found = false;
-				for (Rectangle obstacle : _lastObstaclesUsed.getRectangles()) {
-					if (obstacle.equals(rec1) || obstacle.equals(rec2)) {
-						continue;
-					}
+                boolean found = false;
+                for (final Rectangle obstacle : lastObstaclesUsed.getRectangles()) {
+                    if (obstacle.equals(rec1) || obstacle.equals(rec2)) {
+                        continue;
+                    }
 
-					if (merge.intersects(obstacle)) {
-						found = true;
-						break;
-					}
-				}
+                    if (merge.intersects(obstacle)) {
+                        found = true;
+                        break;
+                    }
+                }
 
-				if (!found) {
-					xCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
-							SnapCalculator.snapToClosest(merge.middleH(), RouterConstants.MAJOR_SNAP));
+                if (!found) {
+                    xCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
+                            SnapCalculator.snapToClosest(merge.middleH(), RouterConstants.MAJOR_SNAP));
 
-					yCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
-							SnapCalculator.snapToClosest(merge.middleV(), RouterConstants.MAJOR_SNAP));
-				}
+                    yCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
+                            SnapCalculator.snapToClosest(merge.middleV(), RouterConstants.MAJOR_SNAP));
+                }
 
-			}
+            }
 
-		}
+        }
 
-	}
+    }
 
 }
