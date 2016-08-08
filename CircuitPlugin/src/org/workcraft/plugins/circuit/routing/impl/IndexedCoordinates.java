@@ -241,14 +241,15 @@ public final class IndexedCoordinates {
         final List<Coordinate> toAdd = new ArrayList<Coordinate>();
         final List<Coordinate> toDelete = new ArrayList<Coordinate>();
 
-        for (final Coordinate coordinate : getValues()) {
+        for (Coordinate coordinate : getValues()) {
             if (!(coordinate.isPublic)) {
                 continue;
             }
 
-            if (coordinate.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+            if (coordinate.orientation == CoordinateOrientation.ORIENT_HIGHER
+                    || coordinate.orientation == CoordinateOrientation.ORIENT_BOTH) {
 
-                if (last != null && last.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+                if (last != null && (last.orientation == CoordinateOrientation.ORIENT_HIGHER)) {
                     toDelete.add(last);
                 }
 
@@ -256,26 +257,27 @@ public final class IndexedCoordinates {
                 continue;
             }
 
-            if (last != null && coordinate.orientation == CoordinateOrientation.ORIENT_LOWER) {
+            if (last != null) {
+                if (coordinate.orientation == CoordinateOrientation.ORIENT_LOWER) {
+                    toDelete.add(coordinate);
+                }
 
-                switch (last.orientation) {
-                case ORIENT_HIGHER:
-
-                    final double middle = SnapCalculator.snapToClosest((last.value + coordinate.value) / 2,
-                            RouterConstants.SEGMENT_MARGIN);
-
-                    toAdd.add(new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle));
+                if (last.orientation == CoordinateOrientation.ORIENT_HIGHER) {
                     toDelete.add(last);
-                    toDelete.add(coordinate);
-                    break;
 
-                case ORIENT_LOWER:
+                    if (coordinate.orientation == CoordinateOrientation.ORIENT_LOWER) {
 
-                    toDelete.add(coordinate);
-                    break;
+                        double middle = SnapCalculator.snapToClosest((last.value + coordinate.value) / 2,
+                                RouterConstants.SEGMENT_MARGIN);
 
-                default:
-                    break;
+                        if (coordinate.orientation == CoordinateOrientation.ORIENT_BOTH) {
+                            middle = coordinate.value;
+                        }
+
+                        coordinate = new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle);
+
+                        toAdd.add(coordinate);
+                    }
                 }
 
             }
@@ -283,7 +285,9 @@ public final class IndexedCoordinates {
             last = coordinate;
         }
 
-        for (final Coordinate coordinate : toDelete) {
+        for (
+
+        final Coordinate coordinate : toDelete) {
             remove(coordinate.value);
         }
 
