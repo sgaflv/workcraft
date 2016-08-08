@@ -26,6 +26,7 @@ import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
+import org.workcraft.plugins.circuit.routing.impl.Route;
 import org.workcraft.plugins.circuit.routing.impl.Router;
 import org.workcraft.plugins.circuit.routing.impl.RouterCells;
 import org.workcraft.plugins.circuit.routing.impl.RouterTask;
@@ -116,7 +117,26 @@ public class RouterClient {
         drawBlocks(g);
         // drawSegments(g);
         drawCells(g);
-        drawConnections(g);
+        // drawConnections(g);
+        drawRoutes(g);
+    }
+
+    private void drawRoutes(Graphics2D g) {
+
+        for (final Route route : router.getRoutingResult()) {
+
+            final Path2D routeSegments = new Path2D.Double();
+
+            routeSegments.moveTo(route.source.location.x, route.source.location.y);
+
+            for (final Point routePoint : route.getPoints()) {
+                routeSegments.lineTo(routePoint.x, routePoint.y);
+            }
+
+            g.setColor(Color.RED);
+            g.draw(routeSegments);
+
+        }
     }
 
     private void drawConnections(Graphics2D g) {

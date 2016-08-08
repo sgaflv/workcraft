@@ -38,7 +38,7 @@ public class CoordinatesRegistry {
         return true;
     }
 
-    public RouterTask getObstacles() {
+    public RouterTask getRouterTask() {
         return lastObstaclesUsed;
     }
 
