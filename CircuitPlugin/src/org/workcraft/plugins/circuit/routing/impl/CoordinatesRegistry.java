@@ -14,7 +14,7 @@ import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
 /**
- * Class generates coordinates
+ * Class represents router coordinates.
  */
 public class CoordinatesRegistry {
 
@@ -177,6 +177,8 @@ public class CoordinatesRegistry {
         registerPorts();
 
         registerAdditionalCoordinates();
+
+        System.out.println("cells: " + xCoords.size() * yCoords.size());
     }
 
     private void registerAdditionalCoordinates() {
@@ -212,61 +214,24 @@ public class CoordinatesRegistry {
     }
 
     private void registerRectangles() {
-        // for (Rectangle rec : _lastObstaclesUsed.getRectangles()) {
-        // double minx = SnapCalculator.snapToLower(rec.x -
-        // RouterConstants.OBSTACLE_MARGIN,
-        // RouterConstants.MAJOR_SNAP);
-        // double maxx = SnapCalculator.snapToHigher(rec.x + rec.width +
-        // RouterConstants.OBSTACLE_MARGIN,
-        // RouterConstants.MAJOR_SNAP);
-        // double miny = SnapCalculator.snapToLower(rec.y -
-        // RouterConstants.OBSTACLE_MARGIN,
-        // RouterConstants.MAJOR_SNAP);
-        // double maxy = SnapCalculator.snapToHigher(rec.y + rec.height +
-        // RouterConstants.OBSTACLE_MARGIN,
-        // RouterConstants.MAJOR_SNAP);
-        //
-        // xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
-        // xCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxx);
-        // yCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, miny);
-        // yCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxy);
-        // }
-        //
-        // xCoords.mergeCoordinates();
-        // yCoords.mergeCoordinates();
+        for (final Rectangle rec : lastObstaclesUsed.getRectangles()) {
+            final double minx = SnapCalculator.snapToLower(rec.x - RouterConstants.OBSTACLE_MARGIN,
+                    RouterConstants.MAJOR_SNAP);
+            final double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RouterConstants.OBSTACLE_MARGIN,
+                    RouterConstants.MAJOR_SNAP);
+            final double miny = SnapCalculator.snapToLower(rec.y - RouterConstants.OBSTACLE_MARGIN,
+                    RouterConstants.MAJOR_SNAP);
+            final double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RouterConstants.OBSTACLE_MARGIN,
+                    RouterConstants.MAJOR_SNAP);
 
-        for (final Rectangle rec1 : lastObstaclesUsed.getRectangles()) {
-            for (final Rectangle rec2 : lastObstaclesUsed.getRectangles()) {
-
-                if (rec1.equals(rec2)) {
-                    continue;
-                }
-
-                final Rectangle merge = rec1.merge(rec2);
-
-                boolean found = false;
-                for (final Rectangle obstacle : lastObstaclesUsed.getRectangles()) {
-                    if (obstacle.equals(rec1) || obstacle.equals(rec2)) {
-                        continue;
-                    }
-
-                    if (merge.intersects(obstacle)) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    xCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
-                            SnapCalculator.snapToClosest(merge.middleH(), RouterConstants.MAJOR_SNAP));
-
-                    yCoords.addPublic(CoordinateOrientation.ORIENT_BOTH,
-                            SnapCalculator.snapToClosest(merge.middleV(), RouterConstants.MAJOR_SNAP));
-                }
-
-            }
-
+            xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
+            xCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxx);
+            yCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, miny);
+            yCoords.addPublic(CoordinateOrientation.ORIENT_HIGHER, maxy);
         }
+
+        xCoords.mergeCoordinates();
+        yCoords.mergeCoordinates();
 
     }
 

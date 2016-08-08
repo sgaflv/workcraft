@@ -237,9 +237,7 @@ public final class IndexedCoordinates {
     }
 
     public void mergeCoordinates() {
-        Coordinate first = null;
-        Coordinate second = null;
-
+        Coordinate last = null;
         final List<Coordinate> toAdd = new ArrayList<Coordinate>();
         final List<Coordinate> toDelete = new ArrayList<Coordinate>();
 
@@ -249,28 +247,40 @@ public final class IndexedCoordinates {
             }
 
             if (coordinate.orientation == CoordinateOrientation.ORIENT_HIGHER) {
-                first = coordinate;
+
+                if (last != null && last.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+                    toDelete.add(last);
+                }
+
+                last = coordinate;
                 continue;
             }
 
-            if (first == null) {
-                continue;
+            if (last != null && coordinate.orientation == CoordinateOrientation.ORIENT_LOWER) {
+
+                switch (last.orientation) {
+                case ORIENT_HIGHER:
+
+                    final double middle = SnapCalculator.snapToClosest((last.value + coordinate.value) / 2,
+                            RouterConstants.SEGMENT_MARGIN);
+
+                    toAdd.add(new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle));
+                    toDelete.add(last);
+                    toDelete.add(coordinate);
+                    break;
+
+                case ORIENT_LOWER:
+
+                    toDelete.add(coordinate);
+                    break;
+
+                default:
+                    break;
+                }
+
             }
 
-            if (coordinate.orientation != CoordinateOrientation.ORIENT_LOWER) {
-                continue;
-            }
-
-            second = coordinate;
-
-            final double middle = SnapCalculator.snapToClosest((first.value + second.value) / 2,
-                    RouterConstants.SEGMENT_MARGIN);
-
-            toAdd.add(new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle));
-            toDelete.add(first);
-            toDelete.add(second);
-            first = null;
-            second = null;
+            last = coordinate;
         }
 
         for (final Coordinate coordinate : toDelete) {

@@ -8,6 +8,10 @@ public class RouterConnection {
     public final RouterPort destination;
 
     public RouterConnection(RouterPort source, RouterPort destination) {
+
+        assert source != null;
+        assert destination != null;
+
         this.source = source;
         this.destination = destination;
     }

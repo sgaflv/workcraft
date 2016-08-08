@@ -55,7 +55,6 @@ public class RouterClient {
 
                 final RouterPort newPort = new RouterPort(getDirection(contact), portPoint, false);
                 portMap.put(contact, newPort);
-                newTask.addPort(newPort);
 
                 final Line portSegment = internalBoundingBox.getPortSegment(portPoint);
                 newTask.addSegment(portSegment);
@@ -70,20 +69,19 @@ public class RouterClient {
                     new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()), true);
 
             portMap.put(port, newPort);
-
-            newTask.addPort(newPort);
         }
 
         // TODO: use the math model instead
         for (final Entry<Node, RouterPort> entry : portMap.entrySet()) {
             final Node node = entry.getKey();
             final RouterPort source = entry.getValue();
+
             for (final Node nodeDest : circuit.getPostset(node)) {
                 final RouterPort destination = portMap.get(nodeDest);
 
-                if (destination != null) {
-                    newTask.addConnection(new RouterConnection(source, destination));
-                }
+                newTask.addConnection(new RouterConnection(source, destination));
+                newTask.addPort(source);
+                newTask.addPort(destination);
             }
         }
 
