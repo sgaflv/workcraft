@@ -10,6 +10,7 @@ import org.workcraft.plugins.circuit.routing.basic.CoordinateOrientation;
 import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
 import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
+import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
@@ -192,25 +193,30 @@ public class CoordinatesRegistry {
     }
 
     private void registerPorts() {
-        for (final RouterPort port : lastObstaclesUsed.getPorts()) {
-            // 1. out of the edge port
-            if (!port.isOnEdge) {
-                xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
-                yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
-                continue;
-            }
-
-            // 2. the port is on the edge
-            IndexedCoordinates parallel = yCoords;
-            double parallelCoord = port.location.y;
-
-            if (port.direction.isVertical()) {
-                parallel = xCoords;
-                parallelCoord = port.location.x;
-            }
-
-            parallel.addPrivate(CoordinateOrientation.ORIENT_BOTH, parallelCoord);
+        for (final RouterConnection connection : lastObstaclesUsed.getConnections()) {
+            registerPort(connection.source);
+            registerPort(connection.destination);
         }
+    }
+
+    private void registerPort(RouterPort port) {
+        // 1. out of the edge port
+        if (!port.isOnEdge) {
+            xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
+            yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
+            return;
+        }
+
+        // 2. the port is on the edge
+        IndexedCoordinates parallel = yCoords;
+        double parallelCoord = port.location.y;
+
+        if (port.direction.isVertical()) {
+            parallel = xCoords;
+            parallelCoord = port.location.x;
+        }
+
+        parallel.addPrivate(CoordinateOrientation.ORIENT_BOTH, parallelCoord);
     }
 
     private void registerRectangles() {
