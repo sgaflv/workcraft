@@ -41,11 +41,15 @@ public class CellAnalyser {
             return false;
         }
 
-        return false;
+        return true;
     }
 
-    public double getMovementCost(int x, int y, int dx, int dy) {
-        return 0;
+    public Double getMovementCost(int x, int y, int dx, int dy) {
+        if (!isMovementPossible(x, y, dx, dy)) {
+            return null;
+        }
+
+        return 1.0;
     }
 
     public double getHeuristicsCost(int x, int y) {

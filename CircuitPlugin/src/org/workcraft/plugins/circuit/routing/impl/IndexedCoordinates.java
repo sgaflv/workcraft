@@ -11,7 +11,7 @@ import java.util.TreeMap;
 
 import org.workcraft.plugins.circuit.routing.basic.Coordinate;
 import org.workcraft.plugins.circuit.routing.basic.CoordinateOrientation;
-import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
+import org.workcraft.plugins.circuit.routing.basic.IndexedInterval;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 
 /**
@@ -156,6 +156,32 @@ public final class IndexedCoordinates {
     }
 
     /**
+     * Return true if the interval is occupied by some value.
+     *
+     * @param from
+     *            lowest border interval
+     * @param to
+     *            highest border interval
+     * @return true if interval contains a value, false otherwise
+     */
+    public boolean isIntervalOccupied(double from, double to) {
+        assert from <= to : "the interval borders must be provided from lower to higher";
+
+        final Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
+        final Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
+
+        if (minBorder == null || maxBorder == null) {
+            return false;
+        }
+
+        if (minBorder > maxBorder) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Return the indices covered by the given interval.
      *
      * @param from
@@ -163,9 +189,9 @@ public final class IndexedCoordinates {
      * @param to
      *            highest border interval
      * @return the interval in indexed values. Returns null if the interval is
-     *         not covering any indexed values.
+     *         not covering any indexed values
      */
-    public IntegerInterval getIndexedInterval(double from, double to) {
+    public IndexedInterval getIndexedInterval(double from, double to) {
         assert from <= to : "the interval borders must be provided from lower to higher";
 
         build();
@@ -181,7 +207,7 @@ public final class IndexedCoordinates {
             return null;
         }
 
-        return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
+        return new IndexedInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
     }
 
     /**
@@ -193,9 +219,9 @@ public final class IndexedCoordinates {
      * @param to
      *            highest border interval
      * @return the interval in indexed values. Returns null if the interval is
-     *         not covering any indexed values.
+     *         not covering any indexed values
      */
-    public IntegerInterval getIndexedIntervalExclusive(double from, double to) {
+    public IndexedInterval getIndexedIntervalExclusive(double from, double to) {
         assert from <= to : "the interval borders must be provided from lower to higher";
 
         build();
@@ -211,7 +237,7 @@ public final class IndexedCoordinates {
             return null;
         }
 
-        return new IntegerInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
+        return new IndexedInterval(toIndex.get(values.get(minBorder)), toIndex.get(values.get(maxBorder)));
     }
 
     /**

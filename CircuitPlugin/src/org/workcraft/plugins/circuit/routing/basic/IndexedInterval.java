@@ -1,11 +1,11 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class IntegerInterval {
+public class IndexedInterval {
 
     public final int from;
     public final int to;
 
-    public IntegerInterval(int from, int to) {
+    public IndexedInterval(int from, int to) {
         this.from = Math.min(from, to);
         this.to = Math.max(from, to);
     }
@@ -30,7 +30,7 @@ public class IntegerInterval {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final IntegerInterval other = (IntegerInterval) obj;
+        final IndexedInterval other = (IndexedInterval) obj;
         if (from != other.from) {
             return false;
         }
@@ -52,7 +52,7 @@ public class IntegerInterval {
      *            the other interval
      * @return true if intervals intersect, false otherwise
      */
-    public boolean intersects(IntegerInterval other) {
+    public boolean intersects(IndexedInterval other) {
         return from <= other.to && to >= other.from;
     }
 }

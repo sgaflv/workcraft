@@ -1,7 +1,7 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
 import org.workcraft.plugins.circuit.routing.basic.CellState;
-import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
+import org.workcraft.plugins.circuit.routing.basic.IndexedInterval;
 
 public class RouterCells {
 
@@ -24,7 +24,7 @@ public class RouterCells {
         }
     }
 
-    public void mark(IntegerInterval hInterval, IntegerInterval vInterval, int value) {
+    public void mark(IndexedInterval hInterval, IndexedInterval vInterval, int value) {
         if (hInterval == null || vInterval == null) {
             return;
         }
@@ -43,18 +43,18 @@ public class RouterCells {
         }
     }
 
-    public void unmark(IntegerInterval hInterval, IntegerInterval vInterval, int value) {
+    public void unmark(IndexedInterval hInterval, IndexedInterval vInterval, int value) {
         if (hInterval == null || vInterval == null) {
             return;
         }
         unmark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, value);
     }
 
-    public void markBusy(IntegerInterval hInterval, IntegerInterval vInterval) {
+    public void markBusy(IndexedInterval hInterval, IndexedInterval vInterval) {
         mark(hInterval, vInterval, CellState.BUSY);
     }
 
-    public void unmarkBusy(IntegerInterval hInterval, IntegerInterval vInterval) {
+    public void unmarkBusy(IndexedInterval hInterval, IndexedInterval vInterval) {
         unmark(hInterval, vInterval, CellState.BUSY);
     }
 }

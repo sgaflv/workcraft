@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.workcraft.plugins.circuit.routing.basic.Coordinate;
 import org.workcraft.plugins.circuit.routing.basic.CoordinateOrientation;
-import org.workcraft.plugins.circuit.routing.basic.IntegerInterval;
+import org.workcraft.plugins.circuit.routing.basic.IndexedInterval;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 
 public class IndexedValuesTest {
@@ -66,7 +66,7 @@ public class IndexedValuesTest {
 
         indexedValues.addPublic(CoordinateOrientation.ORIENT_BOTH, -1.0, 0.5, 1.0, 3.0);
 
-        assertEquals(new IntegerInterval(1, 2), indexedValues.getIndexedInterval(0.0, 2.0));
+        assertEquals(new IndexedInterval(1, 2), indexedValues.getIndexedInterval(0.0, 2.0));
     }
 
     @Test
@@ -74,10 +74,10 @@ public class IndexedValuesTest {
 
         indexedValues.addPublic(CoordinateOrientation.ORIENT_BOTH, -1.0, 0.5, 1.0, 3.0);
 
-        assertEquals(new IntegerInterval(1, 1), indexedValues.getIndexedInterval(0.5, 0.5));
-        assertEquals(new IntegerInterval(1, 1),
+        assertEquals(new IndexedInterval(1, 1), indexedValues.getIndexedInterval(0.5, 0.5));
+        assertEquals(new IndexedInterval(1, 1),
                 indexedValues.getIndexedInterval(0.5 - RouterConstants.EPSILON, 0.5 - RouterConstants.EPSILON));
-        assertEquals(new IntegerInterval(1, 1),
+        assertEquals(new IndexedInterval(1, 1),
                 indexedValues.getIndexedInterval(0.5 + RouterConstants.EPSILON, 0.5 + RouterConstants.EPSILON));
     }
 

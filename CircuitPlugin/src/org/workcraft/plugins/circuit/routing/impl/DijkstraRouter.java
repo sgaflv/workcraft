@@ -1,26 +1,82 @@
 package org.workcraft.plugins.circuit.routing.impl;
 
-import org.workcraft.plugins.circuit.routing.basic.Point;
+import java.util.List;
+import java.util.PriorityQueue;
+
+import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
 import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 
 public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
+    private double[][] scores;
+    private boolean[][] visited;
+
+    private IndexedPoint[][] sourceCells;
+
     @Override
     protected Route produceRoute(RouterConnection connection) {
-        final Route dummyOutput = new Route(connection.source, connection.destination);
 
-        dummyOutput.add(dummyOutput.source.location);
+        visited = new boolean[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
+        scores = new double[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
+        sourceCells = new IndexedPoint[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
 
-        final Point dummyPoint = new Point(dummyOutput.source.location.x + 2, dummyOutput.source.location.y + 2);
-        final Point dummyPoint2 = new Point(dummyOutput.destination.location.x - 2,
-                dummyOutput.destination.location.y - 2);
+        final IndexedPoint source = coordinates.getIndexedCoordinate(connection.source.location);
+        final IndexedPoint destination = coordinates.getIndexedCoordinate(connection.destination.location);
 
-        dummyOutput.add(dummyPoint);
-        dummyOutput.add(dummyPoint2);
+        solve(source, destination);
 
-        dummyOutput.add(dummyOutput.destination.location);
+        List<IndexedPoint> path = buildPath(source, sourceCells);
+        path = clearStraightLines(path);
 
-        return dummyOutput;
+        final Route route = new Route(connection.source, connection.destination);
+
+        return augmentRouteSegments(route, path);
+    }
+
+    private void solve(IndexedPoint source, IndexedPoint destination) {
+
+        final PriorityQueue<PointToVisit> visitQueue = new PriorityQueue<PointToVisit>();
+        visitQueue.add(new PointToVisit(1.0, destination));
+
+        while (!visitQueue.isEmpty()) {
+
+            final PointToVisit visitPoint = visitQueue.poll();
+
+            visited[visitPoint.location.x][visitPoint.location.y] = true;
+            if (visitPoint.location.equals(source)) {
+                return;
+            }
+
+            checkDirection(visitQueue, visitPoint.score, visitPoint.location, 1, 0);
+            checkDirection(visitQueue, visitPoint.score, visitPoint.location, -1, 0);
+            checkDirection(visitQueue, visitPoint.score, visitPoint.location, 0, 1);
+            checkDirection(visitQueue, visitPoint.score, visitPoint.location, 0, -1);
+
+        }
+    }
+
+    private void checkDirection(PriorityQueue<PointToVisit> visitQueue, double score, IndexedPoint point, int dx,
+            int dy) {
+
+        final int newX = point.x + dx;
+        final int newY = point.y + dy;
+
+        Double newScore = analyser.getMovementCost(point.x, point.y, dx, dy);
+
+        if (newScore != null) {
+
+            if (visited[newX][newY]) {
+                return;
+            }
+
+            newScore += score;
+            if (scores[newX][newY] == 0 || newScore < scores[newX][newY]) {
+                scores[newX][newY] = newScore;
+                sourceCells[newX][newY] = point;
+                visitQueue.add(new PointToVisit(newScore, new IndexedPoint(newX, newY)));
+            }
+        }
+
     }
 
 }
