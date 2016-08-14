@@ -54,7 +54,7 @@ public class RouterClient {
 
                 final Point portPoint = new Point(contact.getX() + component.getX(), contact.getY() + component.getY());
 
-                final RouterPort newPort = new RouterPort(getDirection(contact), portPoint, false);
+                final RouterPort newPort = RouterPort.withFlexibleDirection(getDirection(contact), portPoint);
                 portMap.put(contact, newPort);
                 newTask.addPort(newPort);
 
@@ -67,8 +67,8 @@ public class RouterClient {
             final Rectangle2D internalBoundingBox = port.getInternalBoundingBox();
             newTask.addRectangle(getRectangle(internalBoundingBox));
 
-            final RouterPort newPort = new RouterPort(getDirection(port),
-                    new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()), true);
+            final RouterPort newPort = RouterPort.withFixedDirection(getDirection(port),
+                    new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()));
 
             portMap.put(port, newPort);
             newTask.addPort(newPort);

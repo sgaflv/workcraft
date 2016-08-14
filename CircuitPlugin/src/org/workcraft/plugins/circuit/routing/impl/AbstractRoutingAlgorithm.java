@@ -13,7 +13,7 @@ public abstract class AbstractRoutingAlgorithm {
     protected CoordinatesRegistry coordinates;
 
     public List<Route> route(RouterTask task, RouterCells cells, CoordinatesRegistry coordinates) {
-        analyser = new CellAnalyser(cells, coordinates);
+        analyser = new CellAnalyser(cells);
         this.task = task;
         this.cells = cells;
         this.coordinates = coordinates;
@@ -59,7 +59,7 @@ public abstract class AbstractRoutingAlgorithm {
     }
 
     /**
-     * from the given graph and the end-points, find the route path
+     * from the given graph and the end-points, find the route path.
      *
      * @return
      */

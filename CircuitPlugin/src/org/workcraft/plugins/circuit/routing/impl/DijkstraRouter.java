@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
+import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 
 public class DijkstraRouter extends AbstractRoutingAlgorithm {
@@ -12,18 +13,22 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
     private boolean[][] visited;
 
     private IndexedPoint[][] sourceCells;
+    private RouterConnection connection;
+    private IndexedPoint source;
+    private IndexedPoint destination;
 
     @Override
     protected Route produceRoute(RouterConnection connection) {
+        this.connection = connection;
 
         visited = new boolean[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
         scores = new double[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
         sourceCells = new IndexedPoint[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
 
-        final IndexedPoint source = coordinates.getIndexedCoordinate(connection.source.location);
-        final IndexedPoint destination = coordinates.getIndexedCoordinate(connection.destination.location);
+        source = coordinates.getIndexedCoordinate(connection.source.location);
+        destination = coordinates.getIndexedCoordinate(connection.destination.location);
 
-        solve(source, destination);
+        solve();
 
         List<IndexedPoint> path = buildPath(source, sourceCells);
         path = clearStraightLines(path);
@@ -33,9 +38,20 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
         return augmentRouteSegments(route, path);
     }
 
-    private void solve(IndexedPoint source, IndexedPoint destination) {
+    private void solve() {
 
-        analyser.initRouting(source, destination);
+        PortDirection sourceDirection = null;
+        PortDirection destinationDirection = null;
+
+        if (connection.source.isFixedDirection) {
+            sourceDirection = connection.source.direction;
+        }
+
+        if (connection.destination.isFixedDirection) {
+            destinationDirection = connection.destination.direction;
+        }
+
+        analyser.initRouting(source, destination, sourceDirection, destinationDirection);
 
         final PriorityQueue<PointToVisit> visitQueue = new PriorityQueue<PointToVisit>();
         visitQueue.add(new PointToVisit(1.0, destination));

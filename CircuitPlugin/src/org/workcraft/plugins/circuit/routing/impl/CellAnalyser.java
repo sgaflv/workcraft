@@ -2,28 +2,32 @@ package org.workcraft.plugins.circuit.routing.impl;
 
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
+import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 
 public class CellAnalyser {
     private final RouterCells cells;
-    private final CoordinatesRegistry coordinates;
 
     int sizeX;
     int sizeY;
 
     private IndexedPoint source;
+    private PortDirection exitDirection;
     private IndexedPoint destination;
+    private PortDirection entranceDirection;
 
-    public CellAnalyser(RouterCells cells, CoordinatesRegistry coordinates) {
+    public CellAnalyser(RouterCells cells) {
         this.cells = cells;
-        this.coordinates = coordinates;
 
-        sizeX = coordinates.getXCoordinates().size();
-        sizeY = coordinates.getYCoordinates().size();
+        sizeX = cells.cells.length;
+        sizeY = cells.cells[0].length;
     }
 
-    public void initRouting(IndexedPoint source, IndexedPoint destination) {
+    public void initRouting(IndexedPoint source, IndexedPoint destination, PortDirection exitDirection,
+            PortDirection entranceDirection) {
         this.source = source;
         this.destination = destination;
+        this.exitDirection = exitDirection;
+        this.entranceDirection = entranceDirection;
     }
 
     public boolean isMovementPossible(int x, int y, int dx, int dy) {
@@ -39,6 +43,22 @@ public class CellAnalyser {
 
         if (isOutsideBoundaries) {
             return false;
+        }
+
+        if (x == source.x && y == source.y) {
+            if (exitDirection != null) {
+                if (dx != exitDirection.getDx() || dy != exitDirection.getDy()) {
+                    return false;
+                }
+            }
+        }
+
+        if (x == destination.x && y == destination.y) {
+            if (entranceDirection != null) {
+                if (dx != entranceDirection.getDx() || dy != entranceDirection.getDy()) {
+                    return false;
+                }
+            }
         }
 
         if (dx != 0) {

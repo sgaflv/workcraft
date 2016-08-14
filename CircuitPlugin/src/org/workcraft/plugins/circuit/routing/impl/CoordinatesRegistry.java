@@ -189,11 +189,14 @@ public class CoordinatesRegistry {
 
         for (final Rectangle rec : lastObstaclesUsed.getRectangles()) {
 
-            if (!xCoords.isIntervalOccupied(rec.x, rec.x + rec.width)) {
+            final boolean foundHorizontal = xCoords.isIntervalOccupied(rec.x, rec.x + rec.width);
+            final boolean foundVertical = yCoords.isIntervalOccupied(rec.y, rec.y + rec.height);
+
+            if (!foundHorizontal) {
                 xCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.x + rec.width / 2);
             }
 
-            if (!yCoords.isIntervalOccupied(rec.y, rec.y + rec.height)) {
+            if (!foundVertical) {
                 yCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.y + rec.height / 2);
             }
 
@@ -209,7 +212,7 @@ public class CoordinatesRegistry {
 
     private void registerPort(RouterPort port) {
         // 1. out of the edge port
-        if (!port.isOnEdge) {
+        if (!port.isFixedDirection) {
             xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
             yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
             return;
