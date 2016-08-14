@@ -45,7 +45,7 @@ public class CellAnalyser {
             return false;
         }
 
-        if (x == source.x && y == source.y) {
+        if (x + dx == source.x && y + dy == source.y) {
             if (exitDirection != null) {
                 if (dx != exitDirection.getDx() || dy != exitDirection.getDy()) {
                     return false;
@@ -102,7 +102,7 @@ public class CellAnalyser {
         final boolean hasTurned = (x - lastX) != dx || (y - lastY) != dy;
 
         if (hasTurned) {
-            // return 10.0;
+            return 10.0;
         }
 
         return 1.0;

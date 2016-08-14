@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.workcraft.dom.Node;
+import org.workcraft.dom.visual.VisualComment;
 import org.workcraft.gui.graph.Viewport;
 import org.workcraft.plugins.circuit.CircuitSettings;
 import org.workcraft.plugins.circuit.VisualCircuit;
@@ -93,18 +94,30 @@ public class RouterClient {
 
         final VisualContact.Direction direction = contact.getDirection();
 
+        PortDirection converted = null;
+
         switch (direction) {
         case EAST:
-            return PortDirection.EAST;
+            converted = PortDirection.EAST;
+            break;
         case WEST:
-            return PortDirection.WEST;
+            converted = PortDirection.WEST;
+            break;
         case NORTH:
-            return PortDirection.NORTH;
+            converted = PortDirection.NORTH;
+            break;
         case SOUTH:
-            return PortDirection.SOUTH;
+            converted = PortDirection.SOUTH;
+            break;
+        default:
+            assert false : "unsupported visual contact direction";
         }
 
-        return null;
+        if (!(contact.getParent() instanceof VisualComment)) {
+            converted = converted.flip();
+        }
+
+        return converted;
     }
 
     private Rectangle getRectangle(Rectangle2D rect) {
