@@ -1,12 +1,39 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class IndexedPoint {
+public class IndexedPoint implements Comparable<IndexedPoint> {
+
+    private static final int CACHE_SIZE = 50;
+
+    private static final IndexedPoint[][] pointsCache = new IndexedPoint[CACHE_SIZE][CACHE_SIZE];
+
     public final int x;
     public final int y;
 
-    public IndexedPoint(int x, int y) {
+    private IndexedPoint(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Returns indexed point. For small x and y values, the cached version is
+     * re-used.
+     *
+     * @param x
+     *            x coordinate
+     * @param y
+     *            y coordinate
+     * @return indexed point
+     */
+    public static IndexedPoint create(int x, int y) {
+        if (x < 0 || x >= CACHE_SIZE || y < 0 || y >= CACHE_SIZE) {
+            return new IndexedPoint(x, y);
+        }
+
+        if (pointsCache[x][y] == null) {
+            pointsCache[x][y] = new IndexedPoint(x, y);
+        }
+
+        return pointsCache[x][y];
     }
 
     @Override
@@ -42,6 +69,18 @@ public class IndexedPoint {
     @Override
     public String toString() {
         return "IndexedPoint [x=" + x + ", y=" + y + "]";
+    }
+
+    @Override
+    public int compareTo(IndexedPoint other) {
+        int compare = Integer.compare(x, other.x);
+        if (compare != 0) {
+            return compare;
+        }
+
+        compare = Integer.compare(y, other.y);
+
+        return compare;
     }
 
 }

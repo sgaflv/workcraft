@@ -181,7 +181,8 @@ public class CoordinatesRegistry {
 
         registerAdditionalCoordinates();
 
-        System.out.println("cells: " + xCoords.size() * yCoords.size());
+        System.out.println(
+                "cells: " + xCoords.size() * yCoords.size() + " (" + xCoords.size() + "x" + yCoords.size() + ")");
     }
 
     private void registerAdditionalCoordinates() {
@@ -261,7 +262,7 @@ public class CoordinatesRegistry {
         final int x = indexedIntervalH.from;
         final int y = indexedIntervalV.from;
 
-        return new IndexedPoint(x, y);
+        return IndexedPoint.create(x, y);
     }
 
 }

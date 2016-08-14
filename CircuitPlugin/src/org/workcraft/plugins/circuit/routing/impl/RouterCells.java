@@ -24,6 +24,10 @@ public class RouterCells {
         }
     }
 
+    public boolean isMarked(int x, int y, int value) {
+        return (cells[x][y] & value) > 0;
+    }
+
     public void mark(IndexedInterval hInterval, IndexedInterval vInterval, int value) {
         if (hInterval == null || vInterval == null) {
             return;

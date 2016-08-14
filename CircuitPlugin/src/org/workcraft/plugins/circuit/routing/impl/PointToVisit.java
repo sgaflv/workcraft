@@ -13,7 +13,21 @@ public class PointToVisit implements Comparable<PointToVisit> {
 
     @Override
     public int compareTo(PointToVisit other) {
-        return Double.compare(score, other.score);
+        assert this != other;
+
+        final int compare = Double.compare(score, other.score);
+        if (compare != 0) {
+            return compare;
+        }
+
+        // compare coordinates to minimize randomness when the score is the same
+        return location.compareTo(other.location);
+
+    }
+
+    @Override
+    public String toString() {
+        return "PointToVisit [score=" + score + ", location=" + location + "]";
     }
 
 }

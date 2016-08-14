@@ -21,7 +21,6 @@ public abstract class AbstractRoutingAlgorithm {
         final List<Route> routes = new ArrayList<>();
 
         for (final RouterConnection connection : task.getConnections()) {
-            analyser.routeConnection(connection);
 
             final Route routeProduced = produceRoute(connection);
 
