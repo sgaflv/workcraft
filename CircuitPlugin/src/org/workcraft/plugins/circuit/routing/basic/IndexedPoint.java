@@ -2,7 +2,7 @@ package org.workcraft.plugins.circuit.routing.basic;
 
 public final class IndexedPoint implements Comparable<IndexedPoint> {
 
-    private static final int CACHE_SIZE = 50;
+    private static final int CACHE_SIZE = 100;
 
     private static final int LOW_BITS = 15;
 

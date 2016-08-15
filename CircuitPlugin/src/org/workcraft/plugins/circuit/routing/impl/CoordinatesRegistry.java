@@ -182,7 +182,9 @@ public class CoordinatesRegistry {
         registerAdditionalCoordinates();
 
         System.out.println(
-                "cells: " + xCoords.size() * yCoords.size() + " (" + xCoords.size() + "x" + yCoords.size() + ")");
+                "cells: " + xCoords.size() * yCoords.size() + " (" + xCoords.size() + "x" + yCoords.size() + ")"
+                        + " rectangles:" + lastObstaclesUsed.getRectangles().size() + " connections:"
+                        + lastObstaclesUsed.getConnections().size());
     }
 
     private void registerAdditionalCoordinates() {

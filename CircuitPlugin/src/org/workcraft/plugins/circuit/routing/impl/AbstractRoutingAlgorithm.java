@@ -62,10 +62,10 @@ public abstract class AbstractRoutingAlgorithm {
         }
 
 
-        for (int x = 0; x < width; x++) {
-            System.out.print(usageCounter.getXCoordUsage(x) + " ");
-        }
-        System.out.println();
+        // for (int x = 0; x < width; x++) {
+        // System.out.print(usageCounter.getXCoordUsage(x) + " ");
+        // }
+        // System.out.println();
 
         return routes;
     }

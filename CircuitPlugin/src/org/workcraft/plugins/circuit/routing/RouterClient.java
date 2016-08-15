@@ -127,9 +127,9 @@ public class RouterClient {
     public void draw(Graphics2D g, Viewport viewport) {
 
         drawCoordinates(g, viewport);
-        drawBlocks(g);
+        // drawBlocks(g);
         // drawSegments(g);
-        drawCells(g);
+        // drawCells(g);
         // drawConnections(g);
         drawRoutes(g);
     }

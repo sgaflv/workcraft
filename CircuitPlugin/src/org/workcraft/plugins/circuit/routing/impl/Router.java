@@ -27,9 +27,15 @@ public class Router {
     }
 
     public void routeConnections() {
+
+        final long start = System.currentTimeMillis();
+
         // 1st phase
         routesFound = algorithm.route(coordinates.getRouterTask(), coordinates.getRouterCells(), coordinates);
 
+        final long stop = System.currentTimeMillis();
+
+        System.out.println("solved ms:" + (stop - start));
 
     }
 
