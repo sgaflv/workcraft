@@ -1,17 +1,24 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class IndexedPoint implements Comparable<IndexedPoint> {
+public final class IndexedPoint implements Comparable<IndexedPoint> {
 
     private static final int CACHE_SIZE = 50;
+
+    private static final int LOW_BITS = 15;
 
     private static final IndexedPoint[][] pointsCache = new IndexedPoint[CACHE_SIZE][CACHE_SIZE];
 
     public final int x;
     public final int y;
+    public final int hash;
 
     private IndexedPoint(int x, int y) {
+        if (x < 0 || x >= (1 << LOW_BITS) || y < 0 || y >= (1 << LOW_BITS)) {
+            throw new IllegalArgumentException("x or y are outside acceptable boundaries");
+        }
         this.x = x;
         this.y = y;
+        hash = (x << LOW_BITS) + y;
     }
 
     /**
@@ -38,11 +45,7 @@ public class IndexedPoint implements Comparable<IndexedPoint> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + x;
-        result = prime * result + y;
-        return result;
+        return hash;
     }
 
     @Override
@@ -57,13 +60,7 @@ public class IndexedPoint implements Comparable<IndexedPoint> {
             return false;
         }
         final IndexedPoint other = (IndexedPoint) obj;
-        if (x != other.x) {
-            return false;
-        }
-        if (y != other.y) {
-            return false;
-        }
-        return true;
+        return hash == other.hash;
     }
 
     @Override
@@ -73,14 +70,7 @@ public class IndexedPoint implements Comparable<IndexedPoint> {
 
     @Override
     public int compareTo(IndexedPoint other) {
-        int compare = Integer.compare(x, other.x);
-        if (compare != 0) {
-            return compare;
-        }
-
-        compare = Integer.compare(y, other.y);
-
-        return compare;
+        return hash - other.hash;
     }
 
 }

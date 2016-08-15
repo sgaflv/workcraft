@@ -18,7 +18,7 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
     private IndexedPoint destination;
 
     @Override
-    protected Route produceRoute(RouterConnection connection) {
+    protected List<IndexedPoint> produceRoute(RouterConnection connection) {
 
         this.connection = connection;
 
@@ -31,12 +31,9 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
         solve();
 
-        List<IndexedPoint> path = buildPath(source, sourceCells);
-        path = clearStraightLines(path);
+        final List<IndexedPoint> path = buildPath(source, sourceCells);
 
-        final Route route = new Route(connection.source, connection.destination);
-
-        return augmentRouteSegments(route, path);
+        return path;
     }
 
     private void solve() {

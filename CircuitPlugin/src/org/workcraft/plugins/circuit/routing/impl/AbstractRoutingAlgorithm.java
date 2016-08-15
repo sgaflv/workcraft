@@ -22,10 +22,14 @@ public abstract class AbstractRoutingAlgorithm {
 
         for (final RouterConnection connection : task.getConnections()) {
 
-            final Route routeProduced = produceRoute(connection);
+            List<IndexedPoint> path = produceRoute(connection);
+            path = clearStraightLines(path);
 
-            if (routeProduced != null) {
-                routes.add(routeProduced);
+            final Route route = new Route(connection.source, connection.destination);
+            augmentRouteSegments(route, path);
+
+            if (route != null) {
+                routes.add(route);
             }
         }
 
@@ -79,5 +83,5 @@ public abstract class AbstractRoutingAlgorithm {
         return path;
     }
 
-    abstract protected Route produceRoute(RouterConnection connection);
+    abstract protected List<IndexedPoint> produceRoute(RouterConnection connection);
 }

@@ -211,31 +211,9 @@ public class CoordinatesRegistry {
     }
 
     private void registerPort(RouterPort port) {
-
         xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
         yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
         return;
-
-        // // 1. out of the edge port
-        // if (!port.isFixedDirection) {
-        // xCoords.addPrivate(port.direction.getHorizontalOrientation(),
-        // port.location.x);
-        // yCoords.addPrivate(port.direction.getVerticalOrientation(),
-        // port.location.y);
-        // return;
-        // }
-        //
-        // // 2. the port is on the edge
-        // IndexedCoordinates parallel = yCoords;
-        // double parallelCoord = port.location.y;
-        //
-        // if (port.direction.isVertical()) {
-        // parallel = xCoords;
-        // parallelCoord = port.location.x;
-        // }
-        //
-        // parallel.addPrivate(CoordinateOrientation.ORIENT_BOTH,
-        // parallelCoord);
     }
 
     private void registerRectangles() {
