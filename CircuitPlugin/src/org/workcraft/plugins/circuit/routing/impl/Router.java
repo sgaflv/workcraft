@@ -27,7 +27,10 @@ public class Router {
     }
 
     public void routeConnections() {
+        // 1st phase
         routesFound = algorithm.route(coordinates.getRouterTask(), coordinates.getRouterCells(), coordinates);
+
+
     }
 
     public List<Route> getRoutingResult() {

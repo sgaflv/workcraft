@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
-import org.workcraft.plugins.circuit.routing.basic.PortDirection;
-import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 
 public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
@@ -13,21 +11,13 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
     private boolean[][] visited;
 
     private IndexedPoint[][] sourceCells;
-    private RouterConnection connection;
-    private IndexedPoint source;
-    private IndexedPoint destination;
 
     @Override
-    protected List<IndexedPoint> produceRoute(RouterConnection connection) {
+    protected List<IndexedPoint> findRoute() {
 
-        this.connection = connection;
-
-        visited = new boolean[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
-        scores = new double[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
-        sourceCells = new IndexedPoint[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];
-
-        source = coordinates.getIndexedCoordinate(connection.source.location);
-        destination = coordinates.getIndexedCoordinate(connection.destination.location);
+        visited = new boolean[width][height];
+        scores = new double[width][height];
+        sourceCells = new IndexedPoint[width][height];
 
         solve();
 
@@ -36,20 +26,8 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
         return path;
     }
 
+
     private void solve() {
-
-        PortDirection sourceDirection = null;
-        PortDirection destinationDirection = null;
-
-        if (connection.source.isFixedDirection) {
-            sourceDirection = connection.source.direction;
-        }
-
-        if (connection.destination.isFixedDirection) {
-            destinationDirection = connection.destination.direction;
-        }
-
-        analyser.initRouting(source, destination, sourceDirection, destinationDirection);
 
         final PriorityQueue<PointToVisit> visitQueue = new PriorityQueue<PointToVisit>();
         visitQueue.add(new PointToVisit(1.0, destination));

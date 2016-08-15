@@ -4,26 +4,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
+import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 
 public abstract class AbstractRoutingAlgorithm {
     protected CellAnalyser analyser;
     protected RouterTask task;
     protected RouterCells cells;
-    protected CoordinatesRegistry coordinates;
+    protected CoordinatesRegistry coordinatesPhase1;
+
+    protected UsageCounter usageCounter;
+
+    protected int width;
+    protected int height;
+    protected IndexedPoint source;
+    protected IndexedPoint destination;
 
     public List<Route> route(RouterTask task, RouterCells cells, CoordinatesRegistry coordinates) {
         analyser = new CellAnalyser(cells);
+
+        width = coordinates.getXCoordinates().size();
+        height = coordinates.getYCoordinates().size();
+
         this.task = task;
         this.cells = cells;
-        this.coordinates = coordinates;
+        coordinatesPhase1 = coordinates;
 
         final List<Route> routes = new ArrayList<>();
+        final List<List<IndexedPoint>> paths = new ArrayList<List<IndexedPoint>>();
 
         for (final RouterConnection connection : task.getConnections()) {
 
-            List<IndexedPoint> path = produceRoute(connection);
-            path = clearStraightLines(path);
+            initialise(connection);
+
+            List<IndexedPoint> path = findRoute();
+            path = getCleanPath(path);
+            paths.add(path);
 
             final Route route = new Route(connection.source, connection.destination);
             augmentRouteSegments(route, path);
@@ -33,7 +49,48 @@ public abstract class AbstractRoutingAlgorithm {
             }
         }
 
+        usageCounter = new UsageCounter(width, height);
+
+        for (final List<IndexedPoint> path : paths) {
+            for (int i = 1; i < path.size(); i++) {
+                final IndexedPoint p1 = path.get(i - 1);
+                final IndexedPoint p2 = path.get(i);
+
+                usageCounter.markUsage(p1.x, p1.y, p2.x, p2.y);
+
+            }
+        }
+
+
+        for (int x = 0; x < width; x++) {
+            System.out.print(usageCounter.getXCoordUsage(x) + " ");
+        }
+        System.out.println();
+
         return routes;
+    }
+
+    private void initialise(final RouterConnection connection) {
+        source = coordinatesPhase1.getIndexedCoordinate(connection.source.location);
+        destination = coordinatesPhase1.getIndexedCoordinate(connection.destination.location);
+
+        initialiseAnalyser(connection);
+    }
+
+    private void initialiseAnalyser(RouterConnection connection) {
+
+        PortDirection sourceDirection = null;
+        PortDirection destinationDirection = null;
+
+        if (connection.source.isFixedDirection) {
+            sourceDirection = connection.source.direction;
+        }
+
+        if (connection.destination.isFixedDirection) {
+            destinationDirection = connection.destination.direction;
+        }
+
+        analyser.initRouting(source, destination, sourceDirection, destinationDirection);
     }
 
     /**
@@ -46,7 +103,7 @@ public abstract class AbstractRoutingAlgorithm {
     protected Route augmentRouteSegments(Route route, List<IndexedPoint> path) {
 
         for (final IndexedPoint point : path) {
-            route.add(coordinates.getPoint(point.x, point.y));
+            route.add(coordinatesPhase1.getPoint(point.x, point.y));
         }
         return route;
     }
@@ -58,8 +115,37 @@ public abstract class AbstractRoutingAlgorithm {
      *            list of indexed points forming the route segments
      * @return new list of points without points in the middle of route segments
      */
-    protected List<IndexedPoint> clearStraightLines(List<IndexedPoint> path) {
-        return path;
+    protected List<IndexedPoint> getCleanPath(List<IndexedPoint> path) {
+
+        assert path.size() >= 2;
+
+        final List<IndexedPoint> cleanPath = new ArrayList<>();
+
+        cleanPath.add(path.get(0));
+
+        for (int i = 1; i < path.size() - 1; i++) {
+            if (!isLineFormed(path.get(i - 1), path.get(i), path.get(i + 1))) {
+                cleanPath.add(path.get(i));
+            }
+        }
+
+        cleanPath.add(path.get(path.size() - 1));
+
+        return cleanPath;
+    }
+
+    private boolean isLineFormed(IndexedPoint p1, IndexedPoint p2, IndexedPoint p3) {
+        assert !p1.equals(p2) && !p2.equals(p3) && !p3.equals(p1);
+
+        if (p1.x == p2.x && p2.x == p3.x) {
+            return true;
+        }
+
+        if (p1.y == p2.y && p2.y == p3.y) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -83,5 +169,5 @@ public abstract class AbstractRoutingAlgorithm {
         return path;
     }
 
-    abstract protected List<IndexedPoint> produceRoute(RouterConnection connection);
+    abstract protected List<IndexedPoint> findRoute();
 }

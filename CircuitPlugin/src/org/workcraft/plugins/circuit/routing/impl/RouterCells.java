@@ -12,6 +12,10 @@ public class RouterCells {
         cells = new int[width][height];
     }
 
+    public void increaseUsage(int x1, int y1, int x2, int y2) {
+
+    }
+
     public void mark(int x1, int y1, int x2, int y2, int value) {
         if (value == 0) {
             return;
