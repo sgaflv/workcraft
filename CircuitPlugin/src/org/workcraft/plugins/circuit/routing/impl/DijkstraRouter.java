@@ -19,6 +19,7 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
     @Override
     protected Route produceRoute(RouterConnection connection) {
+
         this.connection = connection;
 
         visited = new boolean[coordinates.getXCoordinates().size()][coordinates.getYCoordinates().size()];

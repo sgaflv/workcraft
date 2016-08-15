@@ -47,7 +47,7 @@ public class CellAnalyser {
 
         if (x + dx == source.x && y + dy == source.y) {
             if (exitDirection != null) {
-                if (dx != exitDirection.getDx() || dy != exitDirection.getDy()) {
+                if (dx != -exitDirection.getDx() || dy != -exitDirection.getDy()) {
                     return false;
                 }
             }

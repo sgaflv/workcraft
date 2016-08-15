@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.workcraft.dom.Node;
-import org.workcraft.dom.visual.VisualComment;
+import org.workcraft.dom.visual.VisualComponent;
 import org.workcraft.gui.graph.Viewport;
 import org.workcraft.plugins.circuit.CircuitSettings;
 import org.workcraft.plugins.circuit.VisualCircuit;
@@ -113,7 +113,7 @@ public class RouterClient {
             assert false : "unsupported visual contact direction";
         }
 
-        if (!(contact.getParent() instanceof VisualComment)) {
+        if (!(contact.getParent() instanceof VisualComponent)) {
             converted = converted.flip();
         }
 
