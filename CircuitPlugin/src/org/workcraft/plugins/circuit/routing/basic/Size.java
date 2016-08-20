@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class Size {
+public final class Size {
     public final int width;
     public final int height;
 
@@ -11,7 +11,7 @@ public class Size {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
         result = prime * result + height;
         result = prime * result + width;
@@ -29,7 +29,7 @@ public class Size {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Size other = (Size) obj;
+        Size other = (Size) obj;
         if (height != other.height) {
             return false;
         }

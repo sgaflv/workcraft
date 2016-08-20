@@ -45,7 +45,7 @@ public class CellAnalyser {
             return false;
         }
 
-        if (x + dx == source.x && y + dy == source.y) {
+        if (x + dx == source.getX() && y + dy == source.getY()) {
             if (exitDirection != null) {
                 if (dx != -exitDirection.getDx() || dy != -exitDirection.getDy()) {
                     return false;
@@ -53,7 +53,7 @@ public class CellAnalyser {
             }
         }
 
-        if (x == destination.x && y == destination.y) {
+        if (x == destination.getX() && y == destination.getY()) {
             if (entranceDirection != null) {
                 if (dx != entranceDirection.getDx() || dy != entranceDirection.getDy()) {
                     return false;
@@ -78,14 +78,14 @@ public class CellAnalyser {
 
     private boolean isBlockedHorizontally(int x, int y) {
         final boolean isBlocked = cells.isMarked(x, y, CellState.HORIZONTAL_BLOCK);
-        final boolean isPrivate = y != destination.y && y != source.y
+        final boolean isPrivate = y != destination.getY() && y != source.getY()
                 && !cells.isMarked(x, y, CellState.HORIZONTAL_PUBLIC);
         return isBlocked || isPrivate;
     }
 
     private boolean isBlockedVertically(int x, int y) {
         final boolean isBlocked = cells.isMarked(x, y, CellState.VERTICAL_BLOCK);
-        final boolean isPrivate = x != destination.x && x != source.x
+        final boolean isPrivate = x != destination.getX() && x != source.getX()
                 && !cells.isMarked(x, y, CellState.VERTICAL_PUBLIC);
         return isBlocked || isPrivate;
     }

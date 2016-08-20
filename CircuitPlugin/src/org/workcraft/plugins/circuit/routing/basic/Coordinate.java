@@ -1,9 +1,9 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class Coordinate implements Comparable<Coordinate> {
-    public final CoordinateOrientation orientation;
-    public final boolean isPublic;
-    public final double value;
+public final class Coordinate implements Comparable<Coordinate> {
+    private final CoordinateOrientation orientation;
+    private final boolean isPublic;
+    private final double value;
 
     public Coordinate(CoordinateOrientation orientation, boolean isPublic, double value) {
         this.orientation = orientation;
@@ -13,12 +13,12 @@ public class Coordinate implements Comparable<Coordinate> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
-        result = prime * result + (isPublic ? 1231 : 1237);
-        result = prime * result + ((orientation == null) ? 0 : orientation.hashCode());
+        result = prime * result + (isPublic() ? 1231 : 1237);
+        result = prime * result + ((getOrientation() == null) ? 0 : getOrientation().hashCode());
         long temp;
-        temp = Double.doubleToLongBits(value);
+        temp = Double.doubleToLongBits(getValue());
         result = prime * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
@@ -35,13 +35,13 @@ public class Coordinate implements Comparable<Coordinate> {
             return false;
         }
         final Coordinate other = (Coordinate) obj;
-        if (isPublic != other.isPublic) {
+        if (isPublic() != other.isPublic()) {
             return false;
         }
-        if (orientation != other.orientation) {
+        if (getOrientation() != other.getOrientation()) {
             return false;
         }
-        if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value)) {
+        if (Double.doubleToLongBits(getValue()) != Double.doubleToLongBits(other.getValue())) {
             return false;
         }
         return true;
@@ -49,6 +49,18 @@ public class Coordinate implements Comparable<Coordinate> {
 
     @Override
     public int compareTo(Coordinate other) {
-        return Double.compare(value, other.value);
+        return Double.compare(getValue(), other.getValue());
+    }
+
+    public CoordinateOrientation getOrientation() {
+        return orientation;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public double getValue() {
+        return value;
     }
 }

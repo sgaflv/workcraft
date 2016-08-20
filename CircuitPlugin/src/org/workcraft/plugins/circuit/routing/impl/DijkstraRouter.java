@@ -36,12 +36,12 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
             final PointToVisit visitPoint = visitQueue.poll();
 
-            visited[visitPoint.location.x][visitPoint.location.y] = true;
+            visited[visitPoint.location.getX()][visitPoint.location.getY()] = true;
             if (visitPoint.location.equals(source)) {
                 return;
             }
 
-            IndexedPoint lastPoint = sourceCells[visitPoint.location.x][visitPoint.location.y];
+            IndexedPoint lastPoint = sourceCells[visitPoint.location.getX()][visitPoint.location.getY()];
 
             if (lastPoint == null) {
                 lastPoint = visitPoint.location;
@@ -58,10 +58,10 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
     private void checkDirection(PriorityQueue<PointToVisit> visitQueue, double score, IndexedPoint lastPoint,
             IndexedPoint point, int dx, int dy) {
 
-        final int newX = point.x + dx;
-        final int newY = point.y + dy;
+        final int newX = point.getX() + dx;
+        final int newY = point.getY() + dy;
 
-        Double newScore = analyser.getMovementCost(lastPoint.x, lastPoint.y, point.x, point.y, dx, dy);
+        Double newScore = analyser.getMovementCost(lastPoint.getX(), lastPoint.getY(), point.getX(), point.getY(), dx, dy);
 
         if (newScore != null) {
 

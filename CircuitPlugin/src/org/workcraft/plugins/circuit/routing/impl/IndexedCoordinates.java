@@ -17,7 +17,7 @@ import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 /**
  * This class maps coordinates to integer indexes.
  */
-public final class IndexedCoordinates {
+public class IndexedCoordinates {
 
     private final TreeMap<Double, Coordinate> values = new TreeMap<>();
     private final Collection<Coordinate> readOnlyValues = Collections.unmodifiableCollection(values.values());
@@ -79,10 +79,10 @@ public final class IndexedCoordinates {
      */
     private boolean add(Coordinate coordinate) {
 
-        final Coordinate oldValue = values.put(coordinate.value, coordinate);
+        Coordinate oldValue = values.put(coordinate.getValue(), coordinate);
 
-        if (coordinate.isPublic) {
-            publicValues.add(coordinate.value);
+        if (coordinate.isPublic()) {
+            publicValues.add(coordinate.getValue());
         }
 
         return oldValue == null;
@@ -91,16 +91,16 @@ public final class IndexedCoordinates {
     private void addValue(boolean isPublic, CoordinateOrientation orientation, double... values) {
         boolean changed = false;
 
-        for (final double value : values) {
+        for (double value : values) {
             CoordinateOrientation newOrientation = orientation;
 
-            final Coordinate oldCoordinate = this.values.get(value);
+            Coordinate oldCoordinate = this.values.get(value);
 
             if (oldCoordinate != null) {
-                newOrientation = orientation.merge(oldCoordinate.orientation);
+                newOrientation = orientation.merge(oldCoordinate.getOrientation());
             }
 
-            final Coordinate newCoordinate = new Coordinate(newOrientation, isPublic || isPublic(value), value);
+            Coordinate newCoordinate = new Coordinate(newOrientation, isPublic || isPublic(value), value);
 
             changed |= add(newCoordinate);
         }
@@ -146,7 +146,7 @@ public final class IndexedCoordinates {
 
         toValue = new Coordinate[values.size()];
         int idx = 0;
-        for (final Coordinate coordinate : values.values()) {
+        for (Coordinate coordinate : values.values()) {
             toIndex.put(coordinate, idx);
             toValue[idx] = coordinate;
             idx++;
@@ -167,8 +167,8 @@ public final class IndexedCoordinates {
     public boolean isIntervalOccupied(double from, double to) {
         assert from <= to : "the interval borders must be provided from lower to higher";
 
-        final Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
-        final Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
+        Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
+        Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
 
         if (minBorder == null || maxBorder == null) {
             return false;
@@ -196,8 +196,8 @@ public final class IndexedCoordinates {
 
         build();
 
-        final Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
-        final Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
+        Double minBorder = values.ceilingKey(from - RouterConstants.EPSILON);
+        Double maxBorder = values.floorKey(to + RouterConstants.EPSILON);
 
         if (minBorder == null || maxBorder == null) {
             return null;
@@ -226,8 +226,8 @@ public final class IndexedCoordinates {
 
         build();
 
-        final Double minBorder = values.ceilingKey(from + 2 * RouterConstants.EPSILON);
-        final Double maxBorder = values.floorKey(to - 2 * RouterConstants.EPSILON);
+        Double minBorder = values.ceilingKey(from + 2 * RouterConstants.EPSILON);
+        Double maxBorder = values.floorKey(to - 2 * RouterConstants.EPSILON);
 
         if (minBorder == null || maxBorder == null) {
             return null;
@@ -255,7 +255,7 @@ public final class IndexedCoordinates {
 
         build();
 
-        return toValue[index].value;
+        return toValue[index].getValue();
     }
 
     public boolean isPublic(double value) {
@@ -265,18 +265,18 @@ public final class IndexedCoordinates {
     public void mergeCoordinates() {
 
         Coordinate last = null;
-        final List<Coordinate> toAdd = new ArrayList<Coordinate>();
-        final List<Coordinate> toDelete = new ArrayList<Coordinate>();
+        List<Coordinate> toAdd = new ArrayList<Coordinate>();
+        List<Coordinate> toDelete = new ArrayList<Coordinate>();
 
         for (Coordinate coordinate : getValues()) {
-            if (!(coordinate.isPublic)) {
+            if (!(coordinate.isPublic())) {
                 continue;
             }
 
-            if (coordinate.orientation == CoordinateOrientation.ORIENT_HIGHER
-                    || coordinate.orientation == CoordinateOrientation.ORIENT_BOTH) {
+            if (coordinate.getOrientation() == CoordinateOrientation.ORIENT_HIGHER
+                    || coordinate.getOrientation() == CoordinateOrientation.ORIENT_BOTH) {
 
-                if (last != null && (last.orientation == CoordinateOrientation.ORIENT_HIGHER)) {
+                if (last != null && (last.getOrientation() == CoordinateOrientation.ORIENT_HIGHER)) {
                     toDelete.add(last);
                 }
 
@@ -285,20 +285,20 @@ public final class IndexedCoordinates {
             }
 
             if (last != null) {
-                if (coordinate.orientation == CoordinateOrientation.ORIENT_LOWER) {
+                if (coordinate.getOrientation() == CoordinateOrientation.ORIENT_LOWER) {
                     toDelete.add(coordinate);
                 }
 
-                if (last.orientation == CoordinateOrientation.ORIENT_HIGHER) {
+                if (last.getOrientation() == CoordinateOrientation.ORIENT_HIGHER) {
                     toDelete.add(last);
 
-                    if (coordinate.orientation == CoordinateOrientation.ORIENT_LOWER) {
+                    if (coordinate.getOrientation() == CoordinateOrientation.ORIENT_LOWER) {
 
-                        double middle = SnapCalculator.snapToClosest((last.value + coordinate.value) / 2,
+                        double middle = SnapCalculator.snapToClosest((last.getValue() + coordinate.getValue()) / 2,
                                 RouterConstants.SEGMENT_MARGIN);
 
-                        if (coordinate.orientation == CoordinateOrientation.ORIENT_BOTH) {
-                            middle = coordinate.value;
+                        if (coordinate.getOrientation() == CoordinateOrientation.ORIENT_BOTH) {
+                            middle = coordinate.getValue();
                         }
 
                         coordinate = new Coordinate(CoordinateOrientation.ORIENT_BOTH, true, middle);
@@ -312,13 +312,11 @@ public final class IndexedCoordinates {
             last = coordinate;
         }
 
-        for (
-
-        final Coordinate coordinate : toDelete) {
-            remove(coordinate.value);
+        for (Coordinate coordinate : toDelete) {
+            remove(coordinate.getValue());
         }
 
-        for (final Coordinate coordinate : toAdd) {
+        for (Coordinate coordinate : toAdd) {
             add(coordinate);
         }
     }

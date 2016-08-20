@@ -3,8 +3,7 @@ package org.workcraft.plugins.circuit.routing.basic;
 public enum PortDirection {
     NORTH(0, -1), SOUTH(0, 1), EAST(1, 0), WEST(-1, 0);
 
-    private final int dx;
-    private final int dy;
+    private final int dx, dy;
 
     private PortDirection(int dx, int dy) {
         this.dx = dx;
@@ -50,7 +49,7 @@ public enum PortDirection {
             return WEST;
         default:
             assert false : "unexpected direction value";
-            return null;
+        return null;
         }
     }
 

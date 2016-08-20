@@ -1,8 +1,8 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
 public final class Point {
-    public final double x;
-    public final double y;
+    private final double x;
+    private final double y;
 
     public Point(double x, double y) {
         this.x = x;
@@ -11,12 +11,12 @@ public final class Point {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
         long temp;
-        temp = Double.doubleToLongBits(x);
+        temp = Double.doubleToLongBits(getX());
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(y);
+        temp = Double.doubleToLongBits(getY());
         result = prime * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
@@ -32,11 +32,11 @@ public final class Point {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Point other = (Point) obj;
-        if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x)) {
+        Point other = (Point) obj;
+        if (Double.doubleToLongBits(getX()) != Double.doubleToLongBits(other.getX())) {
             return false;
         }
-        if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y)) {
+        if (Double.doubleToLongBits(getY()) != Double.doubleToLongBits(other.getY())) {
             return false;
         }
         return true;
@@ -44,7 +44,15 @@ public final class Point {
 
     @Override
     public String toString() {
-        return "Point [x=" + x + ", y=" + y + "]";
+        return "Point [x=" + getX() + ", y=" + getY() + "]";
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
     }
 
 }

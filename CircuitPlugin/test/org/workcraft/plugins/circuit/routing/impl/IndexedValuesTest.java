@@ -56,7 +56,7 @@ public class IndexedValuesTest {
 
         int i = 0;
         for (final Coordinate coordinate : indexedValues.getValues()) {
-            assertEquals(sortedArray[i++], coordinate.value, RouterConstants.EPSILON);
+            assertEquals(sortedArray[i++], coordinate.getValue(), RouterConstants.EPSILON);
         }
 
     }

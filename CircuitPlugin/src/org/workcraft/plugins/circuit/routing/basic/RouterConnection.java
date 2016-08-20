@@ -3,9 +3,9 @@ package org.workcraft.plugins.circuit.routing.basic;
 /**
  * The connection class between two ports, defines one of the routing tasks.
  */
-public class RouterConnection {
-    public final RouterPort source;
-    public final RouterPort destination;
+public final class RouterConnection {
+    private final RouterPort source;
+    private final RouterPort destination;
 
     public RouterConnection(RouterPort source, RouterPort destination) {
 
@@ -18,10 +18,10 @@ public class RouterConnection {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
-        result = prime * result + ((destination == null) ? 0 : destination.hashCode());
-        result = prime * result + ((source == null) ? 0 : source.hashCode());
+        result = prime * result + ((getDestination() == null) ? 0 : getDestination().hashCode());
+        result = prime * result + ((getSource() == null) ? 0 : getSource().hashCode());
         return result;
     }
 
@@ -36,19 +36,19 @@ public class RouterConnection {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final RouterConnection other = (RouterConnection) obj;
-        if (destination == null) {
-            if (other.destination != null) {
+        RouterConnection other = (RouterConnection) obj;
+        if (getDestination() == null) {
+            if (other.getDestination() != null) {
                 return false;
             }
-        } else if (!destination.equals(other.destination)) {
+        } else if (!getDestination().equals(other.getDestination())) {
             return false;
         }
-        if (source == null) {
-            if (other.source != null) {
+        if (getSource() == null) {
+            if (other.getSource() != null) {
                 return false;
             }
-        } else if (!source.equals(other.source)) {
+        } else if (!getSource().equals(other.getSource())) {
             return false;
         }
         return true;
@@ -56,6 +56,14 @@ public class RouterConnection {
 
     @Override
     public String toString() {
-        return "Connection [source=" + source + ", destination=" + destination + "]";
+        return "Connection [source=" + getSource() + ", destination=" + getDestination() + "]";
+    }
+
+    public RouterPort getSource() {
+        return source;
+    }
+
+    public RouterPort getDestination() {
+        return destination;
     }
 }

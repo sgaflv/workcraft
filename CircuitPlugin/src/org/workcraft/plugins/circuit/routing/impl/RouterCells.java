@@ -36,7 +36,7 @@ public class RouterCells {
         if (hInterval == null || vInterval == null) {
             return;
         }
-        mark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, value);
+        mark(hInterval.getFrom(), vInterval.getFrom(), hInterval.getTo(), vInterval.getTo(), value);
     }
 
     public void unmark(int x1, int y1, int x2, int y2, int value) {
@@ -55,7 +55,7 @@ public class RouterCells {
         if (hInterval == null || vInterval == null) {
             return;
         }
-        unmark(hInterval.from, vInterval.from, hInterval.to, vInterval.to, value);
+        unmark(hInterval.getFrom(), vInterval.getFrom(), hInterval.getTo(), vInterval.getTo(), value);
     }
 
     public void markBusy(IndexedInterval hInterval, IndexedInterval vInterval) {

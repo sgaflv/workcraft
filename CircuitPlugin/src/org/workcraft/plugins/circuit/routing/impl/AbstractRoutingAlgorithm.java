@@ -41,7 +41,7 @@ public abstract class AbstractRoutingAlgorithm {
             path = getCleanPath(path);
             paths.add(path);
 
-            final Route route = new Route(connection.source, connection.destination);
+            final Route route = new Route(connection.getSource(), connection.getDestination());
             augmentRouteSegments(route, path);
 
             if (route != null) {
@@ -56,7 +56,7 @@ public abstract class AbstractRoutingAlgorithm {
                 final IndexedPoint p1 = path.get(i - 1);
                 final IndexedPoint p2 = path.get(i);
 
-                usageCounter.markUsage(p1.x, p1.y, p2.x, p2.y);
+                usageCounter.markUsage(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 
             }
         }
@@ -71,8 +71,8 @@ public abstract class AbstractRoutingAlgorithm {
     }
 
     private void initialise(final RouterConnection connection) {
-        source = coordinatesPhase1.getIndexedCoordinate(connection.source.location);
-        destination = coordinatesPhase1.getIndexedCoordinate(connection.destination.location);
+        source = coordinatesPhase1.getIndexedCoordinate(connection.getSource().getLocation());
+        destination = coordinatesPhase1.getIndexedCoordinate(connection.getDestination().getLocation());
 
         initialiseAnalyser(connection);
     }
@@ -82,12 +82,12 @@ public abstract class AbstractRoutingAlgorithm {
         PortDirection sourceDirection = null;
         PortDirection destinationDirection = null;
 
-        if (connection.source.isFixedDirection) {
-            sourceDirection = connection.source.direction;
+        if (connection.getSource().isFixedDirection) {
+            sourceDirection = connection.getSource().getDirection();
         }
 
-        if (connection.destination.isFixedDirection) {
-            destinationDirection = connection.destination.direction;
+        if (connection.getDestination().isFixedDirection) {
+            destinationDirection = connection.getDestination().getDirection();
         }
 
         analyser.initRouting(source, destination, sourceDirection, destinationDirection);
@@ -103,7 +103,7 @@ public abstract class AbstractRoutingAlgorithm {
     protected Route augmentRouteSegments(Route route, List<IndexedPoint> path) {
 
         for (final IndexedPoint point : path) {
-            route.add(coordinatesPhase1.getPoint(point.x, point.y));
+            route.add(coordinatesPhase1.getPoint(point.getX(), point.getY()));
         }
         return route;
     }
@@ -137,11 +137,11 @@ public abstract class AbstractRoutingAlgorithm {
     private boolean isLineFormed(IndexedPoint p1, IndexedPoint p2, IndexedPoint p3) {
         assert !p1.equals(p2) && !p2.equals(p3) && !p3.equals(p1);
 
-        if (p1.x == p2.x && p2.x == p3.x) {
+        if (p1.getX() == p2.getX() && p2.getX() == p3.getX()) {
             return true;
         }
 
-        if (p1.y == p2.y && p2.y == p3.y) {
+        if (p1.getY() == p2.getY() && p2.getY() == p3.getY()) {
             return true;
         }
 
@@ -159,7 +159,7 @@ public abstract class AbstractRoutingAlgorithm {
 
         IndexedPoint next = source;
         do {
-            next = sourceCells[next.x][next.y];
+            next = sourceCells[next.getX()][next.getY()];
 
             if (next != null) {
                 path.add(next);

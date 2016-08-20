@@ -42,8 +42,8 @@ public class RouterTask {
     }
 
     public void addConnection(RouterConnection connection) {
-        addPort(connection.source);
-        addPort(connection.destination);
+        addPort(connection.getSource());
+        addPort(connection.getDestination());
 
         connections.add(connection);
     }

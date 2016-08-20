@@ -2,15 +2,15 @@ package org.workcraft.plugins.circuit.routing.basic;
 
 public final class IndexedPoint implements Comparable<IndexedPoint> {
 
-    private static final int CACHE_SIZE = 100;
+    private static int CACHE_SIZE = 100;
 
-    private static final int LOW_BITS = 15;
+    private static int LOW_BITS = 15;
 
-    private static final IndexedPoint[][] pointsCache = new IndexedPoint[CACHE_SIZE][CACHE_SIZE];
+    private static IndexedPoint[][] pointsCache = new IndexedPoint[CACHE_SIZE][CACHE_SIZE];
 
-    public final int x;
-    public final int y;
-    public final int hash;
+    private final int x;
+    private final int y;
+    private final int hash;
 
     private IndexedPoint(int x, int y) {
         if (x < 0 || x >= (1 << LOW_BITS) || y < 0 || y >= (1 << LOW_BITS)) {
@@ -45,7 +45,7 @@ public final class IndexedPoint implements Comparable<IndexedPoint> {
 
     @Override
     public int hashCode() {
-        return hash;
+        return getHash();
     }
 
     @Override
@@ -59,18 +59,30 @@ public final class IndexedPoint implements Comparable<IndexedPoint> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final IndexedPoint other = (IndexedPoint) obj;
-        return hash == other.hash;
+        IndexedPoint other = (IndexedPoint) obj;
+        return getHash() == other.getHash();
     }
 
     @Override
     public String toString() {
-        return "IndexedPoint [x=" + x + ", y=" + y + "]";
+        return "IndexedPoint [x=" + getX() + ", y=" + getY() + "]";
     }
 
     @Override
     public int compareTo(IndexedPoint other) {
-        return hash - other.hash;
+        return getHash() - other.getHash();
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getHash() {
+        return hash;
     }
 
 }

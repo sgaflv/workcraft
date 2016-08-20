@@ -96,10 +96,10 @@ public class CoordinatesRegistry {
 
         for (final Line segment : lastObstaclesUsed.getSegments()) {
 
-            final double x1 = Math.min(segment.x1, segment.x2);
-            final double x2 = Math.max(segment.x1, segment.x2);
-            final double y1 = Math.min(segment.y1, segment.y2);
-            final double y2 = Math.max(segment.y1, segment.y2);
+            final double x1 = Math.min(segment.getX1(), segment.getX2());
+            final double x2 = Math.max(segment.getX1(), segment.getX2());
+            final double y1 = Math.min(segment.getY1(), segment.getY2());
+            final double y2 = Math.max(segment.getY1(), segment.getY2());
 
             final IndexedInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RouterConstants.SEGMENT_MARGIN,
                     x2 + RouterConstants.SEGMENT_MARGIN);
@@ -138,8 +138,8 @@ public class CoordinatesRegistry {
 
     private void markBusy() {
         for (final Rectangle rectangle : lastObstaclesUsed.getRectangles()) {
-            final IndexedInterval xInt = xCoords.getIndexedInterval(rectangle.x, rectangle.x + rectangle.width);
-            final IndexedInterval yInt = yCoords.getIndexedInterval(rectangle.y, rectangle.y + rectangle.height);
+            final IndexedInterval xInt = xCoords.getIndexedInterval(rectangle.getX(), rectangle.getX() + rectangle.getWidth());
+            final IndexedInterval yInt = yCoords.getIndexedInterval(rectangle.getY(), rectangle.getY() + rectangle.getHeight());
             routingCells.markBusy(xInt, yInt);
         }
     }
@@ -153,7 +153,7 @@ public class CoordinatesRegistry {
         final int ylen = routingCells.cells[0].length;
         int x = 0;
         for (final Coordinate dx : xCoords.getValues()) {
-            if (dx.isPublic) {
+            if (dx.isPublic()) {
                 routingCells.mark(x, 0, x, ylen - 1, CellState.VERTICAL_PUBLIC);
             }
             x++;
@@ -164,7 +164,7 @@ public class CoordinatesRegistry {
         final int xlen = routingCells.cells.length;
         int y = 0;
         for (final Coordinate dy : yCoords.getValues()) {
-            if (dy.isPublic) {
+            if (dy.isPublic()) {
 
                 routingCells.mark(0, y, xlen - 1, y, CellState.HORIZONTAL_PUBLIC);
             }
@@ -191,15 +191,15 @@ public class CoordinatesRegistry {
 
         for (final Rectangle rec : lastObstaclesUsed.getRectangles()) {
 
-            final boolean foundHorizontal = xCoords.isIntervalOccupied(rec.x, rec.x + rec.width);
-            final boolean foundVertical = yCoords.isIntervalOccupied(rec.y, rec.y + rec.height);
+            final boolean foundHorizontal = xCoords.isIntervalOccupied(rec.getX(), rec.getX() + rec.getWidth());
+            final boolean foundVertical = yCoords.isIntervalOccupied(rec.getY(), rec.getY() + rec.getHeight());
 
             if (!foundHorizontal) {
-                xCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.x + rec.width / 2);
+                xCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.getX() + rec.getWidth() / 2);
             }
 
             if (!foundVertical) {
-                yCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.y + rec.height / 2);
+                yCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.getY() + rec.getHeight() / 2);
             }
 
         }
@@ -207,26 +207,26 @@ public class CoordinatesRegistry {
 
     private void registerPorts() {
         for (final RouterConnection connection : lastObstaclesUsed.getConnections()) {
-            registerPort(connection.source);
-            registerPort(connection.destination);
+            registerPort(connection.getSource());
+            registerPort(connection.getDestination());
         }
     }
 
     private void registerPort(RouterPort port) {
-        xCoords.addPrivate(port.direction.getHorizontalOrientation(), port.location.x);
-        yCoords.addPrivate(port.direction.getVerticalOrientation(), port.location.y);
+        xCoords.addPrivate(port.getDirection().getHorizontalOrientation(), port.getLocation().getX());
+        yCoords.addPrivate(port.getDirection().getVerticalOrientation(), port.getLocation().getY());
         return;
     }
 
     private void registerRectangles() {
         for (final Rectangle rec : lastObstaclesUsed.getRectangles()) {
-            final double minx = SnapCalculator.snapToLower(rec.x - RouterConstants.OBSTACLE_MARGIN,
+            final double minx = SnapCalculator.snapToLower(rec.getX() - RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
-            final double maxx = SnapCalculator.snapToHigher(rec.x + rec.width + RouterConstants.OBSTACLE_MARGIN,
+            final double maxx = SnapCalculator.snapToHigher(rec.getX() + rec.getWidth() + RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
-            final double miny = SnapCalculator.snapToLower(rec.y - RouterConstants.OBSTACLE_MARGIN,
+            final double miny = SnapCalculator.snapToLower(rec.getY() - RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
-            final double maxy = SnapCalculator.snapToHigher(rec.y + rec.height + RouterConstants.OBSTACLE_MARGIN,
+            final double maxy = SnapCalculator.snapToHigher(rec.getY() + rec.getHeight() + RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
 
             xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
@@ -247,11 +247,11 @@ public class CoordinatesRegistry {
 
     public IndexedPoint getIndexedCoordinate(Point point) {
 
-        final IndexedInterval indexedIntervalH = xCoords.getIndexedInterval(point.x, point.x);
-        final IndexedInterval indexedIntervalV = yCoords.getIndexedInterval(point.y, point.y);
+        final IndexedInterval indexedIntervalH = xCoords.getIndexedInterval(point.getX(), point.getX());
+        final IndexedInterval indexedIntervalV = yCoords.getIndexedInterval(point.getY(), point.getY());
 
-        final int x = indexedIntervalH.from;
-        final int y = indexedIntervalV.from;
+        final int x = indexedIntervalH.getFrom();
+        final int y = indexedIntervalV.getFrom();
 
         return IndexedPoint.create(x, y);
     }

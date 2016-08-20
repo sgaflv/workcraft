@@ -5,9 +5,9 @@ package org.workcraft.plugins.circuit.routing.basic;
  */
 public final class RouterPort {
     /** Direction of the port. */
-    public final PortDirection direction;
+    private final PortDirection direction;
     /** Location of the port. */
-    public final Point location;
+    private final Point location;
 
     /**
      * if true, the router will add route segment in the defined direction
@@ -27,11 +27,11 @@ public final class RouterPort {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
-        result = prime * result + ((direction == null) ? 0 : direction.hashCode());
+        result = prime * result + ((getDirection() == null) ? 0 : getDirection().hashCode());
         result = prime * result + (isFixedDirection ? 1231 : 1237);
-        result = prime * result + ((location == null) ? 0 : location.hashCode());
+        result = prime * result + ((getLocation() == null) ? 0 : getLocation().hashCode());
         return result;
     }
 
@@ -46,18 +46,18 @@ public final class RouterPort {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final RouterPort other = (RouterPort) obj;
-        if (direction != other.direction) {
+        RouterPort other = (RouterPort) obj;
+        if (getDirection() != other.getDirection()) {
             return false;
         }
         if (isFixedDirection != other.isFixedDirection) {
             return false;
         }
-        if (location == null) {
-            if (other.location != null) {
+        if (getLocation() == null) {
+            if (other.getLocation() != null) {
                 return false;
             }
-        } else if (!location.equals(other.location)) {
+        } else if (!getLocation().equals(other.getLocation())) {
             return false;
         }
         return true;
@@ -65,7 +65,7 @@ public final class RouterPort {
 
     @Override
     public String toString() {
-        return "Port [direction=" + direction + ", location=" + location + ", "
+        return "Port [direction=" + getDirection() + ", location=" + getLocation() + ", "
                 + (isFixedDirection ? "directed" : "undirected") + "]";
     }
 
@@ -75,6 +75,14 @@ public final class RouterPort {
 
     public static RouterPort withFlexibleDirection(PortDirection direction, Point portPoint) {
         return new RouterPort(direction, portPoint, false);
+    }
+
+    public PortDirection getDirection() {
+        return direction;
+    }
+
+    public Point getLocation() {
+        return location;
     }
 
 }

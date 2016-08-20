@@ -1,9 +1,9 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public class IndexedInterval {
+public final class IndexedInterval {
 
-    public final int from;
-    public final int to;
+    private final int from;
+    private final int to;
 
     public IndexedInterval(int from, int to) {
         this.from = Math.min(from, to);
@@ -12,10 +12,10 @@ public class IndexedInterval {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
-        result = prime * result + from;
-        result = prime * result + to;
+        result = prime * result + getFrom();
+        result = prime * result + getTo();
         return result;
     }
 
@@ -30,11 +30,11 @@ public class IndexedInterval {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final IndexedInterval other = (IndexedInterval) obj;
-        if (from != other.from) {
+        IndexedInterval other = (IndexedInterval) obj;
+        if (getFrom() != other.getFrom()) {
             return false;
         }
-        if (to != other.to) {
+        if (getTo() != other.getTo()) {
             return false;
         }
         return true;
@@ -42,7 +42,7 @@ public class IndexedInterval {
 
     @Override
     public String toString() {
-        return "IntegerInterval [from=" + from + ", to=" + to + "]";
+        return "IntegerInterval [from=" + getFrom() + ", to=" + getTo() + "]";
     }
 
     /**
@@ -53,6 +53,14 @@ public class IndexedInterval {
      * @return true if intervals intersect, false otherwise
      */
     public boolean intersects(IndexedInterval other) {
-        return from <= other.to && to >= other.from;
+        return getFrom() <= other.getTo() && getTo() >= other.getFrom();
+    }
+
+    public int getFrom() {
+        return from;
+    }
+
+    public int getTo() {
+        return to;
     }
 }

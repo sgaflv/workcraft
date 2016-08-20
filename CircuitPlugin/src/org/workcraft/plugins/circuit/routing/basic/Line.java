@@ -1,7 +1,10 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
 public final class Line {
-    public final double x1, y1, x2, y2;
+    private final double x1;
+    private final double y1;
+    private final double x2;
+    private final double y2;
 
     public Line(double x1, double y1, double x2, double y2) {
         this.x1 = x1;
@@ -12,16 +15,16 @@ public final class Line {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
         long temp;
-        temp = Double.doubleToLongBits(x1);
+        temp = Double.doubleToLongBits(getX1());
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(x2);
+        temp = Double.doubleToLongBits(getX2());
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(y1);
+        temp = Double.doubleToLongBits(getY1());
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(y2);
+        temp = Double.doubleToLongBits(getY2());
         result = prime * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
@@ -37,17 +40,17 @@ public final class Line {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Line other = (Line) obj;
-        if (Double.doubleToLongBits(x1) != Double.doubleToLongBits(other.x1)) {
+        Line other = (Line) obj;
+        if (Double.doubleToLongBits(getX1()) != Double.doubleToLongBits(other.getX1())) {
             return false;
         }
-        if (Double.doubleToLongBits(x2) != Double.doubleToLongBits(other.x2)) {
+        if (Double.doubleToLongBits(getX2()) != Double.doubleToLongBits(other.getX2())) {
             return false;
         }
-        if (Double.doubleToLongBits(y1) != Double.doubleToLongBits(other.y1)) {
+        if (Double.doubleToLongBits(getY1()) != Double.doubleToLongBits(other.getY1())) {
             return false;
         }
-        if (Double.doubleToLongBits(y2) != Double.doubleToLongBits(other.y2)) {
+        if (Double.doubleToLongBits(getY2()) != Double.doubleToLongBits(other.getY2())) {
             return false;
         }
         return true;
@@ -55,7 +58,7 @@ public final class Line {
 
     @Override
     public String toString() {
-        return "Line [x1=" + x1 + ", y1=" + y1 + ", x2=" + x2 + ", y2=" + y2 + "]";
+        return "Line [x1=" + getX1() + ", y1=" + getY1() + ", x2=" + getX2() + ", y2=" + getY2() + "]";
     }
 
     /**
@@ -64,7 +67,7 @@ public final class Line {
      * @return true if line is vertical, false otherwise
      */
     public boolean isVertical() {
-        return x1 == x2 && y1 != y2;
+        return getX1() == getX2() && getY1() != getY2();
     }
 
     /**
@@ -73,6 +76,22 @@ public final class Line {
      * @return true if line is horizontal, false otherwise
      */
     public boolean isHorizontal() {
-        return x1 != x2 && y1 == y2;
+        return getX1() != getX2() && getY1() == getY2();
+    }
+
+    public double getX1() {
+        return x1;
+    }
+
+    public double getY1() {
+        return y1;
+    }
+
+    public double getX2() {
+        return x2;
+    }
+
+    public double getY2() {
+        return y2;
     }
 }
