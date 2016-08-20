@@ -13,7 +13,7 @@ public abstract class AbstractRoutingAlgorithm {
     protected RouterCells cells;
     protected CoordinatesRegistry coordinatesPhase1;
 
-    protected UsageCounter usageCounter;
+    private UsageCounter usageCounter;
 
     protected int width;
     protected int height;
@@ -38,28 +38,24 @@ public abstract class AbstractRoutingAlgorithm {
             initialise(connection);
 
             List<IndexedPoint> path = findRoute();
-            path = getCleanPath(path);
-            paths.add(path);
 
             Route route = new Route(connection.getSource(), connection.getDestination());
-            augmentRouteSegments(route, path);
 
-            if (route != null) {
-                routes.add(route);
+            if (path != null) {
+                path = getCleanPath(path);
+                paths.add(path);
+                augmentRouteSegments(route, path);
+            } else {
+                route.add(connection.getSource().getLocation());
+                route.add(connection.getDestination().getLocation());
             }
+
+            routes.add(route);
         }
 
         usageCounter = new UsageCounter(width, height);
 
-        for (List<IndexedPoint> path : paths) {
-            for (int i = 1; i < path.size(); i++) {
-                IndexedPoint p1 = path.get(i - 1);
-                IndexedPoint p2 = path.get(i);
-
-                usageCounter.markUsage(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-
-            }
-        }
+        usageCounter.updateUsageCounter(paths);
 
 
         // for (int x = 0; x < width; x++) {
@@ -69,6 +65,8 @@ public abstract class AbstractRoutingAlgorithm {
 
         return routes;
     }
+
+
 
     private void initialise(RouterConnection connection) {
         source = coordinatesPhase1.getIndexedCoordinate(connection.getSource().getLocation());
@@ -170,4 +168,8 @@ public abstract class AbstractRoutingAlgorithm {
     }
 
     abstract protected List<IndexedPoint> findRoute();
+
+    protected UsageCounter getUsageCounter() {
+        return usageCounter;
+    }
 }

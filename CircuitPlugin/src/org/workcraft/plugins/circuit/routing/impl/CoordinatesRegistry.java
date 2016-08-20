@@ -21,27 +21,61 @@ import org.workcraft.plugins.circuit.routing.basic.RouterPort;
  */
 public class CoordinatesRegistry {
 
+    // TODO: remove this variable
+    public final List<Rectangle> blocked = new ArrayList<Rectangle>();
+
     private final IndexedCoordinates xCoords = new IndexedCoordinates();
     private final IndexedCoordinates yCoords = new IndexedCoordinates();
 
-    private RouterTask lastObstaclesUsed;
+    private RouterTask routerTask;
 
     private boolean isBuilt = false;
 
     private RouterCells routingCells;
 
-    public boolean setObstacles(RouterTask newObstacles) {
-        if (newObstacles == null || newObstacles.equals(lastObstaclesUsed)) {
+    public void buildFromUsageCounter(RouterTask routerTask, CoordinatesRegistry otherRegistry,
+            UsageCounter usageCounter) {
+        clear();
+
+        this.routerTask = routerTask;
+
+        for (int x = 0; x < usageCounter.getWidth(); x++) {
+            if (usageCounter.getXCoordUsage(x) > 0) {
+                Coordinate xCoord = otherRegistry.xCoords.getCoordinateByIndex(x);
+                xCoords.addCoordinate(xCoord);
+            }
+        }
+
+        for (int y = 0; y < usageCounter.getHeight(); y++) {
+            if (usageCounter.getYCoordUsage(y) > 0) {
+                Coordinate yCoord = otherRegistry.yCoords.getCoordinateByIndex(y);
+                yCoords.addCoordinate(yCoord);
+            }
+        }
+
+        registerPorts();
+
+        registerAdditionalCoordinates();
+
+        System.out.println("cells: " + xCoords.size() * yCoords.size() + " (" + xCoords.size() + "x" + yCoords.size()
+                + ")" + " rectangles:" + routerTask.getRectangles().size() + " connections:"
+                + routerTask.getConnections().size());
+
+        isBuilt = true;
+    }
+
+    public boolean setRouterTask(RouterTask newRouterTask) {
+        if (newRouterTask == null || newRouterTask.equals(routerTask)) {
             return false;
         }
 
-        lastObstaclesUsed = newObstacles;
+        routerTask = newRouterTask;
         isBuilt = false;
         return true;
     }
 
     public RouterTask getRouterTask() {
-        return lastObstaclesUsed;
+        return routerTask;
     }
 
     public Collection<Coordinate> getXCoordinates() {
@@ -64,6 +98,9 @@ public class CoordinatesRegistry {
 
     public void clear() {
         isBuilt = false;
+        blocked.clear();
+        xCoords.clear();
+        yCoords.clear();
     }
 
     public void buildCoordinates() {
@@ -89,12 +126,9 @@ public class CoordinatesRegistry {
         markBlocked();
     }
 
-    public List<Rectangle> blocked = new ArrayList<Rectangle>();
-
     private void markBlocked() {
-        blocked.clear();
 
-        for (Line segment : lastObstaclesUsed.getSegments()) {
+        for (Line segment : routerTask.getSegments()) {
 
             double x1 = Math.min(segment.getX1(), segment.getX2());
             double x2 = Math.max(segment.getX1(), segment.getX2());
@@ -137,7 +171,7 @@ public class CoordinatesRegistry {
     }
 
     private void markBusy() {
-        for (Rectangle rectangle : lastObstaclesUsed.getRectangles()) {
+        for (Rectangle rectangle : routerTask.getRectangles()) {
             IndexedInterval xInt = xCoords.getIndexedInterval(rectangle.getX(),
                     rectangle.getX() + rectangle.getWidth());
             IndexedInterval yInt = yCoords.getIndexedInterval(rectangle.getY(),
@@ -175,8 +209,6 @@ public class CoordinatesRegistry {
     }
 
     private void rebuildCoordinates() {
-        xCoords.clear();
-        yCoords.clear();
 
         registerRectangles();
         registerPorts();
@@ -185,13 +217,13 @@ public class CoordinatesRegistry {
 
         System.out.println(
                 "cells: " + xCoords.size() * yCoords.size() + " (" + xCoords.size() + "x" + yCoords.size() + ")"
-                        + " rectangles:" + lastObstaclesUsed.getRectangles().size() + " connections:"
-                        + lastObstaclesUsed.getConnections().size());
+                        + " rectangles:" + routerTask.getRectangles().size() + " connections:"
+                        + routerTask.getConnections().size());
     }
 
     private void registerAdditionalCoordinates() {
 
-        for (Rectangle rec : lastObstaclesUsed.getRectangles()) {
+        for (Rectangle rec : routerTask.getRectangles()) {
 
             boolean foundHorizontal = xCoords.isIntervalOccupied(rec.getX(), rec.getX() + rec.getWidth());
             boolean foundVertical = yCoords.isIntervalOccupied(rec.getY(), rec.getY() + rec.getHeight());
@@ -208,7 +240,7 @@ public class CoordinatesRegistry {
     }
 
     private void registerPorts() {
-        for (RouterConnection connection : lastObstaclesUsed.getConnections()) {
+        for (RouterConnection connection : routerTask.getConnections()) {
             registerPort(connection.getSource());
             registerPort(connection.getDestination());
         }
@@ -221,7 +253,7 @@ public class CoordinatesRegistry {
     }
 
     private void registerRectangles() {
-        for (Rectangle rec : lastObstaclesUsed.getRectangles()) {
+        for (Rectangle rec : routerTask.getRectangles()) {
             double minx = SnapCalculator.snapToLower(rec.getX() - RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
             double maxx = SnapCalculator.snapToHigher(rec.getX() + rec.getWidth() + RouterConstants.OBSTACLE_MARGIN,

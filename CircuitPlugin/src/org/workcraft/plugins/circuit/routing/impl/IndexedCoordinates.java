@@ -23,7 +23,7 @@ public class IndexedCoordinates {
     private final Collection<Coordinate> readOnlyValues = Collections.unmodifiableCollection(values.values());
 
     private final SortedMap<Coordinate, Integer> toIndex = new TreeMap<>();
-    private Coordinate[] toValue;
+    private Coordinate[] toCoordinate;
 
     private final Set<Double> publicValues = new HashSet<Double>();
 
@@ -67,7 +67,7 @@ public class IndexedCoordinates {
 
     private void clearMaps() {
         toIndex.clear();
-        toValue = null;
+        toCoordinate = null;
         isBuilt = false;
     }
 
@@ -121,6 +121,15 @@ public class IndexedCoordinates {
     }
 
     /**
+     * Add given coordinate to the mapping.
+     *
+     * @param values
+     *            a values to be added to the mapping
+     */
+    public void addCoordinate(Coordinate coordinate) {
+        addValue(coordinate.isPublic(), coordinate.getOrientation(), coordinate.getValue());
+    }
+    /**
      * Add private values to the mapping.
      *
      * @param values
@@ -144,11 +153,11 @@ public class IndexedCoordinates {
 
         clearMaps();
 
-        toValue = new Coordinate[values.size()];
+        toCoordinate = new Coordinate[values.size()];
         int idx = 0;
         for (Coordinate coordinate : values.values()) {
             toIndex.put(coordinate, idx);
-            toValue[idx] = coordinate;
+            toCoordinate[idx] = coordinate;
             idx++;
         }
 
@@ -249,13 +258,25 @@ public class IndexedCoordinates {
      */
     public double getValueByIndex(int index) {
 
+        return getCoordinateByIndex(index).getValue();
+    }
+
+    /**
+     * Get coordinate by given index.
+     *
+     * @param index
+     *            the index of the coordinate
+     * @return the coordinate by the index provided
+     */
+    public Coordinate getCoordinateByIndex(int index) {
+
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
         }
 
         build();
 
-        return toValue[index].getValue();
+        return toCoordinate[index];
     }
 
     public boolean isPublic(double value) {
