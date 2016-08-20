@@ -7,8 +7,8 @@ import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 public class CellAnalyser {
     private final RouterCells cells;
 
-    int sizeX;
-    int sizeY;
+    private final int sizeX;
+    private final int sizeY;
 
     private IndexedPoint source;
     private PortDirection exitDirection;

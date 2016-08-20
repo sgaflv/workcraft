@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
+import org.workcraft.plugins.circuit.routing.basic.PointToVisit;
 
 public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
@@ -36,21 +37,21 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
             final PointToVisit visitPoint = visitQueue.poll();
 
-            visited[visitPoint.location.getX()][visitPoint.location.getY()] = true;
-            if (visitPoint.location.equals(source)) {
+            visited[visitPoint.getLocation().getX()][visitPoint.getLocation().getY()] = true;
+            if (visitPoint.getLocation().equals(source)) {
                 return;
             }
 
-            IndexedPoint lastPoint = sourceCells[visitPoint.location.getX()][visitPoint.location.getY()];
+            IndexedPoint lastPoint = sourceCells[visitPoint.getLocation().getX()][visitPoint.getLocation().getY()];
 
             if (lastPoint == null) {
-                lastPoint = visitPoint.location;
+                lastPoint = visitPoint.getLocation();
             }
 
-            checkDirection(visitQueue, visitPoint.score, lastPoint, visitPoint.location, 1, 0);
-            checkDirection(visitQueue, visitPoint.score, lastPoint, visitPoint.location, -1, 0);
-            checkDirection(visitQueue, visitPoint.score, lastPoint, visitPoint.location, 0, 1);
-            checkDirection(visitQueue, visitPoint.score, lastPoint, visitPoint.location, 0, -1);
+            checkDirection(visitQueue, visitPoint.getScore(), lastPoint, visitPoint.getLocation(), 1, 0);
+            checkDirection(visitQueue, visitPoint.getScore(), lastPoint, visitPoint.getLocation(), -1, 0);
+            checkDirection(visitQueue, visitPoint.getScore(), lastPoint, visitPoint.getLocation(), 0, 1);
+            checkDirection(visitQueue, visitPoint.getScore(), lastPoint, visitPoint.getLocation(), 0, -1);
 
         }
     }

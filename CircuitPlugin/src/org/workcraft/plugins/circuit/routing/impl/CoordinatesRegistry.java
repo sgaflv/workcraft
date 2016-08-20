@@ -94,16 +94,16 @@ public class CoordinatesRegistry {
     private void markBlocked() {
         blocked.clear();
 
-        for (final Line segment : lastObstaclesUsed.getSegments()) {
+        for (Line segment : lastObstaclesUsed.getSegments()) {
 
-            final double x1 = Math.min(segment.getX1(), segment.getX2());
-            final double x2 = Math.max(segment.getX1(), segment.getX2());
-            final double y1 = Math.min(segment.getY1(), segment.getY2());
-            final double y2 = Math.max(segment.getY1(), segment.getY2());
+            double x1 = Math.min(segment.getX1(), segment.getX2());
+            double x2 = Math.max(segment.getX1(), segment.getX2());
+            double y1 = Math.min(segment.getY1(), segment.getY2());
+            double y2 = Math.max(segment.getY1(), segment.getY2());
 
-            final IndexedInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RouterConstants.SEGMENT_MARGIN,
+            IndexedInterval xInt = xCoords.getIndexedIntervalExclusive(x1 - RouterConstants.SEGMENT_MARGIN,
                     x2 + RouterConstants.SEGMENT_MARGIN);
-            final IndexedInterval yInt = yCoords.getIndexedIntervalExclusive(y1 - RouterConstants.SEGMENT_MARGIN,
+            IndexedInterval yInt = yCoords.getIndexedIntervalExclusive(y1 - RouterConstants.SEGMENT_MARGIN,
                     y2 + RouterConstants.SEGMENT_MARGIN);
 
             if (segment.isVertical()) {
@@ -111,9 +111,9 @@ public class CoordinatesRegistry {
                         x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN, y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
                 routingCells.mark(xInt, yInt, CellState.VERTICAL_BLOCK);
 
-                final IndexedInterval xInclude = xCoords.getIndexedInterval(x1, x1);
-                final IndexedInterval yIncludeMin = yCoords.getIndexedInterval(y1 - RouterConstants.SEGMENT_MARGIN, y1);
-                final IndexedInterval yIncludeMax = yCoords.getIndexedInterval(y2, y2 + RouterConstants.SEGMENT_MARGIN);
+                IndexedInterval xInclude = xCoords.getIndexedInterval(x1, x1);
+                IndexedInterval yIncludeMin = yCoords.getIndexedInterval(y1 - RouterConstants.SEGMENT_MARGIN, y1);
+                IndexedInterval yIncludeMax = yCoords.getIndexedInterval(y2, y2 + RouterConstants.SEGMENT_MARGIN);
 
                 routingCells.unmark(xInclude, yIncludeMin, CellState.VERTICAL_BLOCK);
                 routingCells.unmark(xInclude, yIncludeMax, CellState.VERTICAL_BLOCK);
@@ -126,9 +126,9 @@ public class CoordinatesRegistry {
 
                 routingCells.mark(xInt, yInt, CellState.HORIZONTAL_BLOCK);
 
-                final IndexedInterval yInclude = yCoords.getIndexedInterval(y1, y1);
-                final IndexedInterval xIncludeMin = xCoords.getIndexedInterval(x1 - RouterConstants.SEGMENT_MARGIN, x1);
-                final IndexedInterval xIncludeMax = xCoords.getIndexedInterval(x2, x2 + RouterConstants.SEGMENT_MARGIN);
+                IndexedInterval yInclude = yCoords.getIndexedInterval(y1, y1);
+                IndexedInterval xIncludeMin = xCoords.getIndexedInterval(x1 - RouterConstants.SEGMENT_MARGIN, x1);
+                IndexedInterval xIncludeMax = xCoords.getIndexedInterval(x2, x2 + RouterConstants.SEGMENT_MARGIN);
 
                 routingCells.unmark(xIncludeMin, yInclude, CellState.HORIZONTAL_BLOCK);
                 routingCells.unmark(xIncludeMax, yInclude, CellState.HORIZONTAL_BLOCK);
@@ -137,9 +137,11 @@ public class CoordinatesRegistry {
     }
 
     private void markBusy() {
-        for (final Rectangle rectangle : lastObstaclesUsed.getRectangles()) {
-            final IndexedInterval xInt = xCoords.getIndexedInterval(rectangle.getX(), rectangle.getX() + rectangle.getWidth());
-            final IndexedInterval yInt = yCoords.getIndexedInterval(rectangle.getY(), rectangle.getY() + rectangle.getHeight());
+        for (Rectangle rectangle : lastObstaclesUsed.getRectangles()) {
+            IndexedInterval xInt = xCoords.getIndexedInterval(rectangle.getX(),
+                    rectangle.getX() + rectangle.getWidth());
+            IndexedInterval yInt = yCoords.getIndexedInterval(rectangle.getY(),
+                    rectangle.getY() + rectangle.getHeight());
             routingCells.markBusy(xInt, yInt);
         }
     }
@@ -150,9 +152,9 @@ public class CoordinatesRegistry {
             return;
         }
 
-        final int ylen = routingCells.cells[0].length;
+        int ylen = routingCells.cells[0].length;
         int x = 0;
-        for (final Coordinate dx : xCoords.getValues()) {
+        for (Coordinate dx : xCoords.getValues()) {
             if (dx.isPublic()) {
                 routingCells.mark(x, 0, x, ylen - 1, CellState.VERTICAL_PUBLIC);
             }
@@ -161,9 +163,9 @@ public class CoordinatesRegistry {
     }
 
     private void markHorizontalPublic() {
-        final int xlen = routingCells.cells.length;
+        int xlen = routingCells.cells.length;
         int y = 0;
-        for (final Coordinate dy : yCoords.getValues()) {
+        for (Coordinate dy : yCoords.getValues()) {
             if (dy.isPublic()) {
 
                 routingCells.mark(0, y, xlen - 1, y, CellState.HORIZONTAL_PUBLIC);
@@ -189,10 +191,10 @@ public class CoordinatesRegistry {
 
     private void registerAdditionalCoordinates() {
 
-        for (final Rectangle rec : lastObstaclesUsed.getRectangles()) {
+        for (Rectangle rec : lastObstaclesUsed.getRectangles()) {
 
-            final boolean foundHorizontal = xCoords.isIntervalOccupied(rec.getX(), rec.getX() + rec.getWidth());
-            final boolean foundVertical = yCoords.isIntervalOccupied(rec.getY(), rec.getY() + rec.getHeight());
+            boolean foundHorizontal = xCoords.isIntervalOccupied(rec.getX(), rec.getX() + rec.getWidth());
+            boolean foundVertical = yCoords.isIntervalOccupied(rec.getY(), rec.getY() + rec.getHeight());
 
             if (!foundHorizontal) {
                 xCoords.addPrivate(CoordinateOrientation.ORIENT_NONE, rec.getX() + rec.getWidth() / 2);
@@ -206,7 +208,7 @@ public class CoordinatesRegistry {
     }
 
     private void registerPorts() {
-        for (final RouterConnection connection : lastObstaclesUsed.getConnections()) {
+        for (RouterConnection connection : lastObstaclesUsed.getConnections()) {
             registerPort(connection.getSource());
             registerPort(connection.getDestination());
         }
@@ -219,14 +221,14 @@ public class CoordinatesRegistry {
     }
 
     private void registerRectangles() {
-        for (final Rectangle rec : lastObstaclesUsed.getRectangles()) {
-            final double minx = SnapCalculator.snapToLower(rec.getX() - RouterConstants.OBSTACLE_MARGIN,
+        for (Rectangle rec : lastObstaclesUsed.getRectangles()) {
+            double minx = SnapCalculator.snapToLower(rec.getX() - RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
-            final double maxx = SnapCalculator.snapToHigher(rec.getX() + rec.getWidth() + RouterConstants.OBSTACLE_MARGIN,
+            double maxx = SnapCalculator.snapToHigher(rec.getX() + rec.getWidth() + RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
-            final double miny = SnapCalculator.snapToLower(rec.getY() - RouterConstants.OBSTACLE_MARGIN,
+            double miny = SnapCalculator.snapToLower(rec.getY() - RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
-            final double maxy = SnapCalculator.snapToHigher(rec.getY() + rec.getHeight() + RouterConstants.OBSTACLE_MARGIN,
+            double maxy = SnapCalculator.snapToHigher(rec.getY() + rec.getHeight() + RouterConstants.OBSTACLE_MARGIN,
                     RouterConstants.MAJOR_SNAP);
 
             xCoords.addPublic(CoordinateOrientation.ORIENT_LOWER, minx);
@@ -247,11 +249,11 @@ public class CoordinatesRegistry {
 
     public IndexedPoint getIndexedCoordinate(Point point) {
 
-        final IndexedInterval indexedIntervalH = xCoords.getIndexedInterval(point.getX(), point.getX());
-        final IndexedInterval indexedIntervalV = yCoords.getIndexedInterval(point.getY(), point.getY());
+        IndexedInterval indexedIntervalH = xCoords.getIndexedInterval(point.getX(), point.getX());
+        IndexedInterval indexedIntervalV = yCoords.getIndexedInterval(point.getY(), point.getY());
 
-        final int x = indexedIntervalH.getFrom();
-        final int y = indexedIntervalV.getFrom();
+        int x = indexedIntervalH.getFrom();
+        int y = indexedIntervalV.getFrom();
 
         return IndexedPoint.create(x, y);
     }

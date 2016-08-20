@@ -66,7 +66,7 @@ public class RouterTask {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
         result = prime * result + ((connections == null) ? 0 : connections.hashCode());
         result = prime * result + ((ports == null) ? 0 : ports.hashCode());
@@ -86,7 +86,7 @@ public class RouterTask {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final RouterTask other = (RouterTask) obj;
+        RouterTask other = (RouterTask) obj;
         if (connections == null) {
             if (other.connections != null) {
                 return false;

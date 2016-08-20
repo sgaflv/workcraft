@@ -30,10 +30,10 @@ public abstract class AbstractRoutingAlgorithm {
         this.cells = cells;
         coordinatesPhase1 = coordinates;
 
-        final List<Route> routes = new ArrayList<>();
-        final List<List<IndexedPoint>> paths = new ArrayList<List<IndexedPoint>>();
+        List<Route> routes = new ArrayList<>();
+        List<List<IndexedPoint>> paths = new ArrayList<List<IndexedPoint>>();
 
-        for (final RouterConnection connection : task.getConnections()) {
+        for (RouterConnection connection : task.getConnections()) {
 
             initialise(connection);
 
@@ -41,7 +41,7 @@ public abstract class AbstractRoutingAlgorithm {
             path = getCleanPath(path);
             paths.add(path);
 
-            final Route route = new Route(connection.getSource(), connection.getDestination());
+            Route route = new Route(connection.getSource(), connection.getDestination());
             augmentRouteSegments(route, path);
 
             if (route != null) {
@@ -51,10 +51,10 @@ public abstract class AbstractRoutingAlgorithm {
 
         usageCounter = new UsageCounter(width, height);
 
-        for (final List<IndexedPoint> path : paths) {
+        for (List<IndexedPoint> path : paths) {
             for (int i = 1; i < path.size(); i++) {
-                final IndexedPoint p1 = path.get(i - 1);
-                final IndexedPoint p2 = path.get(i);
+                IndexedPoint p1 = path.get(i - 1);
+                IndexedPoint p2 = path.get(i);
 
                 usageCounter.markUsage(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 
@@ -70,7 +70,7 @@ public abstract class AbstractRoutingAlgorithm {
         return routes;
     }
 
-    private void initialise(final RouterConnection connection) {
+    private void initialise(RouterConnection connection) {
         source = coordinatesPhase1.getIndexedCoordinate(connection.getSource().getLocation());
         destination = coordinatesPhase1.getIndexedCoordinate(connection.getDestination().getLocation());
 
@@ -102,7 +102,7 @@ public abstract class AbstractRoutingAlgorithm {
      */
     protected Route augmentRouteSegments(Route route, List<IndexedPoint> path) {
 
-        for (final IndexedPoint point : path) {
+        for (IndexedPoint point : path) {
             route.add(coordinatesPhase1.getPoint(point.getX(), point.getY()));
         }
         return route;
@@ -119,7 +119,7 @@ public abstract class AbstractRoutingAlgorithm {
 
         assert path.size() >= 2;
 
-        final List<IndexedPoint> cleanPath = new ArrayList<>();
+        List<IndexedPoint> cleanPath = new ArrayList<>();
 
         cleanPath.add(path.get(0));
 
@@ -154,7 +154,7 @@ public abstract class AbstractRoutingAlgorithm {
      * @return
      */
     protected List<IndexedPoint> buildPath(IndexedPoint source, IndexedPoint[][] sourceCells) {
-        final List<IndexedPoint> path = new ArrayList<IndexedPoint>();
+        List<IndexedPoint> path = new ArrayList<IndexedPoint>();
         path.add(source);
 
         IndexedPoint next = source;

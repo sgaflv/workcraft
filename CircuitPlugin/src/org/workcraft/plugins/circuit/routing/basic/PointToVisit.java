@@ -1,10 +1,8 @@
-package org.workcraft.plugins.circuit.routing.impl;
-
-import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
+package org.workcraft.plugins.circuit.routing.basic;
 
 public class PointToVisit implements Comparable<PointToVisit> {
-    public final double score;
-    public final IndexedPoint location;
+    private final double score;
+    private final IndexedPoint location;
 
     public PointToVisit(double score, IndexedPoint location) {
         this.score = score;
@@ -15,19 +13,27 @@ public class PointToVisit implements Comparable<PointToVisit> {
     public int compareTo(PointToVisit other) {
         assert this != other;
 
-        final int compare = Double.compare(score, other.score);
+        int compare = Double.compare(getScore(), other.getScore());
         if (compare != 0) {
             return compare;
         }
 
         // compare coordinates to minimize randomness when the score is the same
-        return location.compareTo(other.location);
+        return getLocation().compareTo(other.getLocation());
 
     }
 
     @Override
     public String toString() {
-        return "PointToVisit [score=" + score + ", location=" + location + "]";
+        return "PointToVisit [score=" + getScore() + ", location=" + getLocation() + "]";
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public IndexedPoint getLocation() {
+        return location;
     }
 
 }

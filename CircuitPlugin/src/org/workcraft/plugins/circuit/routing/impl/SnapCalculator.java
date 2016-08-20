@@ -17,8 +17,8 @@ public class SnapCalculator {
     public static double snapToHigher(double value, double snapSize) {
         assert snapSize > 0 : "snapSize must be positive";
 
-        final double divided = (value - RouterConstants.EPSILON) / snapSize;
-        final double ceil = Math.ceil(divided);
+        double divided = (value - RouterConstants.EPSILON) / snapSize;
+        double ceil = Math.ceil(divided);
 
         if (ceil == -0.0) {
             // special case, to avoid returning -0.0
@@ -40,8 +40,8 @@ public class SnapCalculator {
     public static double snapToLower(double value, double snapSize) {
         assert snapSize > 0 : "snapSize must be positive";
 
-        final double divided = (value + RouterConstants.EPSILON) / snapSize;
-        final double floor = Math.floor(divided);
+        double divided = (value + RouterConstants.EPSILON) / snapSize;
+        double floor = Math.floor(divided);
         return floor * snapSize;
     }
 
@@ -56,11 +56,11 @@ public class SnapCalculator {
      * @return snapped value
      */
     public static double snapToClosest(double value, double snapSize) {
-        final double higher = snapToHigher(value, snapSize);
-        final double lower = snapToLower(value, snapSize);
+        double higher = snapToHigher(value, snapSize);
+        double lower = snapToLower(value, snapSize);
 
-        final double distHigher = Math.abs(higher - value);
-        final double distLower = Math.abs(lower - value);
+        double distHigher = Math.abs(higher - value);
+        double distLower = Math.abs(lower - value);
 
         if (distHigher < distLower) {
             return higher;
