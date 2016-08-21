@@ -87,7 +87,7 @@ public class RouterClient {
             }
         }
 
-        router.setObstacles(newTask);
+        router.setRouterTask(newTask);
     }
 
     private PortDirection getDirection(VisualContact contact) {
@@ -219,7 +219,7 @@ public class RouterClient {
     }
 
     private void drawCells(Graphics2D g) {
-        RouterCells rcells = router.getCoordinatesRegistry().getRouterCells();
+        RouterCells rcells = router.getRouterCells();
 
         int[][] cells = rcells.cells;
 

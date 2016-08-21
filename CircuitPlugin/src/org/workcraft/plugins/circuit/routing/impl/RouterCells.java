@@ -3,6 +3,9 @@ package org.workcraft.plugins.circuit.routing.impl;
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IndexedInterval;
 
+/**
+ * Representation of router cells that are used .
+ */
 public class RouterCells {
 
     /** A rather low-level implementation for the cell states. */

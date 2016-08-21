@@ -7,9 +7,14 @@ import java.util.List;
  */
 public class Router {
 
-    private final CoordinatesRegistry coordinatesPhase1 = new CoordinatesRegistry();
+    private final CoordinatesRegistryBuilder registryBuilder = new CoordinatesRegistryBuilder();
+    private final RouterCellsBuilder cellsBuilder = new RouterCellsBuilder();
 
-    private final CoordinatesRegistry coordinatesPhase2 = new CoordinatesRegistry();
+    private CoordinatesRegistry coordinatesPhase1;
+
+    private CoordinatesRegistry coordinatesPhase2;
+
+    private RouterCells routingCells;
 
     private final AbstractRoutingAlgorithm algorithm = new DijkstraRouter();
 
@@ -17,7 +22,7 @@ public class Router {
 
     private List<Route> routesFound;
 
-    public void setObstacles(RouterTask routerTask) {
+    public void setRouterTask(RouterTask routerTask) {
 
         if (routerTask == null || routerTask.equals(this.routerTask)) {
             return;
@@ -25,15 +30,19 @@ public class Router {
 
         this.routerTask = routerTask;
 
-        coordinatesPhase1.setRouterTask(routerTask);
+        coordinatesPhase1 = registryBuilder.buildCoordinates(routerTask);
+
+        routingCells = cellsBuilder.buildCells(coordinatesPhase1, routerTask);
+
         routeConnections();
     }
 
     public RouterTask getObstacles() {
-        return coordinatesPhase1.getRouterTask();
+        return routerTask;
     }
 
     public CoordinatesRegistry getCoordinatesRegistry() {
+
         return coordinatesPhase2;
     }
 
@@ -42,13 +51,14 @@ public class Router {
         long start = System.currentTimeMillis();
 
         // 1st phase
-        routesFound = algorithm.route(coordinatesPhase1.getRouterTask(), coordinatesPhase1.getRouterCells(), coordinatesPhase1);
+        routesFound = algorithm.route(routerTask, routingCells, coordinatesPhase1);
 
         long stop = System.currentTimeMillis();
 
         // 2nd phase
         UsageCounter usageCounter = algorithm.getUsageCounter();
-        coordinatesPhase2.buildFromUsageCounter(coordinatesPhase1.getRouterTask(), coordinatesPhase1, usageCounter);
+
+        coordinatesPhase2 = registryBuilder.buildFromUsageCounter(routerTask, coordinatesPhase1, usageCounter);
 
         System.out.println("solved ms:" + (stop - start));
 
@@ -56,5 +66,9 @@ public class Router {
 
     public List<Route> getRoutingResult() {
         return routesFound;
+    }
+
+    public RouterCells getRouterCells() {
+        return routingCells;
     }
 }
