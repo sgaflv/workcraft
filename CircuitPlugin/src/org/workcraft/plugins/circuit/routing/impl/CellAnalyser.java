@@ -4,6 +4,10 @@ import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
 import org.workcraft.plugins.circuit.routing.basic.PortDirection;
 
+/**
+ * For given cells and requested movement this class returns movement cost or
+ * whether the movement is event possible.
+ */
 public class CellAnalyser {
     private final RouterCells cells;
 
@@ -65,10 +69,16 @@ public class CellAnalyser {
             if (isBlockedHorizontally(x, y)) {
                 return false;
             }
+            if (isBlockedHorizontally(targetX, targetY)) {
+                return false;
+            }
         }
 
         if (dy != 0) {
             if (isBlockedVertically(x, y)) {
+                return false;
+            }
+            if (isBlockedVertically(targetX, targetY)) {
                 return false;
             }
         }

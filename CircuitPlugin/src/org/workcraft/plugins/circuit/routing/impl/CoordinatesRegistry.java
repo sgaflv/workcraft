@@ -22,7 +22,6 @@ public class CoordinatesRegistry {
     private final IndexedCoordinates xCoords = new IndexedCoordinates();
     private final IndexedCoordinates yCoords = new IndexedCoordinates();
 
-
     public IndexedCoordinates getXCoords() {
         return xCoords;
     }
@@ -50,7 +49,6 @@ public class CoordinatesRegistry {
     public void registerPort(RouterPort port) {
         xCoords.addPrivate(port.getDirection().getHorizontalOrientation(), port.getLocation().getX());
         yCoords.addPrivate(port.getDirection().getVerticalOrientation(), port.getLocation().getY());
-        return;
     }
 
     public Point getPoint(int x, int y) {
@@ -63,6 +61,10 @@ public class CoordinatesRegistry {
 
         IndexedInterval indexedIntervalH = xCoords.getIndexedInterval(point.getX(), point.getX());
         IndexedInterval indexedIntervalV = yCoords.getIndexedInterval(point.getY(), point.getY());
+
+        if (indexedIntervalH == null || indexedIntervalV == null) {
+            return null;
+        }
 
         int x = indexedIntervalH.getFrom();
         int y = indexedIntervalV.getFrom();

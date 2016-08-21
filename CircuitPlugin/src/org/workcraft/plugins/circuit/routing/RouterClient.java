@@ -138,9 +138,16 @@ public class RouterClient {
 
         for (Route route : router.getRoutingResult()) {
 
+
             Path2D routeSegments = new Path2D.Double();
 
             routeSegments.moveTo(route.source.getLocation().getX(), route.source.getLocation().getY());
+
+            if (route.getPoints().size() == 2) {
+                g.setStroke(new BasicStroke(2.5f * (float) CircuitSettings.getBorderWidth()));
+            } else {
+                g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
+            }
 
             for (Point routePoint : route.getPoints()) {
                 routeSegments.lineTo(routePoint.getX(), routePoint.getY());

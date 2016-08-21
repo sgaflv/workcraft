@@ -149,7 +149,7 @@ public abstract class AbstractRoutingAlgorithm {
     /**
      * from the given graph and the end-points, find the route path.
      *
-     * @return
+     * @return list of indexed route coordinates
      */
     protected List<IndexedPoint> buildPath(IndexedPoint source, IndexedPoint[][] sourceCells) {
         List<IndexedPoint> path = new ArrayList<IndexedPoint>();
@@ -163,6 +163,10 @@ public abstract class AbstractRoutingAlgorithm {
                 path.add(next);
             }
         } while (next != null);
+
+        if (path.size() < 2) {
+            return null;
+        }
 
         return path;
     }

@@ -4,7 +4,7 @@ import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IndexedInterval;
 
 /**
- * Representation of router cells that are used .
+ * Representation of router cells that are used to find routes.
  */
 public class RouterCells {
 
