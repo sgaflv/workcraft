@@ -5,6 +5,7 @@ import org.workcraft.plugins.circuit.routing.basic.Coordinate;
 import org.workcraft.plugins.circuit.routing.basic.IndexedInterval;
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
 import org.workcraft.plugins.circuit.routing.basic.Line;
+import org.workcraft.plugins.circuit.routing.basic.Point;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
@@ -31,12 +32,21 @@ public class RouterCellsBuilder {
     private void markBlocked(CoordinatesRegistry coordinatesRegistry, RouterCells routerCells, RouterTask routerTask) {
 
         for (RouterPort port : routerTask.getPorts()) {
+
+            Point location = port.getLocation();
             IndexedPoint ip = coordinatesRegistry.getIndexedCoordinate(port.getLocation());
-            if (ip != null) {
+            IndexedInterval xInterval = coordinatesRegistry.getXCoords().getIndexedIntervalExclusive(
+                    location.getX() - RouterConstants.MINOR_SNAP, location.getX() + RouterConstants.MINOR_SNAP);
+            IndexedInterval yInterval = coordinatesRegistry.getYCoords().getIndexedIntervalExclusive(
+                    location.getY() - RouterConstants.MINOR_SNAP, location.getY() + RouterConstants.MINOR_SNAP);
+
+            if (ip != null && xInterval != null && yInterval != null) {
                 if (port.getDirection().isVertical()) {
-                    routerCells.mark(ip.getX(), ip.getY(), ip.getX(), ip.getY(), CellState.HORIZONTAL_BLOCK);
+                    routerCells.mark(xInterval.getFrom(), yInterval.getFrom(), xInterval.getTo(), yInterval.getTo(),
+                            CellState.HORIZONTAL_BLOCK);
                 } else {
-                    routerCells.mark(ip.getX(), ip.getY(), ip.getX(), ip.getY(), CellState.VERTICAL_BLOCK);
+                    routerCells.mark(xInterval.getFrom(), yInterval.getFrom(), xInterval.getTo(), yInterval.getTo(),
+                            CellState.VERTICAL_BLOCK);
                 }
             }
         }
@@ -91,11 +101,15 @@ public class RouterCellsBuilder {
     }
 
     private void markBusy(CoordinatesRegistry coordinatesRegistry, RouterCells routerCells, RouterTask routerTask) {
+
         for (Rectangle rectangle : routerTask.getRectangles()) {
+
             IndexedInterval xInt = coordinatesRegistry.getXCoords().getIndexedInterval(rectangle.getX(),
                     rectangle.getX() + rectangle.getWidth());
+
             IndexedInterval yInt = coordinatesRegistry.getYCoords().getIndexedInterval(rectangle.getY(),
                     rectangle.getY() + rectangle.getHeight());
+
             routerCells.markBusy(xInt, yInt);
         }
     }

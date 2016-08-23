@@ -3,7 +3,6 @@ package org.workcraft.plugins.circuit.routing.impl;
 import org.workcraft.plugins.circuit.routing.basic.Coordinate;
 import org.workcraft.plugins.circuit.routing.basic.CoordinateOrientation;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
-import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 import org.workcraft.plugins.circuit.routing.basic.RouterConstants;
 import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
@@ -19,7 +18,11 @@ public class CoordinatesRegistryBuilder {
         CoordinatesRegistry baseRegistry = new CoordinatesRegistry();
 
         for (int x = 0; x < usageCounter.getWidth(); x++) {
-            if (usageCounter.getXCoordUsage(x) > 0) {
+
+            int xUsage = usageCounter.getXCoordUsage(x);
+
+            for (int i = 0; i < xUsage; i++) {
+
                 Coordinate xCoord = otherRegistry.getXCoords().getCoordinateByIndex(x);
                 baseRegistry.getXCoords().addCoordinate(xCoord);
             }
@@ -61,9 +64,6 @@ public class CoordinatesRegistryBuilder {
         registerRectangles(baseRegistry, routerTask);
 
         registerBoundaries(baseRegistry, routerTask);
-
-        baseRegistry.getXCoords().mergeCoordinates();
-        baseRegistry.getYCoords().mergeCoordinates();
 
         registerPorts(baseRegistry, routerTask);
 
@@ -122,9 +122,8 @@ public class CoordinatesRegistryBuilder {
     }
 
     private void registerPorts(CoordinatesRegistry baseRegistry, RouterTask routerTask) {
-        for (RouterConnection connection : routerTask.getConnections()) {
-            baseRegistry.registerPort(connection.getSource());
-            baseRegistry.registerPort(connection.getDestination());
+        for (RouterPort port : routerTask.getPorts()) {
+            baseRegistry.registerPort(port);
         }
     }
 
@@ -132,8 +131,6 @@ public class CoordinatesRegistryBuilder {
         for (Rectangle rec : routerTask.getRectangles()) {
             registerSnappedRectangle(baseRegistry, rec);
         }
-
-
     }
 
     private void registerSnappedRectangle(CoordinatesRegistry baseRegistry, Rectangle rec) {

@@ -43,7 +43,7 @@ public class Router {
 
     public CoordinatesRegistry getCoordinatesRegistry() {
 
-        return coordinatesPhase2;
+        return coordinatesPhase1;
     }
 
     public void routeConnections() {
