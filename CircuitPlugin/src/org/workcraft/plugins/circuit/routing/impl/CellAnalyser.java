@@ -3,6 +3,8 @@ package org.workcraft.plugins.circuit.routing.impl;
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
 import org.workcraft.plugins.circuit.routing.basic.PortDirection;
+import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
+import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
 /**
  * For given cells and requested movement this class returns movement cost or
@@ -14,28 +16,24 @@ public class CellAnalyser {
     private final int sizeX;
     private final int sizeY;
 
-    private IndexedPoint source;
-    private PortDirection exitDirection;
-    private IndexedPoint destination;
-    private PortDirection entranceDirection;
+    private final CoordinatesRegistry coordinatesRegistry;
 
-    public CellAnalyser(RouterCells cells) {
-        this.cells = cells;
+    private IndexedPoint sourcePoint;
+    private RouterPort sourcePort;
+    private PortDirection sourceDirection;
+    private IndexedPoint destinationPoint;
+    private PortDirection destinationDirection;
+
+    public CellAnalyser(CoordinatesRegistry coordinatesRegistry) {
+        this.coordinatesRegistry = coordinatesRegistry;
+        cells = coordinatesRegistry.getRouterCells();
 
         sizeX = cells.cells.length;
         sizeY = cells.cells[0].length;
     }
 
-    public void initRouting(IndexedPoint source, IndexedPoint destination, PortDirection exitDirection,
-            PortDirection entranceDirection) {
-        this.source = source;
-        this.destination = destination;
-        this.exitDirection = exitDirection;
-        this.entranceDirection = entranceDirection;
-    }
-
     public boolean isMovementPossible(int x, int y, int dx, int dy) {
-        assert source != null && destination != null : "source and destination must be known";
+        assert sourcePoint != null && destinationPoint != null : "source and destination must be known";
         assert dx != 0 || dy != 0 : "Has to move in x or y direction";
         assert dx == 0 || dy == 0 : "Diagonal movement is not allowed";
         assert Math.abs(dx) < 2 && Math.abs(dy) < 2 : "The movement length over more than 1 cell is not allowed";
@@ -49,36 +47,44 @@ public class CellAnalyser {
             return false;
         }
 
-        if (x + dx == source.getX() && y + dy == source.getY()) {
-            if (exitDirection != null) {
-                if (dx != -exitDirection.getDx() || dy != -exitDirection.getDy()) {
+        if (isSameSource(x, y) && isSameSource(targetX, targetY)) {
+            return true;
+        }
+
+        if (targetX == sourcePoint.getX() && targetY == sourcePoint.getY()) {
+            if (sourceDirection != null) {
+                if (dx != -sourceDirection.getDx() || dy != -sourceDirection.getDy()) {
                     return false;
                 }
             }
         }
 
-        if (x == destination.getX() && y == destination.getY()) {
-            if (entranceDirection != null) {
-                if (dx != entranceDirection.getDx() || dy != entranceDirection.getDy()) {
+        if (x == destinationPoint.getX() && y == destinationPoint.getY()) {
+            if (destinationDirection != null) {
+                if (dx != destinationDirection.getDx() || dy != destinationDirection.getDy()) {
                     return false;
                 }
             }
+        }
+
+        if (isSameSource(x, y) && !isSameSource(targetX, targetY)) {
+            return false;
         }
 
         if (dx != 0) {
-            if (isBlockedHorizontally(x, y)) {
+            if (!isSameSource(x, y) && isBlockedHorizontally(x, y)) {
                 return false;
             }
-            if (isBlockedHorizontally(targetX, targetY)) {
+            if (!isSameSource(targetX, targetY) && isBlockedHorizontally(targetX, targetY)) {
                 return false;
             }
         }
 
         if (dy != 0) {
-            if (isBlockedVertically(x, y)) {
+            if (!isSameSource(x, y) && isBlockedVertically(x, y)) {
                 return false;
             }
-            if (isBlockedVertically(targetX, targetY)) {
+            if (!isSameSource(targetX, targetY) && isBlockedVertically(targetX, targetY)) {
                 return false;
             }
         }
@@ -86,16 +92,20 @@ public class CellAnalyser {
         return true;
     }
 
+    private boolean isSameSource(int x, int y) {
+        return sourcePort.equals(cells.getSourcePort(x, y));
+    }
+
     private boolean isBlockedHorizontally(int x, int y) {
         final boolean isBlocked = cells.isMarked(x, y, CellState.HORIZONTAL_BLOCK);
-        final boolean isPrivate = y != destination.getY() && y != source.getY()
+        final boolean isPrivate = y != destinationPoint.getY() && y != sourcePoint.getY()
                 && !cells.isMarked(x, y, CellState.HORIZONTAL_PUBLIC);
         return isBlocked || isPrivate;
     }
 
     private boolean isBlockedVertically(int x, int y) {
         final boolean isBlocked = cells.isMarked(x, y, CellState.VERTICAL_BLOCK);
-        final boolean isPrivate = x != destination.getX() && x != source.getX()
+        final boolean isPrivate = x != destinationPoint.getX() && x != sourcePoint.getX()
                 && !cells.isMarked(x, y, CellState.VERTICAL_PUBLIC);
         return isBlocked || isPrivate;
     }
@@ -120,5 +130,23 @@ public class CellAnalyser {
 
     public double getHeuristicsCost(int x, int y) {
         return 0;
+    }
+
+    public void initialise(RouterConnection connection) {
+        sourcePoint = coordinatesRegistry.getIndexedCoordinate(connection.getSource().getLocation());
+        destinationPoint = coordinatesRegistry.getIndexedCoordinate(connection.getDestination().getLocation());
+
+        sourceDirection = null;
+        destinationDirection = null;
+
+        if (connection.getSource().isFixedDirection) {
+            sourceDirection = connection.getSource().getDirection();
+        }
+
+        if (connection.getDestination().isFixedDirection) {
+            destinationDirection = connection.getDestination().getDirection();
+        }
+
+        sourcePort = connection.getSource();
     }
 }

@@ -21,23 +21,21 @@ public class CoordinatesRegistryBuilder {
 
             int xUsage = usageCounter.getXCoordUsage(x);
 
-            for (int i = 0; i < xUsage; i++) {
+            Coordinate xCoord = otherRegistry.getXCoords().getCoordinateByIndex(x);
+            baseRegistry.getXCoords().addCoordinate(xCoord, xUsage);
 
-                Coordinate xCoord = otherRegistry.getXCoords().getCoordinateByIndex(x);
-                baseRegistry.getXCoords().addCoordinate(xCoord);
-            }
         }
 
         for (int y = 0; y < usageCounter.getHeight(); y++) {
-            if (usageCounter.getYCoordUsage(y) > 0) {
-                Coordinate yCoord = otherRegistry.getYCoords().getCoordinateByIndex(y);
-                baseRegistry.getYCoords().addCoordinate(yCoord);
-            }
+            int yUsage = usageCounter.getYCoordUsage(y);
+
+            Coordinate yCoord = otherRegistry.getYCoords().getCoordinateByIndex(y);
+            baseRegistry.getYCoords().addCoordinate(yCoord, yUsage);
         }
 
         registerPorts(baseRegistry, routerTask);
 
-        registerAdditionalCoordinates(baseRegistry, routerTask);
+        registerObstacleCoordinates(baseRegistry, routerTask);
 
         System.out.println("cells: " + baseRegistry.getXCoords().size() * baseRegistry.getYCoords().size() + " ("
                 + baseRegistry.getXCoords().size() + "x" + baseRegistry.getYCoords().size() + ")" + " rectangles:"
@@ -67,8 +65,7 @@ public class CoordinatesRegistryBuilder {
 
         registerPorts(baseRegistry, routerTask);
 
-
-        registerAdditionalCoordinates(baseRegistry, routerTask);
+        registerObstacleCoordinates(baseRegistry, routerTask);
     }
 
     private void registerBoundaries(CoordinatesRegistry baseRegistry, RouterTask routerTask) {
@@ -96,10 +93,9 @@ public class CoordinatesRegistryBuilder {
 
         registerSnappedRectangle(baseRegistry, new Rectangle(minx, miny, maxx - minx, maxy - miny));
 
-
     }
 
-    private void registerAdditionalCoordinates(CoordinatesRegistry baseRegistry, RouterTask routerTask) {
+    private void registerObstacleCoordinates(CoordinatesRegistry baseRegistry, RouterTask routerTask) {
 
         for (Rectangle rec : routerTask.getRectangles()) {
 

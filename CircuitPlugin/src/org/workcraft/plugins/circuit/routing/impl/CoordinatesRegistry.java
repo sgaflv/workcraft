@@ -22,6 +22,16 @@ public class CoordinatesRegistry {
     private final IndexedCoordinates xCoords = new IndexedCoordinates();
     private final IndexedCoordinates yCoords = new IndexedCoordinates();
 
+    private RouterCells routerCells;
+
+    public RouterCells getRouterCells() {
+        return routerCells;
+    }
+
+    void setRouterCells(RouterCells newRouterCells) {
+        routerCells = newRouterCells;
+    }
+
     public IndexedCoordinates getXCoords() {
         return xCoords;
     }
@@ -71,5 +81,6 @@ public class CoordinatesRegistry {
 
         return IndexedPoint.create(x, y);
     }
+
 
 }

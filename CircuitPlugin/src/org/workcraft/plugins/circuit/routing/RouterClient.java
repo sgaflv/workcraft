@@ -126,7 +126,7 @@ public class RouterClient {
 
     public void draw(Graphics2D g, Viewport viewport) {
 
-        drawCoordinates(g, viewport);
+        // drawCoordinates(g, viewport);
         // drawBlocks(g);
         // drawSegments(g);
         // drawCells(g);
@@ -196,7 +196,7 @@ public class RouterClient {
                 g.setColor(Color.BLUE);
             }
             if (x.getOrientation() == CoordinateOrientation.ORIENT_HIGHER) {
-                g.setColor(Color.RED);
+                g.setColor(Color.GREEN);
             }
 
             g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
@@ -217,7 +217,7 @@ public class RouterClient {
                 g.setColor(Color.BLUE);
             }
             if (y.getOrientation() == CoordinateOrientation.ORIENT_HIGHER) {
-                g.setColor(Color.RED);
+                g.setColor(Color.GREEN);
             }
             g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));
             g.draw(grid);
@@ -226,7 +226,7 @@ public class RouterClient {
     }
 
     private void drawCells(Graphics2D g) {
-        RouterCells rcells = router.getRouterCells();
+        RouterCells rcells = router.getCoordinatesRegistry().getRouterCells();
 
         int[][] cells = rcells.cells;
 

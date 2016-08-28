@@ -27,4 +27,5 @@ public enum CoordinateOrientation {
 
         return ORIENT_BOTH;
     }
+
 }

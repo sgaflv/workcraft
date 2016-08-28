@@ -14,7 +14,6 @@ public class Router {
 
     private CoordinatesRegistry coordinatesPhase2;
 
-    private RouterCells routerCells;
 
     private final AbstractRoutingAlgorithm algorithm = new DijkstraRouter();
 
@@ -30,9 +29,6 @@ public class Router {
 
         this.routerTask = routerTask;
 
-        coordinatesPhase1 = registryBuilder.buildPhase1Coordinates(routerTask);
-
-        routerCells = cellsBuilder.buildRouterCells(coordinatesPhase1, routerTask);
 
         routeConnections();
     }
@@ -43,32 +39,33 @@ public class Router {
 
     public CoordinatesRegistry getCoordinatesRegistry() {
 
-        return coordinatesPhase1;
+        return coordinatesPhase2;
     }
 
     public void routeConnections() {
 
         long start = System.currentTimeMillis();
-
         // 1st phase
-        routesFound = algorithm.route(routerTask, routerCells, coordinatesPhase1);
+        coordinatesPhase1 = registryBuilder.buildPhase1Coordinates(routerTask);
+        coordinatesPhase1.setRouterCells(cellsBuilder.buildRouterCells(coordinatesPhase1, routerTask));
 
-        long stop = System.currentTimeMillis();
+
+        routesFound = algorithm.route(routerTask, coordinatesPhase1, false);
+
 
         // 2nd phase
         UsageCounter usageCounter = algorithm.getUsageCounter();
 
         coordinatesPhase2 = registryBuilder.buildPhase2Coordinates(routerTask, coordinatesPhase1, usageCounter);
+        coordinatesPhase2.setRouterCells(cellsBuilder.buildRouterCells(coordinatesPhase2, routerTask));
+        routesFound = algorithm.route(routerTask, coordinatesPhase2, true);
 
+        long stop = System.currentTimeMillis();
         System.out.println("solved ms:" + (stop - start));
 
     }
 
     public List<Route> getRoutingResult() {
         return routesFound;
-    }
-
-    public RouterCells getRouterCells() {
-        return routerCells;
     }
 }

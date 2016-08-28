@@ -53,50 +53,61 @@ public class RouterCellsBuilder {
 
         for (Line segment : routerTask.getSegments()) {
 
-            double x1 = Math.min(segment.getX1(), segment.getX2());
-            double x2 = Math.max(segment.getX1(), segment.getX2());
-            double y1 = Math.min(segment.getY1(), segment.getY2());
-            double y2 = Math.max(segment.getY1(), segment.getY2());
+            markBlockedSegment(coordinatesRegistry, routerCells, segment, null);
+        }
+    }
 
-            IndexedInterval xInt = coordinatesRegistry.getXCoords().getIndexedIntervalExclusive(
-                    x1 - RouterConstants.SEGMENT_MARGIN, x2 + RouterConstants.SEGMENT_MARGIN);
-            IndexedInterval yInt = coordinatesRegistry.getYCoords().getIndexedIntervalExclusive(
-                    y1 - RouterConstants.SEGMENT_MARGIN, y2 + RouterConstants.SEGMENT_MARGIN);
+    public void markBlockedSegment(CoordinatesRegistry coordinatesRegistry, RouterCells routerCells, Line segment,
+            RouterPort sourcePort) {
+        double x1 = Math.min(segment.getX1(), segment.getX2());
+        double x2 = Math.max(segment.getX1(), segment.getX2());
+        double y1 = Math.min(segment.getY1(), segment.getY2());
+        double y2 = Math.max(segment.getY1(), segment.getY2());
 
-            if (segment.isVertical()) {
-                coordinatesRegistry.blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN,
-                        y1 - RouterConstants.SEGMENT_MARGIN, x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN,
-                        y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
+        IndexedInterval xWithMargin = coordinatesRegistry.getXCoords().getIndexedIntervalExclusive(
+                x1 - RouterConstants.SEGMENT_MARGIN, x2 + RouterConstants.SEGMENT_MARGIN);
+        IndexedInterval yWithMargin = coordinatesRegistry.getYCoords().getIndexedIntervalExclusive(
+                y1 - RouterConstants.SEGMENT_MARGIN, y2 + RouterConstants.SEGMENT_MARGIN);
+        IndexedInterval xInclude = coordinatesRegistry.getXCoords().getIndexedInterval(x1, x2);
+        IndexedInterval yInclude = coordinatesRegistry.getYCoords().getIndexedInterval(y1, y2);
 
-                routerCells.mark(xInt, yInt, CellState.VERTICAL_BLOCK);
+        if (segment.isVertical()) {
+            coordinatesRegistry.blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN,
+                    y1 - RouterConstants.SEGMENT_MARGIN, x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN,
+                    y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
 
-                IndexedInterval xInclude = coordinatesRegistry.getXCoords().getIndexedInterval(x1, x1);
-                IndexedInterval yIncludeMin = coordinatesRegistry.getYCoords()
-                        .getIndexedInterval(y1 - RouterConstants.SEGMENT_MARGIN, y1);
-                IndexedInterval yIncludeMax = coordinatesRegistry.getYCoords().getIndexedInterval(y2,
-                        y2 + RouterConstants.SEGMENT_MARGIN);
+            routerCells.mark(xWithMargin, yWithMargin, CellState.VERTICAL_BLOCK);
 
-                routerCells.unmark(xInclude, yIncludeMin, CellState.VERTICAL_BLOCK);
-                routerCells.unmark(xInclude, yIncludeMax, CellState.VERTICAL_BLOCK);
-            }
+            IndexedInterval yIncludeMin = coordinatesRegistry.getYCoords()
+                    .getIndexedInterval(y1 - RouterConstants.SEGMENT_MARGIN, y1);
+            IndexedInterval yIncludeMax = coordinatesRegistry.getYCoords().getIndexedInterval(y2,
+                    y2 + RouterConstants.SEGMENT_MARGIN);
 
-            if (segment.isHorizontal()) {
+            routerCells.unmark(xInclude, yIncludeMin, CellState.VERTICAL_BLOCK);
+            routerCells.unmark(xInclude, yIncludeMax, CellState.VERTICAL_BLOCK);
 
-                coordinatesRegistry.blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN,
-                        y1 - RouterConstants.SEGMENT_MARGIN, x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN,
-                        y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
+            routerCells.markSourcePorts(xInclude.getFrom(), yInclude.getFrom(), xInclude.getTo(), yInclude.getTo(),
+                    sourcePort);
+        }
 
-                routerCells.mark(xInt, yInt, CellState.HORIZONTAL_BLOCK);
+        if (segment.isHorizontal()) {
 
-                IndexedInterval yInclude = coordinatesRegistry.getYCoords().getIndexedInterval(y1, y1);
-                IndexedInterval xIncludeMin = coordinatesRegistry.getXCoords()
-                        .getIndexedInterval(x1 - RouterConstants.SEGMENT_MARGIN, x1);
-                IndexedInterval xIncludeMax = coordinatesRegistry.getXCoords().getIndexedInterval(x2,
-                        x2 + RouterConstants.SEGMENT_MARGIN);
+            coordinatesRegistry.blocked.add(new Rectangle(x1 - RouterConstants.SEGMENT_MARGIN,
+                    y1 - RouterConstants.SEGMENT_MARGIN, x2 - x1 + 2 * RouterConstants.SEGMENT_MARGIN,
+                    y2 - y1 + 2 * RouterConstants.SEGMENT_MARGIN));
 
-                routerCells.unmark(xIncludeMin, yInclude, CellState.HORIZONTAL_BLOCK);
-                routerCells.unmark(xIncludeMax, yInclude, CellState.HORIZONTAL_BLOCK);
-            }
+            routerCells.mark(xWithMargin, yWithMargin, CellState.HORIZONTAL_BLOCK);
+
+            IndexedInterval xIncludeMin = coordinatesRegistry.getXCoords()
+                    .getIndexedInterval(x1 - RouterConstants.SEGMENT_MARGIN, x1);
+            IndexedInterval xIncludeMax = coordinatesRegistry.getXCoords().getIndexedInterval(x2,
+                    x2 + RouterConstants.SEGMENT_MARGIN);
+
+            routerCells.unmark(xIncludeMin, yInclude, CellState.HORIZONTAL_BLOCK);
+            routerCells.unmark(xIncludeMax, yInclude, CellState.HORIZONTAL_BLOCK);
+
+            routerCells.markSourcePorts(xInclude.getFrom(), yInclude.getFrom(), xInclude.getTo(), yInclude.getTo(),
+                    sourcePort);
         }
     }
 

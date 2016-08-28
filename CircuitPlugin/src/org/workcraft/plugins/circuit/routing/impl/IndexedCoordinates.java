@@ -125,10 +125,30 @@ public class IndexedCoordinates {
      *
      * @param values
      *            a values to be added to the mapping
+     * @param times
+     *            the number of times to add this coordinate
      */
-    public void addCoordinate(Coordinate coordinate) {
-        addValue(coordinate.isPublic(), coordinate.getOrientation(), coordinate.getValue());
+    public void addCoordinate(Coordinate coordinate, int times) {
+
+        for (int i = 0; i < times; i++) {
+            boolean doHigher = coordinate.getOrientation() == CoordinateOrientation.ORIENT_HIGHER
+                    || coordinate.getOrientation() == CoordinateOrientation.ORIENT_BOTH;
+            boolean doLower = coordinate.getOrientation() == CoordinateOrientation.ORIENT_HIGHER
+                    || coordinate.getOrientation() == CoordinateOrientation.ORIENT_BOTH;
+
+            if (doHigher) {
+                addValue(coordinate.isPublic(), coordinate.getOrientation(),
+                        coordinate.getValue() + i * RouterConstants.MINOR_SNAP);
+            }
+
+            if (doLower) {
+                addValue(coordinate.isPublic(), coordinate.getOrientation(),
+                        coordinate.getValue() - i * RouterConstants.MINOR_SNAP);
+            }
+
+        }
     }
+
     /**
      * Add private values to the mapping.
      *

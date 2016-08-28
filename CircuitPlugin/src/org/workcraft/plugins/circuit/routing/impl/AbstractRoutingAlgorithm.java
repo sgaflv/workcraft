@@ -4,40 +4,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.workcraft.plugins.circuit.routing.basic.IndexedPoint;
-import org.workcraft.plugins.circuit.routing.basic.PortDirection;
+import org.workcraft.plugins.circuit.routing.basic.Line;
+import org.workcraft.plugins.circuit.routing.basic.Point;
 import org.workcraft.plugins.circuit.routing.basic.RouterConnection;
 
 public abstract class AbstractRoutingAlgorithm {
+
+    private final RouterCellsBuilder cellsBuilder = new RouterCellsBuilder();
+
     protected CellAnalyser analyser;
     protected RouterTask task;
-    protected RouterCells cells;
     protected CoordinatesRegistry coordinatesPhase1;
 
     private UsageCounter usageCounter;
 
     protected int width;
     protected int height;
-    protected IndexedPoint source;
-    protected IndexedPoint destination;
 
-    public List<Route> route(RouterTask task, RouterCells cells, CoordinatesRegistry coordinates) {
-        analyser = new CellAnalyser(cells);
+    public List<Route> route(RouterTask task, CoordinatesRegistry coordinates, boolean occupyCells) {
 
         width = coordinates.getXCoordinates().size();
         height = coordinates.getYCoordinates().size();
 
         this.task = task;
-        this.cells = cells;
+
         coordinatesPhase1 = coordinates;
+
+        analyser = new CellAnalyser(coordinates);
 
         List<Route> routes = new ArrayList<>();
         List<List<IndexedPoint>> paths = new ArrayList<List<IndexedPoint>>();
 
+
         for (RouterConnection connection : task.getConnections()) {
+            IndexedPoint sourcePoint = coordinates.getIndexedCoordinate(connection.getSource().getLocation());
+            IndexedPoint destinationPoint = coordinates.getIndexedCoordinate(connection.getDestination().getLocation());
 
-            initialise(connection);
+            analyser.initialise(connection);
 
-            List<IndexedPoint> path = findRoute();
+            List<IndexedPoint> path = findRoute(sourcePoint, destinationPoint);
 
             Route route = new Route(connection.getSource(), connection.getDestination());
 
@@ -45,6 +50,10 @@ public abstract class AbstractRoutingAlgorithm {
                 path = getCleanPath(path);
                 paths.add(path);
                 augmentRouteSegments(route, path);
+
+                if (occupyCells) {
+                    markBlockedCells(route, coordinates);
+                }
             } else {
                 route.add(connection.getSource().getLocation());
                 route.add(connection.getDestination().getLocation());
@@ -54,7 +63,6 @@ public abstract class AbstractRoutingAlgorithm {
         }
 
         usageCounter = new UsageCounter(width, height);
-
         usageCounter.updateUsageCounter(paths);
 
 
@@ -68,27 +76,17 @@ public abstract class AbstractRoutingAlgorithm {
 
 
 
-    private void initialise(RouterConnection connection) {
-        source = coordinatesPhase1.getIndexedCoordinate(connection.getSource().getLocation());
-        destination = coordinatesPhase1.getIndexedCoordinate(connection.getDestination().getLocation());
+    private void markBlockedCells(Route route, CoordinatesRegistry registry) {
 
-        initialiseAnalyser(connection);
-    }
+        RouterCells cells = registry.getRouterCells();
 
-    private void initialiseAnalyser(RouterConnection connection) {
+        for (int i = 1; i < route.getPoints().size(); i++) {
+            Point from = route.getPoints().get(i - 1);
+            Point to = route.getPoints().get(i);
+            Line segment = new Line(from.getX(), from.getY(), to.getX(), to.getY());
 
-        PortDirection sourceDirection = null;
-        PortDirection destinationDirection = null;
-
-        if (connection.getSource().isFixedDirection) {
-            sourceDirection = connection.getSource().getDirection();
+            cellsBuilder.markBlockedSegment(registry, cells, segment, route.source);
         }
-
-        if (connection.getDestination().isFixedDirection) {
-            destinationDirection = connection.getDestination().getDirection();
-        }
-
-        analyser.initRouting(source, destination, sourceDirection, destinationDirection);
     }
 
     /**
@@ -171,7 +169,7 @@ public abstract class AbstractRoutingAlgorithm {
         return path;
     }
 
-    abstract protected List<IndexedPoint> findRoute();
+    abstract protected List<IndexedPoint> findRoute(IndexedPoint source, IndexedPoint destination);
 
     protected UsageCounter getUsageCounter() {
         return usageCounter;

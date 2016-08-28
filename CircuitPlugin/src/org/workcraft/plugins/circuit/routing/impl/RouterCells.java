@@ -2,22 +2,24 @@ package org.workcraft.plugins.circuit.routing.impl;
 
 import org.workcraft.plugins.circuit.routing.basic.CellState;
 import org.workcraft.plugins.circuit.routing.basic.IndexedInterval;
+import org.workcraft.plugins.circuit.routing.basic.RouterPort;
 
 /**
  * Representation of router cells that are used to find routes.
  */
 public class RouterCells {
 
-    /** A rather low-level implementation for the cell states. */
+    /** Router cell states. */
     public final int[][] cells;
+
+    /** source port related to this cell. */
+    public final RouterPort[][] sourcePorts;
 
     public RouterCells(int width, int height) {
         cells = new int[width][height];
+        sourcePorts = new RouterPort[width][height];
     }
 
-    public void increaseUsage(int x1, int y1, int x2, int y2) {
-
-    }
 
     public void mark(int x1, int y1, int x2, int y2, int value) {
         if (value == 0) {
@@ -29,6 +31,19 @@ public class RouterCells {
                 cells[x][y] |= value;
             }
         }
+    }
+
+    public void markSourcePorts(int x1, int y1, int x2, int y2, RouterPort sourcePort) {
+
+        for (int y = y1; y <= y2; y++) {
+            for (int x = x1; x <= x2; x++) {
+                sourcePorts[x][y] = sourcePort;
+            }
+        }
+    }
+
+    public RouterPort getSourcePort(int x, int y) {
+        return sourcePorts[x][y];
     }
 
     public boolean isMarked(int x, int y, int value) {

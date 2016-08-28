@@ -13,8 +13,14 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
     private IndexedPoint[][] sourceCells;
 
+    private IndexedPoint source;
+    private IndexedPoint destination;
+
     @Override
-    protected List<IndexedPoint> findRoute() {
+    protected List<IndexedPoint> findRoute(IndexedPoint source, IndexedPoint destination) {
+
+        this.source = source;
+        this.destination = destination;
 
         visited = new boolean[width][height];
         scores = new double[width][height];
@@ -22,7 +28,7 @@ public class DijkstraRouter extends AbstractRoutingAlgorithm {
 
         solve();
 
-        final List<IndexedPoint> path = buildPath(source, sourceCells);
+        List<IndexedPoint> path = buildPath(source, sourceCells);
 
         return path;
     }
