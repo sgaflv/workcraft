@@ -143,7 +143,7 @@ public class RouterClient {
 
             routeSegments.moveTo(route.source.getLocation().getX(), route.source.getLocation().getY());
 
-            if (route.getPoints().size() == 2) {
+            if (!route.isRouteFound()) {
                 g.setStroke(new BasicStroke(2.5f * (float) CircuitSettings.getBorderWidth()));
             } else {
                 g.setStroke(new BasicStroke(0.5f * (float) CircuitSettings.getBorderWidth()));

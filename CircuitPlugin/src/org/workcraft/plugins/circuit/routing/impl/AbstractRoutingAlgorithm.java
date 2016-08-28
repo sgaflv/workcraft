@@ -46,14 +46,17 @@ public abstract class AbstractRoutingAlgorithm {
             Route route = new Route(connection.getSource(), connection.getDestination());
 
             if (path != null) {
+
                 path = getCleanPath(path);
                 paths.add(path);
                 augmentRouteSegments(route, path);
+                route.setRouteFound(true);
 
                 if (occupyCells) {
                     markBlockedCells(route, coordinates);
                 }
             } else {
+                route.setRouteFound(false);
                 route.add(connection.getSource().getLocation());
                 route.add(connection.getDestination().getLocation());
             }
