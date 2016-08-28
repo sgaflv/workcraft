@@ -72,19 +72,19 @@ public class CellAnalyser {
         }
 
         if (dx != 0) {
-            if (!isSameSource(x, y) && isBlockedHorizontally(x, y)) {
+            if (isBlockedHorizontally(x, y)) {
                 return false;
             }
-            if (!isSameSource(targetX, targetY) && isBlockedHorizontally(targetX, targetY)) {
+            if (isBlockedHorizontally(targetX, targetY)) {
                 return false;
             }
         }
 
         if (dy != 0) {
-            if (!isSameSource(x, y) && isBlockedVertically(x, y)) {
+            if (isBlockedVertically(x, y)) {
                 return false;
             }
-            if (!isSameSource(targetX, targetY) && isBlockedVertically(targetX, targetY)) {
+            if (isBlockedVertically(targetX, targetY)) {
                 return false;
             }
         }
@@ -97,15 +97,22 @@ public class CellAnalyser {
     }
 
     private boolean isBlockedHorizontally(int x, int y) {
-        final boolean isBlocked = cells.isMarked(x, y, CellState.HORIZONTAL_BLOCK);
-        final boolean isPrivate = y != destinationPoint.getY() && y != sourcePoint.getY()
+        if (isSameSource(x, y)) {
+            return false;
+        }
+
+        boolean isBlocked = cells.isMarked(x, y, CellState.HORIZONTAL_BLOCK);
+        boolean isPrivate = y != destinationPoint.getY() && y != sourcePoint.getY()
                 && !cells.isMarked(x, y, CellState.HORIZONTAL_PUBLIC);
         return isBlocked || isPrivate;
     }
 
     private boolean isBlockedVertically(int x, int y) {
-        final boolean isBlocked = cells.isMarked(x, y, CellState.VERTICAL_BLOCK);
-        final boolean isPrivate = x != destinationPoint.getX() && x != sourcePoint.getX()
+        if (isSameSource(x, y)) {
+            return false;
+        }
+        boolean isBlocked = cells.isMarked(x, y, CellState.VERTICAL_BLOCK);
+        boolean isPrivate = x != destinationPoint.getX() && x != sourcePoint.getX()
                 && !cells.isMarked(x, y, CellState.VERTICAL_PUBLIC);
         return isBlocked || isPrivate;
     }
@@ -115,14 +122,22 @@ public class CellAnalyser {
             return null;
         }
 
-        if (!cells.isMarked(x, y, CellState.BUSY) && cells.isMarked(x + dx, y + dy, CellState.BUSY)) {
+        if (cells.isMarked(x + dx, y + dy, CellState.BUSY)) {
             return 1000.0;
         }
 
         final boolean hasTurned = (x - lastX) != dx || (y - lastY) != dy;
 
         if (hasTurned) {
-            return 10.0;
+            return 3.0;
+        }
+
+        if (!isBlockedHorizontally(lastX, lastY) && isBlockedHorizontally(x, y)) {
+            return 3.0;
+        }
+
+        if (!isBlockedVertically(lastX, lastY) && isBlockedVertically(x, y)) {
+            return 3.0;
         }
 
         return 1.0;

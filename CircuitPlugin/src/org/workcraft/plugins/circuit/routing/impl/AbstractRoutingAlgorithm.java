@@ -14,7 +14,7 @@ public abstract class AbstractRoutingAlgorithm {
 
     protected CellAnalyser analyser;
     protected RouterTask task;
-    protected CoordinatesRegistry coordinatesPhase1;
+    protected CoordinatesRegistry coordinates;
 
     private UsageCounter usageCounter;
 
@@ -28,13 +28,12 @@ public abstract class AbstractRoutingAlgorithm {
 
         this.task = task;
 
-        coordinatesPhase1 = coordinates;
+        this.coordinates = coordinates;
 
         analyser = new CellAnalyser(coordinates);
 
         List<Route> routes = new ArrayList<>();
         List<List<IndexedPoint>> paths = new ArrayList<List<IndexedPoint>>();
-
 
         for (RouterConnection connection : task.getConnections()) {
             IndexedPoint sourcePoint = coordinates.getIndexedCoordinate(connection.getSource().getLocation());
@@ -74,8 +73,6 @@ public abstract class AbstractRoutingAlgorithm {
         return routes;
     }
 
-
-
     private void markBlockedCells(Route route, CoordinatesRegistry registry) {
 
         RouterCells cells = registry.getRouterCells();
@@ -99,7 +96,7 @@ public abstract class AbstractRoutingAlgorithm {
     protected Route augmentRouteSegments(Route route, List<IndexedPoint> path) {
 
         for (IndexedPoint point : path) {
-            route.add(coordinatesPhase1.getPoint(point.getX(), point.getY()));
+            route.add(coordinates.getPoint(point.getX(), point.getY()));
         }
         return route;
     }

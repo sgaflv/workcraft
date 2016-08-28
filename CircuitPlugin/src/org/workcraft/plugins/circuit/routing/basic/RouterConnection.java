@@ -3,7 +3,7 @@ package org.workcraft.plugins.circuit.routing.basic;
 /**
  * The connection class between two ports, defines one of the routing tasks.
  */
-public final class RouterConnection {
+public final class RouterConnection implements Comparable<RouterConnection> {
     private final RouterPort source;
     private final RouterPort destination;
 
@@ -65,5 +65,21 @@ public final class RouterConnection {
 
     public RouterPort getDestination() {
         return destination;
+    }
+
+    @Override
+    public int compareTo(RouterConnection other) {
+        double dist = Math.abs(source.getLocation().getX() - destination.getLocation().getX())
+                + Math.abs(source.getLocation().getY() - destination.getLocation().getY());
+        double otherDist = Math.abs(other.source.getLocation().getX() - other.destination.getLocation().getX())
+                + Math.abs(other.source.getLocation().getY() - other.destination.getLocation().getY());
+
+        int compare = Double.compare(dist, otherDist);
+
+        if (compare == 0) {
+            compare = source.getLocation().compareTo(other.getSource().getLocation());
+        }
+
+        return compare;
     }
 }

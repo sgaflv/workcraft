@@ -20,7 +20,6 @@ public class RouterCells {
         sourcePorts = new RouterPort[width][height];
     }
 
-
     public void mark(int x1, int y1, int x2, int y2, int value) {
         if (value == 0) {
             return;

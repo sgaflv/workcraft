@@ -33,6 +33,10 @@ public class CoordinatesRegistryBuilder {
             baseRegistry.getYCoords().addCoordinate(yCoord, yUsage);
         }
 
+        registerRectangles(baseRegistry, routerTask);
+
+        registerBoundaries(baseRegistry, routerTask);
+
         registerPorts(baseRegistry, routerTask);
 
         registerObstacleCoordinates(baseRegistry, routerTask);
@@ -48,17 +52,6 @@ public class CoordinatesRegistryBuilder {
 
         CoordinatesRegistry baseRegistry = new CoordinatesRegistry();
 
-        rebuildCoordinates(baseRegistry, routerTask);
-
-        System.out.println("cells: " + baseRegistry.getXCoords().size() * baseRegistry.getYCoords().size() + " ("
-                + baseRegistry.getXCoords().size() + "x" + baseRegistry.getYCoords().size() + ")" + " rectangles:"
-                + routerTask.getRectangles().size() + " connections:" + routerTask.getConnections().size());
-
-        return baseRegistry;
-    }
-
-    private void rebuildCoordinates(CoordinatesRegistry baseRegistry, RouterTask routerTask) {
-
         registerRectangles(baseRegistry, routerTask);
 
         registerBoundaries(baseRegistry, routerTask);
@@ -66,6 +59,12 @@ public class CoordinatesRegistryBuilder {
         registerPorts(baseRegistry, routerTask);
 
         registerObstacleCoordinates(baseRegistry, routerTask);
+
+        System.out.println("cells: " + baseRegistry.getXCoords().size() * baseRegistry.getYCoords().size() + " ("
+                + baseRegistry.getXCoords().size() + "x" + baseRegistry.getYCoords().size() + ")" + " rectangles:"
+                + routerTask.getRectangles().size() + " connections:" + routerTask.getConnections().size());
+
+        return baseRegistry;
     }
 
     private void registerBoundaries(CoordinatesRegistry baseRegistry, RouterTask routerTask) {

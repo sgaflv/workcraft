@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.workcraft.plugins.circuit.routing.basic.Line;
 import org.workcraft.plugins.circuit.routing.basic.Rectangle;
@@ -19,7 +20,7 @@ public class RouterTask {
     private final List<Rectangle> rectangles = new ArrayList<Rectangle>();
     private final List<Line> segments = new ArrayList<>();
     private final Set<RouterPort> ports = new HashSet<>();
-    private final Set<RouterConnection> connections = new HashSet<>();
+    private final Set<RouterConnection> connections = new TreeSet<>();
 
     public void addRectangle(Rectangle rec) {
         rectangles.add(rec);

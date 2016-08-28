@@ -1,6 +1,6 @@
 package org.workcraft.plugins.circuit.routing.basic;
 
-public final class Point {
+public final class Point implements Comparable<Point> {
     private final double x;
     private final double y;
 
@@ -53,6 +53,16 @@ public final class Point {
 
     public double getY() {
         return y;
+    }
+
+    @Override
+    public int compareTo(Point o) {
+        int compare = Double.compare(x, o.x);
+        if (compare == 0) {
+            compare = Double.compare(y, o.y);
+        }
+
+        return compare;
     }
 
 }
