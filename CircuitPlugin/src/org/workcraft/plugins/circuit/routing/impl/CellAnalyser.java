@@ -47,8 +47,16 @@ public class CellAnalyser {
             return false;
         }
 
-        if (isSameSource(x, y) && isSameSource(targetX, targetY)) {
-            return true;
+        if (dx != 0) {
+            if (isSameHorizontalSource(x, y) && isSameHorizontalSource(targetX, targetY)) {
+                return true;
+            }
+        }
+
+        if (dy != 0) {
+            if (isSameVerticalSource(x, y) && isSameVerticalSource(targetX, targetY)) {
+                return true;
+            }
         }
 
         if (targetX == sourcePoint.getX() && targetY == sourcePoint.getY()) {
@@ -67,11 +75,13 @@ public class CellAnalyser {
             }
         }
 
-        if (isSameSource(x, y) && !isSameSource(targetX, targetY)) {
-            return false;
-        }
 
         if (dx != 0) {
+
+            if (isSameHorizontalSource(x, y) && !isSameHorizontalSource(targetX, targetY)) {
+                return false;
+            }
+
             if (isBlockedHorizontally(x, y)) {
                 return false;
             }
@@ -81,6 +91,11 @@ public class CellAnalyser {
         }
 
         if (dy != 0) {
+
+            if (isSameVerticalSource(x, y) && !isSameVerticalSource(targetX, targetY)) {
+                return false;
+            }
+
             if (isBlockedVertically(x, y)) {
                 return false;
             }
@@ -92,12 +107,16 @@ public class CellAnalyser {
         return true;
     }
 
-    private boolean isSameSource(int x, int y) {
-        return sourcePort.equals(cells.getSourcePort(x, y));
+    private boolean isSameVerticalSource(int x, int y) {
+        return sourcePort.equals(cells.getVerticalSourcePort(x, y));
+    }
+
+    private boolean isSameHorizontalSource(int x, int y) {
+        return sourcePort.equals(cells.getHorizontalSourcePort(x, y));
     }
 
     private boolean isBlockedHorizontally(int x, int y) {
-        if (isSameSource(x, y)) {
+        if (isSameHorizontalSource(x, y)) {
             return false;
         }
 
@@ -108,7 +127,7 @@ public class CellAnalyser {
     }
 
     private boolean isBlockedVertically(int x, int y) {
-        if (isSameSource(x, y)) {
+        if (isSameVerticalSource(x, y)) {
             return false;
         }
         boolean isBlocked = cells.isMarked(x, y, CellState.VERTICAL_BLOCK);
@@ -122,25 +141,32 @@ public class CellAnalyser {
             return null;
         }
 
-        if (cells.isMarked(x + dx, y + dy, CellState.BUSY)) {
-            return 1000.0;
+        double cost = 0;
+
+        int targetX = x + dx;
+        int targetY = y + dy;
+        if (cells.isMarked(targetX, targetY, CellState.BUSY)) {
+            cost += 1000.0;
         }
 
         final boolean hasTurned = (x - lastX) != dx || (y - lastY) != dy;
 
         if (hasTurned) {
-            return 3.0;
+            cost += 3.0;
         }
 
         if (!isBlockedHorizontally(lastX, lastY) && isBlockedHorizontally(x, y)) {
-            return 3.0;
+            cost += 3.0;
         }
 
         if (!isBlockedVertically(lastX, lastY) && isBlockedVertically(x, y)) {
-            return 3.0;
+            cost += 3.0;
         }
 
-        return 1.0;
+        cost += coordinatesRegistry.getXCoords().getDistance(x, targetX);
+        cost += coordinatesRegistry.getYCoords().getDistance(y, targetY);
+
+        return cost + 1.0;
     }
 
     public double getHeuristicsCost(int x, int y) {

@@ -13,11 +13,13 @@ public class RouterCells {
     public final int[][] cells;
 
     /** source port related to this cell. */
-    public final RouterPort[][] sourcePorts;
+    public final RouterPort[][] verticalSourcePorts;
+    public final RouterPort[][] horizontalSourcePorts;
 
     public RouterCells(int width, int height) {
         cells = new int[width][height];
-        sourcePorts = new RouterPort[width][height];
+        verticalSourcePorts = new RouterPort[width][height];
+        horizontalSourcePorts = new RouterPort[width][height];
     }
 
     public void mark(int x1, int y1, int x2, int y2, int value) {
@@ -36,13 +38,24 @@ public class RouterCells {
 
         for (int y = y1; y <= y2; y++) {
             for (int x = x1; x <= x2; x++) {
-                sourcePorts[x][y] = sourcePort;
+
+                if (x1 == x2) {
+                    verticalSourcePorts[x][y] = sourcePort;
+                }
+
+                if (y1 == y2) {
+                    horizontalSourcePorts[x][y] = sourcePort;
+                }
             }
         }
     }
 
-    public RouterPort getSourcePort(int x, int y) {
-        return sourcePorts[x][y];
+    public RouterPort getVerticalSourcePort(int x, int y) {
+        return verticalSourcePorts[x][y];
+    }
+
+    public RouterPort getHorizontalSourcePort(int x, int y) {
+        return horizontalSourcePorts[x][y];
     }
 
     public boolean isMarked(int x, int y, int value) {
@@ -82,4 +95,5 @@ public class RouterCells {
     public void unmarkBusy(IndexedInterval hInterval, IndexedInterval vInterval) {
         unmark(hInterval, vInterval, CellState.BUSY);
     }
+
 }

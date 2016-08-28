@@ -115,11 +115,13 @@ public class RouterCellsBuilder {
 
         for (Rectangle rectangle : routerTask.getRectangles()) {
 
-            IndexedInterval xInt = coordinatesRegistry.getXCoords().getIndexedInterval(rectangle.getX(),
-                    rectangle.getX() + rectangle.getWidth());
+            IndexedInterval xInt = coordinatesRegistry.getXCoords().getIndexedIntervalExclusive(
+                    rectangle.getX() - RouterConstants.OBSTACLE_BUSY_MARGIN,
+                    rectangle.getX() + rectangle.getWidth() + RouterConstants.OBSTACLE_BUSY_MARGIN);
 
-            IndexedInterval yInt = coordinatesRegistry.getYCoords().getIndexedInterval(rectangle.getY(),
-                    rectangle.getY() + rectangle.getHeight());
+            IndexedInterval yInt = coordinatesRegistry.getYCoords().getIndexedIntervalExclusive(
+                    rectangle.getY() - RouterConstants.OBSTACLE_BUSY_MARGIN,
+                    rectangle.getY() + rectangle.getHeight() + RouterConstants.OBSTACLE_BUSY_MARGIN);
 
             routerCells.markBusy(xInt, yInt);
         }

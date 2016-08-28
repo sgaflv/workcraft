@@ -281,6 +281,10 @@ public class IndexedCoordinates {
         return getCoordinateByIndex(index).getValue();
     }
 
+    public double getDistance(int idx1, int idx2) {
+        return Math.abs(toCoordinate[idx1].getValue() - toCoordinate[idx2].getValue());
+    }
+
     /**
      * Get coordinate by given index.
      *
