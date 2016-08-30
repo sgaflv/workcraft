@@ -8,8 +8,10 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.workcraft.dom.Node;
 import org.workcraft.dom.visual.VisualComponent;
@@ -39,9 +41,11 @@ public class RouterClient {
 
     private final Router router = new Router();
 
-    private final Map<Node, RouterPort> portMap = new HashMap<Node, RouterPort>();
+    private final Map<VisualContact, RouterPort> portMap = new HashMap<>();
 
     public void registerObstacles(VisualCircuit circuit) {
+
+        portMap.clear();
 
         RouterTask newTask = new RouterTask();
 
@@ -76,11 +80,12 @@ public class RouterClient {
         }
 
         // TODO: use the math model instead
-        for (Entry<Node, RouterPort> entry : portMap.entrySet()) {
-            Node node = entry.getKey();
+        for (Entry<VisualContact, RouterPort> entry : portMap.entrySet()) {
+            VisualContact node = entry.getKey();
             RouterPort source = entry.getValue();
 
-            for (Node nodeDest : circuit.getPostset(node)) {
+            for (VisualContact nodeDest : findDestinations(circuit, node)) {
+
                 RouterPort destination = portMap.get(nodeDest);
 
                 newTask.addConnection(new RouterConnection(source, destination));
@@ -88,6 +93,21 @@ public class RouterClient {
         }
 
         router.setRouterTask(newTask);
+    }
+
+    private Set<VisualContact> findDestinations(VisualCircuit circuit, Node source) {
+        Set<VisualContact> collected = new HashSet<>();
+
+        Set<Node> postSet = circuit.getPostset(source);
+        for (Node node : postSet) {
+            if (node instanceof VisualContact) {
+                collected.add((VisualContact) node);
+            } else {
+                collected.addAll(findDestinations(circuit, node));
+            }
+        }
+
+        return collected;
     }
 
     private PortDirection getDirection(VisualContact contact) {

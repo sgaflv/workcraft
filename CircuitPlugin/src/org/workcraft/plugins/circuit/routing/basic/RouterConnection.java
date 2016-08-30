@@ -9,8 +9,8 @@ public final class RouterConnection implements Comparable<RouterConnection> {
 
     public RouterConnection(RouterPort source, RouterPort destination) {
 
-        assert source != null;
-        assert destination != null;
+        assert source != null : "cannot register connection with unknown source";
+        assert destination != null : "cannot register connection with unknown destination";
 
         this.source = source;
         this.destination = destination;
