@@ -14,9 +14,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.workcraft.dom.Node;
+import org.workcraft.dom.math.MathNode;
 import org.workcraft.dom.visual.VisualComponent;
 import org.workcraft.gui.graph.Viewport;
+import org.workcraft.plugins.circuit.Circuit;
 import org.workcraft.plugins.circuit.CircuitSettings;
+import org.workcraft.plugins.circuit.Contact;
 import org.workcraft.plugins.circuit.VisualCircuit;
 import org.workcraft.plugins.circuit.VisualContact;
 import org.workcraft.plugins.circuit.VisualFunctionComponent;
@@ -41,7 +44,7 @@ public class RouterClient {
 
     private final Router router = new Router();
 
-    private final Map<VisualContact, RouterPort> portMap = new HashMap<>();
+    private final Map<Contact, RouterPort> portMap = new HashMap<>();
 
     public void registerObstacles(VisualCircuit circuit) {
 
@@ -60,7 +63,7 @@ public class RouterClient {
                 Point portPoint = new Point(contact.getX() + component.getX(), contact.getY() + component.getY());
 
                 RouterPort newPort = RouterPort.withFlexibleDirection(getDirection(contact), portPoint);
-                portMap.put(contact, newPort);
+                portMap.put(contact.getReferencedContact(), newPort);
                 newTask.addPort(newPort);
 
                 Line portSegment = internalBoundingBox.getPortSegment(portPoint);
@@ -75,16 +78,15 @@ public class RouterClient {
             RouterPort newPort = RouterPort.withFixedDirection(getDirection(port),
                     new Point(internalBoundingBox.getCenterX(), internalBoundingBox.getCenterY()));
 
-            portMap.put(port, newPort);
+            portMap.put(port.getReferencedContact(), newPort);
             newTask.addPort(newPort);
         }
 
-        // TODO: use the math model instead
-        for (Entry<VisualContact, RouterPort> entry : portMap.entrySet()) {
-            VisualContact node = entry.getKey();
+        for (Entry<Contact, RouterPort> entry : portMap.entrySet()) {
+            Contact node = entry.getKey();
             RouterPort source = entry.getValue();
 
-            for (VisualContact nodeDest : findDestinations(circuit, node)) {
+            for (Contact nodeDest : findDestinations(circuit.getMathModel(), node)) {
 
                 RouterPort destination = portMap.get(nodeDest);
 
@@ -95,15 +97,18 @@ public class RouterClient {
         router.setRouterTask(newTask);
     }
 
-    private Set<VisualContact> findDestinations(VisualCircuit circuit, Node source) {
-        Set<VisualContact> collected = new HashSet<>();
+    private Set<Contact> findDestinations(Circuit circuit, MathNode source) {
+        Set<Contact> collected = new HashSet<>();
 
         Set<Node> postSet = circuit.getPostset(source);
         for (Node node : postSet) {
-            if (node instanceof VisualContact) {
-                collected.add((VisualContact) node);
+
+            assert node instanceof MathNode;
+
+            if (node instanceof Contact) {
+                collected.add((Contact) node);
             } else {
-                collected.addAll(findDestinations(circuit, node));
+                collected.addAll(findDestinations(circuit, (MathNode) node));
             }
         }
 
