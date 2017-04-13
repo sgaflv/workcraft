@@ -80,6 +80,10 @@ public final class RouterConnection implements Comparable<RouterConnection> {
             compare = source.getLocation().compareTo(other.getSource().getLocation());
         }
 
+        if (compare == 0) {
+            compare = destination.getLocation().compareTo(other.getDestination().getLocation());
+        }
+
         return compare;
     }
 }
